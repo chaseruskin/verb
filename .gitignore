@@ -1,4 +1,8 @@
+/docs/book
+
 build/
+.vscode/
+target/
 
 *.egg-info
 __pycache__

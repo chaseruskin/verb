@@ -52,7 +52,7 @@ The following objectives drive the design choices behind building this framework
 
 ## Architecture
 
-![](./docs/system.png)
+![](./docs/src/images/system.png)
 
 The Vertex framework is divided into three main layers.
 
