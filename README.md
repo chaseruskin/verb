@@ -30,7 +30,7 @@ The framework is available as a library (for helping create testbenches).
 
 For the VHDL library, run the following Orbit command:
 ```
-orbit install vertex:latest --url "https://github.com/cdotrus/vertex/archive/refs/heads/stable.zip"
+orbit install vertex --url "https://github.com/cdotrus/vertex/archive/refs/heads/stable.zip"
 ```
 
 ## Motivation

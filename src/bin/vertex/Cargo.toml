@@ -1,0 +1,6 @@
+[package]
+name = "vertex"
+version = "0.1.0"
+description = "A tool for functional verification"
+
+[dependencies]

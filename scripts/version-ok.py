@@ -10,6 +10,7 @@ version = sys.argv[1]
 
 paths = [
     'src/lib/python/pyproject.toml',
+    'src/bin/vertex/Cargo.toml',
     'src/lib/vhdl/Orbit.toml',
 ]
 
