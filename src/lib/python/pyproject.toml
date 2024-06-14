@@ -1,0 +1,13 @@
+[project]
+name = "vertex"
+version = "0.1.0"
+authors = [{ name="Chase Ruskin" }]
+description = "Software drivers for functional verification"
+requires-python = ">=3.8"
+
+[project.urls]
+Homepage = "https://github.com/cdotrus/vertex"
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
