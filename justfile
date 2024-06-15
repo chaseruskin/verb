@@ -6,6 +6,10 @@
 
 VERSION := "0.1.0"
 
+# Test the software library
+test-sw-lib:
+    python -m unittest src/lib/python/vertex/tests/*.py
+
 # Perform an installation of the latest libraries using stable versions.
 user-install:
     just version-ok
