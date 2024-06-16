@@ -1,5 +1,5 @@
 # Project: Vertex
-# Module: lib
+# Module: primitives
 #
 # Implements standard set of common functions.
 

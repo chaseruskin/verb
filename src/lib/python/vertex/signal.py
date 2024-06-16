@@ -1,10 +1,10 @@
 # Project: Vertex
-# Class: Signal
+# Module: signal
 #
 # A Signal carries information.
 
 from enum import Enum as _Enum
-from .lib import pow2m1, pow2, bits as _bits, digits as _digits
+from .primitives import pow2m1, pow2, bits as _bits, digits as _digits
 
 class Mode(_Enum):
     IN  = 0

@@ -1,11 +1,8 @@
-# Project: veriti
+# Project: Vertex
 # Module: coverage
 #
 # This module handles coverage implementations to track coverage nets: 
-# - CoverPoints
-# - CoverRanges
-# - CoverGroups
-# - CoverCrosses
+# CoverPoints, CoverRanges, CoverGroups, and CoverCrosses.
 
 from abc import ABC as _ABC
 from enum import Enum as _Enum

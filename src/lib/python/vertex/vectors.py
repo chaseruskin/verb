@@ -1,3 +1,8 @@
+# Project: Vertex
+# Module: vectors
+#
+# A Vectors contains the test vectors for a particular model.
+
 from . import context
 
 class Vectors:

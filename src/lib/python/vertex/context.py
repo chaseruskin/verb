@@ -3,8 +3,6 @@
 #
 # Handles input/output interface between components outside of the library.
 
-import os
-
 
 def param(key: str, type=str):
     '''
@@ -60,16 +58,17 @@ class Runner:
     _locked = False
 
     def __init__(self, context) -> None:
+        import os as _os
         import json, random
         self._context = context
         self._parameters = []
         self._ports = []
         # set the testbench generics
-        with open(os.path.join(self._context._work_dir, self._context._tb_if_path), 'r') as fd:
+        with open(_os.path.join(self._context._work_dir, self._context._tb_if_path), 'r') as fd:
             data = fd.read()
             self._parameters = json.loads(data)['generics']
         # set the design's ports
-        with open(os.path.join(self._context._work_dir, self._context._dut_if_path), 'r') as fd:
+        with open(_os.path.join(self._context._work_dir, self._context._dut_if_path), 'r') as fd:
             data = fd.read()
             self._ports = json.loads(data)['ports']
         # set the randomness seed
@@ -143,12 +142,14 @@ class Context:
         '''
         Create a new verification environment.
         '''
+        import os as _os
+        
         self._built = False
 
         self._max_test_count = -1
         self._seed = None
 
-        self._work_dir = os.getcwd()
+        self._work_dir = _os.getcwd()
 
         self._tb_if_path = None
         self._dut_if_path = None
