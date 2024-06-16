@@ -124,6 +124,13 @@ class Runner:
         return None
     
 
+    def param_index(self, key: str) -> int:
+        for (i, param) in enumerate(self._parameters):
+            if param['name'] == key:
+                return i
+        return -1
+
+
     def port_index(self, key: str) -> int:
         '''
         Returns the location of the port, if it exists. Returns -1 otherwise.
@@ -133,6 +140,29 @@ class Runner:
                 return i
         return -1
     
+
+    def override_param(self, key: str, value: str) -> str:
+        '''
+        Sets the parameter value and will replace any existing value.
+        '''
+        param = self._parameters[self.param_index(key)]
+        if param == None:
+            return None
+        stale = param['default']
+        param['default'] = str(value)
+        return stale
+    
+
+    def override_port(self, key: str, value: str) -> str:
+        '''
+        Sets the port value and will replace any existing value.
+        '''
+        port = self._ports[self.port_index(key)]
+        if port == None:
+            return None
+        stale = port['default']
+        port['default'] = str(value)
+        return stale
     pass
 
 

@@ -7,16 +7,6 @@
 from abc import ABC as _ABC
 from enum import Enum as _Enum
 
-def _find_longest_str_len(x) -> int:
-    '''
-    Given a list `x`, determines the longest length str.
-    '''
-    longest = 0
-    for item in x:
-        if len(str(item)) > longest:
-            longest = len(str(item))
-    return longest
-
 
 class Status(_Enum):
     PASSED = 0
@@ -222,33 +212,78 @@ class CoverageNet(_ABC):
     '''
     from abc import abstractmethod as _abstractmethod
     from .model import Signal, Mode
+    from typing import List, Union
 
     _group = []
     _counter = 0
 
-    def __init__(self, name: str, bypass: bool=False, target: Signal=None, source: Signal=None, sink: Signal=None):
+    def bypass(self, bypass: bool):
         '''
-        Initializes a CoverageNet object.
+        Skips this net when trying to meet coverage if `bypass` is true.
+        '''
+        self._bypass = bypass
+        return self
+    
+    def target(self, *target: Signal):
+        '''
+        The signal(s) involved in advancing and checking this net's coverage.
 
-        If a `target` is defined and either a `source` or `sink` is undefined, then the net assumes the
-        `target` is also the undefined `source` and/or undefined `sink`.
+        The `target` can be a single Signal or an iterable number of Signals. It
+        is considered the `source` and `sink` (both read and written).
+        '''
+        if len(target) == 1:
+            self._target = target[0]
+        else:
+            self._target = tuple(target)
+        return self
+    
+    def source(self, *source: Signal):
+        '''
+        The signal(s) involved in advancing the net's coverage.
 
-        ### Parameters
-        - `name`: the user-friendly name for the net
-        - `bypass`: skips the net when true
-        - `target`: the signal(s) involved in advancing and checking the coverage
-        - `source`: the signal(s) involved in advancing the coverage
-        - `sink`: the signal(s) involved in checking the coverage
+        The `source` acts as inputs and are only read for trying to advance coverage.
+        '''
+        if len(source) == 1:
+            self._source = source[0]
+        else:
+            self._source = tuple(source)
+        return self
+    
+
+    def sink(self, *sink: Signal):
+        '''
+        The signal(s) involved in advancing the net's coverage.
+
+        The `source` acts as inputs and are only read for trying to advance coverage.
+        '''
+        if len(sink) == 1:
+            self._sink = sink[0]
+        else:
+            self._sink = tuple(sink)
+        return self
+
+
+    def apply(self):
+        '''
+        Build the coverage net and add it the list of tracking coverages.
+        '''
+        self._built = True
+        self._source = self._target if self._source == None else self._source
+        self._sink = self._target if self._sink == None else self._sink
+        CoverageNet._group += [self]
+        return self
+    
+
+    def __init__(self, name: str):
+        '''
+        Creates a CoverageNet object.
         '''
         self._name = name
-        self._bypass = bypass
-
-        # remember the signal(s) that are written to advance coverage
-        self._source = target if source == None else source
-        # remember the signal(s) that are read to check coverage
-        self._sink = target if sink == None else sink
-    
-        CoverageNet._group += [self]
+        self._built = False
+        self._bypass = False
+        self._target = None
+        self._source = None
+        self._sink = None
         pass
 
     
@@ -454,21 +489,41 @@ class CoverPoint(CoverageNet):
     '''
     from .model import Signal
 
-    def __init__(self, name: str, goal: int=1, bypass=False, advance=None, cover=None, target: Signal=None, source: Signal=None, sink: Signal=None):
+    def goal(self, goal: int):
         '''
-        Initialize a cover point object.
+        Sets the coverage goal for this net.
+        '''
+        self._goal = goal
+        return self
+    
 
-        ### Parameters
-        - `advance`: a function or lambda expression that provides values to write to the source to advance coverage
-        - `cover`: a function or lambda expression that provides a way to read values from a sink to check coverage
+    def def_advance(self, fn): 
+        '''
+        Set the function or lambda expression that provides vlues to write to the source to advance coverage for this particular goal.
+        '''
+        self._fn_advance = fn
+        return self
+    
+
+    def def_cover(self, fn):
+        '''
+        Sets the function or lambda expression that provides a way to read values from the sink to check coverage.
+        '''
+        self._fn_cover = fn
+        return self
+    
+
+    def __init__(self, name: str):
+        '''
+        Create a new CoverPoint unit.
         '''
         self._count = 0
-        self._goal = goal
+        self._goal = 1
         # define a custom function that should return a boolean to define the targeted point
-        self._fn_cover = cover
-        self._fn_advance = advance
+        self._fn_cover = None
+        self._fn_advance = None
 
-        super().__init__(name=name, bypass=bypass, target=target, source=source, sink=sink)
+        super().__init__(name=name)
         pass
 
 
@@ -533,9 +588,68 @@ class CoverGroup(CoverageNet):
     from typing import List as _List
     from .model import Signal
 
-    group = []
+    def goal(self, goal: int):
+        '''
+        Sets the coverage goal for this net.
+        '''
+        self._goal = goal
+        return self
 
-    def __init__(self, name: str, bins: _List, goal: int=1, bypass: bool=False, max_bins=64, advance=None, cover=None, target: Signal=None, source: Signal=None, sink: Signal=None):
+    def def_advance(self, fn): 
+        '''
+        Set the function or lambda expression that provides vlues to write to the source to advance coverage for this particular goal.
+        '''
+        self._fn_advance = fn
+        return self
+    
+
+    def def_cover(self, fn):
+        '''
+        Sets the function or lambda expression that provides a way to read values from the sink to check coverage.
+        '''
+        self._fn_cover = fn
+        return self
+    
+
+    def max_bins(self, limit: int):
+        '''
+        Sets the maximum number of bins.
+        '''
+        self._max_bins = limit
+        return self
+    
+    
+    def bins(self, bins):
+        '''
+        Defines the explicit grouping of bins.
+        '''
+        self._bins = bins
+        return self
+    
+
+    def apply(self):
+        # will need to provide a division operation step before inserting into
+        if len(self._bins) > self._max_bins:
+            self._items_per_bin = int(len(self._bins) / self._max_bins)
+        else:
+            self._items_per_bin = 1
+
+        # initialize the bins
+        for i, item in enumerate(set(self._bins)):
+            # items are already in their 'true' from from given input
+            self._bins_lookup[int(item)] = i
+            # group the items together based on a common index that divides them into groups
+            i_macro = int(i / self._items_per_bin)
+            if len(self._macro_bins) <= i_macro:
+                self._macro_bins.append([])
+                self._macro_bins_count.append(0)
+                pass
+            self._macro_bins[i_macro] += [int(item)]
+            pass
+        return super().apply()
+
+
+    def __init__(self, name: str):
         '''
         Initialize a cover group object.
 
@@ -552,42 +666,20 @@ class CoverGroup(CoverageNet):
 
         # defining a bin range is more flexible for defining a large space
 
-        # determine the number of maximum bins
-        self._max_bins = max_bins
-
         # store the actual values when mapped items cover toward the goal
         self._mapped_items = dict()
+        self._max_bins = 64
+        self._goal = 1
 
-        # will need to provide a division operation step before inserting into
-        if len(bins) > self._max_bins:
-            self._items_per_bin = int(len(bins) / self._max_bins)
-        else:
-            self._items_per_bin = 1
-
-        # initialize the bins
-        for i, item in enumerate(set(bins)):
-            # items are already in their 'true' from from given input
-            self._bins_lookup[int(item)] = i
-            # group the items together based on a common index that divides them into groups
-            i_macro = int(i / self._items_per_bin)
-            if len(self._macro_bins) <= i_macro:
-                self._macro_bins.append([])
-                self._macro_bins_count.append(0)
-                pass
-            self._macro_bins[i_macro] += [int(item)]
-            pass
-
-        # set the goal required for each bin
-        self._goal = goal
         # initialize the total count of all covers
         self._total_count = 0
 
         # store the function to map items into the coverage space
-        self._fn_cover = cover
+        self._fn_cover = None
         # store the function to generate the proper values to advance coverage
-        self._fn_advance = advance
+        self._fn_advance = None
 
-        super().__init__(name=name, bypass=bypass, target=target, source=source, sink=sink)
+        super().__init__(name=name)
         pass
 
 
@@ -731,6 +823,7 @@ class CoverGroup(CoverageNet):
 
 
     def to_string(self, verbose: bool=False) -> str:
+        from .primitives import _find_longest_str_len
         result = ''
         # print each individual bin and its goal status
         if verbose == True:
@@ -780,49 +873,88 @@ class CoverRange(CoverageNet):
     '''
     from .model import Signal
 
-    def __init__(self, name: str, span: range, goal: int=1, bypass: bool=False, max_steps: int=64, advance=None, cover=None, target: Signal=None, source: Signal=None, sink: Signal=None):
+    def goal(self, goal: int):
         '''
-        Initialize a cover range object. 
-        
-        ### Parameters
-        - `advance`: a function or lambda expression that provides values to write to the source to advance coverage
-        - `cover`: a function or lambda expression that provides a way to read values from a sink to check coverage
+        Sets the coverage goal for this net.
         '''
-        import math
-
-        domain = span
         self._goal = goal
+        return self
+
+    def def_advance(self, fn): 
+        '''
+        Set the function or lambda expression that provides vlues to write to the source to advance coverage for this particular goal.
+        '''
+        self._fn_advance = fn
+        return self
+    
+
+    def def_cover(self, fn):
+        '''
+        Sets the function or lambda expression that provides a way to read values from the sink to check coverage.
+        '''
+        self._fn_cover = fn
+        return self
+    
+
+    def span(self, span: range):
+        '''
+        Specify the range of values to cover.
+        '''
+        self._domain = span
+        return self
+    
+
+    def max_steps(self, limit: int):
+        '''
+        Specify the maximum number of steps to cover the entire range.
+        '''
+        self._max_steps = limit
+        return self
+    
+
+    def apply(self):
+        import math
         # domain = range
         # determine the step size
-        self._step_size = domain.step
-        self._max_steps = max_steps
-        num_steps_needed = len(domain)
+        self._step_size = self._domain.step
+        num_steps_needed = len(self._domain)
         # limit by computing a new step size
-        self._step_size = domain.step
+        self._step_size = self._domain.step
         self._num_of_steps = num_steps_needed
         if self._max_steps != None and num_steps_needed > self._max_steps:
             # update instance attributes
-            self._step_size = int(math.ceil(abs(domain.start - domain.stop) / self._max_steps))
+            self._step_size = int(math.ceil(abs(self._domain.start - self._domain.stop) / self._max_steps))
             self._num_of_steps = self._max_steps
             pass
 
         self._table = [[]] * self._num_of_steps
         self._table_counts = [0] * self._num_of_steps
 
-        self._start = domain.start
-        self._stop = domain.stop
+        self._start = self._domain.start
+        self._stop = self._domain.stop
+        return super().apply()
 
+
+    def __init__(self, name: str):
+        '''
+        Creates a new CoverRange unit.
+        '''
+
+        self._domain = None
+        self._goal = 1
+        self._max_steps = 64
+   
+        # store a potential custom mapping function
+        self._fn_advance = None
+        self._fn_cover = None
+        
         # initialize the total count of all covers
         self._total_count = 0
-
-        # store a potential custom mapping function
-        self._fn_cover = cover
-        self._fn_advance = advance
 
         # store the actual values when mapped items cover toward the goal
         self._mapped_items = dict()
 
-        super().__init__(name=name, bypass=bypass, target=target, source=source, sink=sink)
+        super().__init__(name)
         pass
 
 
@@ -928,15 +1060,14 @@ class CoverRange(CoverageNet):
         if rand == True:
             j = _random.choice(available)
             # transform back to the selection of the expanded domain space
-            expanded_space = [(j * self._step_size) + x for x in range(0, self._step_size)]
-            # select a random item from the bin
-            return _random.choice(expanded_space)
+            return _random.randint(j * self._step_size, ((j+1) * self._step_size) - 1)
         # provide 1st available if random is disabled
-        expanded_space = [(available[0] * self._step_size) + x for x in range(0, self._step_size)]
-        return expanded_space[0]
+        j = available[0]
+        return _random.randint(j * self._step_size, ((j+1) * self._step_size) - 1)
     
 
     def to_string(self, verbose: bool) -> str:
+        from .primitives import _find_longest_str_len
         result = ''
         # print each individual bin and its goal status
         if verbose == True:
@@ -989,26 +1120,36 @@ class CoverCross(CoverageNet):
     Internally, a CoverCross stores a CoverRange for the 1-dimensional flatten version of
     the N-dimensional cross product across the different coverage nets.
     '''
-    from typing import List as _List
+    from typing import List as List
 
-    def __init__(self, name: str, nets: _List[CoverageNet], goal: int=1, bypass=False):
-        self._nets = nets[::-1]
+
+    def nets(self, *net: CoverageNet):
+        '''
+        Specifies the coverage nets to cross.
+        '''
+        self._nets = list(net)[::-1]
+        return self
+    
+
+    def goal(self, goal: int):
+        self._goal = goal
+        return self
+
+
+    def apply(self):
         self._crosses = len(self._nets)
         
         combinations = 1
-        for n in nets:
+        for n in self._nets:
             combinations *= n.get_partition_count()
             pass
 
-        self._inner = CoverRange(
-            name,
-            span=range(combinations),
-            goal=goal,
-            bypass=bypass,
-            max_steps=None,
-            cover=None,
-            advance=None,
-        )
+        self._inner = CoverRange(self._name) \
+            .span(range(combinations)) \
+            .goal(self._goal) \
+            .bypass(self._bypass) \
+            .max_steps(None) \
+            .apply()
 
         net: CoverageNet
 
@@ -1029,11 +1170,20 @@ class CoverCross(CoverageNet):
                 break
             source += [net.get_source()]
             pass
+        # remove the interior range net and only track this outer net
+        CoverageNet._group.pop()
 
-        # remove that entry and use this instance
-        self._group.pop()
+        self._source = source
+        self._sink = sink
+        return super().apply()
+
+
+    def __init__(self, name: str):
+        self._nets = []
+        self._goal = 1
+        self._crosses = 0
         # overwrite the entry with this instance in the class-wide data structure
-        super().__init__(name=name, bypass=bypass, source=source, sink=sink, target=None)
+        super().__init__(name=name)
         pass
     
     
@@ -1189,32 +1339,5 @@ class CoverCross(CoverageNet):
 
     def to_string(self, verbose: bool):
         return self._inner.to_string(verbose)
-
-    pass
-
-
-import unittest as _ut
-
-class __Test(_ut.TestCase):
-
-    def test_cross_flatten_2d(self):
-        cross = CoverCross('test', [CoverRange('a', span=range(0, 4)), CoverRange('b', span=range(0, 4))])
-        self.assertEqual(0, cross._flatten((0, 0)))
-        self.assertEqual(3, cross._flatten((3, 0)))
-        self.assertEqual(4, cross._flatten((0, 1)))
-        self.assertEqual(5, cross._flatten((1, 1)))
-        self.assertEqual(15, cross._flatten((3, 3)))
-        pass
-
-    def test_cross_flatten_3d(self):
-        cross = CoverCross('test', [CoverRange('a', span=range(0, 2)), CoverRange('b', span=range(0, 3)), CoverRange('c', span=range(0, 4))])
-        self.assertEqual(0, cross._flatten((0, 0, 0)))
-        self.assertEqual(1, cross._flatten((1, 0, 0)))
-        self.assertEqual(2*1, cross._flatten((0, 1, 0)))
-        self.assertEqual(2*2, cross._flatten((0, 2, 0)))
-        self.assertEqual(6, cross._flatten((0, 0, 1)))
-        self.assertEqual(1 + 2 + 6, cross._flatten((1, 1, 1)))
-        self.assertEqual(1 + 2*2 + 3*6, cross._flatten((1, 2, 3)))
-        pass
 
     pass

@@ -37,13 +37,11 @@ parser.add_argument('--relax', action='store_true', help='relax semantic rules f
 parser.add_argument('--exit-on', action='store', default='error', metavar='LEVEL', help='select severity level to exit on (default: error)')
 
 parser.add_argument('--skip-model', action='store_true', help='skip execution of a design model (if exists)')
-parser.add_argument('--import', dest='import_lib', action='store', default='none', metavar='PACKAGE', choices=['vertex', 'none'], help='add-on a verification library')
 parser.add_argument('--seed', action='store', type=int, nargs='?', default=None, const=random.randrange(sys.maxsize), metavar='NUM', help='set the randomness seed')
-parser.add_argument('--max-tests', action='store', type=int, default=-1, help='specify the limit of tests before timing out')
+parser.add_argument('--max-tests', action='store', type=int, default=10_000, help='specify the limit of tests before timing out')
 
 args = parser.parse_args()
 
-ADD_ON = str(args.import_lib)
 MAX_TESTS = int(args.max_tests)
 SKIP_MODEL = bool(args.skip_model)
 IS_RELAXED = bool(args.relax)
@@ -60,12 +58,6 @@ GHDL_OPTS += ['--std='+STD_VHDL]
 
 if IS_RELAXED == True:
     GHDL_OPTS += ['-frelaxed']
-
-USE_VERTEX = ADD_ON == 'vertex'
-
-# import and use the veriti library
-if USE_VERTEX == True:
-    import vertex
 
 # [STEP]: Read blueprint
 
@@ -110,32 +102,35 @@ if LINT_ONLY == True:
 # [STEP]: Run the design model to generate test vectors
 
 if HAS_MODEL == True and SKIP_MODEL == False:
-    if USE_VERTEX == True:
-        import vertex
+    import vertex
 
-        ORBIT_BENCH = Env.read("ORBIT_BENCH", missing_ok=False)
-        ORBIT_TOP = Env.read("ORBIT_TOP", missing_ok=False)
+    ORBIT_BENCH = Env.read("ORBIT_BENCH", missing_ok=False)
+    ORBIT_TOP = Env.read("ORBIT_TOP", missing_ok=False)
 
-        # export the interfaces using orbit to get the json data format
-        design_if = Command("orbit").arg("get").arg(ORBIT_TOP).arg("--json").output()[0]
-        bench_if = Command("orbit").arg("get").arg(ORBIT_BENCH).arg("--json").output()[0]
-        
-        tb_if_path = ORBIT_TOP + '_tb_if.json'
-        dut_if_path = ORBIT_TOP + '_if.json'
-        
-        with open(tb_if_path, 'w') as fd:
-            fd.write(bench_if)
-        
-        with open(dut_if_path, 'w') as fd:
-            fd.write(design_if)
+    # export the interfaces using orbit to get the json data format
+    design_if = Command("orbit").arg("get").arg(ORBIT_TOP).arg("--json").output()[0]
+    bench_if = Command("orbit").arg("get").arg(ORBIT_BENCH).arg("--json").output()[0]
+    
+    tb_if_path = ORBIT_BENCH + '_if.json'
+    dut_if_path = ORBIT_TOP + '_if.json'
+    
+    with open(tb_if_path, 'w') as fd:
+        fd.write(bench_if)
+    
+    with open(dut_if_path, 'w') as fd:
+        fd.write(design_if)
 
-        vertex.context.Context() \
-            .coverage_report('coverage.txt') \
-            .tb_interface(tb_if_path) \
-            .dut_interface(dut_if_path) \
-            .max_test_count(MAX_TESTS) \
-            .seed(SEED) \
-            .lock()
+    vertex.context.Context() \
+        .coverage_report('coverage.txt') \
+        .tb_interface(tb_if_path) \
+        .dut_interface(dut_if_path) \
+        .max_test_count(MAX_TESTS) \
+        .seed(SEED) \
+        .lock()
+    
+    # update all parameters that were set on the command-line
+    for g in GENERICS:
+        vertex.context.Context.current().override_param(g.key, g.val)
         pass
 
     import runpy, sys, os
@@ -165,21 +160,20 @@ status: Status = Command('ghdl') \
     .spawn(verbose=False)
 
 status.unwrap()
+print('info: Simulation complete')
 
 # [STEP]: Analyze results from runnning simulation
 
 rc: int = 0
 
-if ADD_ON == 'none':
-    print('info: Simulation complete')
-    pass
-elif USE_VERTEX == True:
+if HAS_MODEL == True:
     print("info: Coverage report saved at:", os.path.join(os.getcwd(), vertex.coverage.report_path()))
     # print("info: Simulation history saved at:", vertex.log.get_event_log_path())
     print("info: Computing results ...")
     print("info: Coverage score:", vertex.coverage.report_score())
     # print("info: Simulation score:", vertex.log.report_score())
-    # rc = 0 if veriti.log.check() == True and veriti.coverage.check() == True else 101
+
+    # rc = 0 if vertex.log.check() == True and vertex.coverage.check() == True else 101
     pass
 
 exit(rc)

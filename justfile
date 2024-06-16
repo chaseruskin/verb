@@ -8,8 +8,8 @@ VERSION := "0.1.0"
 
 # A full end-to-end test
 test MOD:
-    cd examples/add; orbit plan --clean --plugin gvsim --top {{MOD}}
-    cd examples/add; orbit b -- --import vertex
+    cd examples/add; orbit plan --clean --plugin gvert --top {{MOD}}
+    cd examples/add; orbit b --
 # vertex check ./build/gsim/events.log --coverage ./build/gsim/coverage.txt
 
 # Test the software library

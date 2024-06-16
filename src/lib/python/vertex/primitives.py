@@ -139,3 +139,14 @@ def digits(data, signed: bool=False) -> int:
         result = int('0b'+bits, base=2)
 
     return result
+
+
+def _find_longest_str_len(x) -> int:
+    '''
+    Given a list `x`, determines the longest length str.
+    '''
+    longest = 0
+    for item in x:
+        if len(str(item)) > longest:
+            longest = len(str(item))
+    return longest

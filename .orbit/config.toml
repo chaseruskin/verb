@@ -1,16 +1,16 @@
 [[plugin]]
-name   = "gvsim"
-description = "Simulations with ghdl and vertex"
+name   = "gvert"
+description = "Simulations with ghdl and vertex verification"
 command = "python"
-args    = ["./gvsim.py"]
+args    = ["./gvert.py"]
 fileset.py-model = "{{ orbit.bench }}.py"
 explanation = """
 Analyzes and simulates a testbench with GHDL. This plugin supports running
-a design model in Python to generate test vectors, and optionally specifying
-a verification library to use.
+a design model in Python to generate test vectors using the Vertex verification
+framework.
 
 Help:
-    orbit build --plugin gvsim --force -- --help
+    orbit build --plugin gvert --force -- --help
 
 Environment:
     ORBIT_ENV_GHDL_PATH             Filesystem path specifying GHDL binary
