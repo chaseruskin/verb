@@ -18,9 +18,9 @@ url = "https://github.com/cdotrus/vertex/archive/refs/tags/0.1.0.zip"
 dependencies = ["amp:1.0.0"]
 
 [[ip]]
-name = "vertex-example-add"
+name = "vertex-example-bcd"
 version = "0.0.0"
-uuid = "141a8bff-d9ca-44b9-92f3-ffef5dea2f1e"
+uuid = "842c4a8b-0694-480f-af62-480859cbcf1f"
 dependencies = [
     "amp:1.0.0",
     "vertex:0.1.0",

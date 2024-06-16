@@ -16,12 +16,6 @@ use std.textio.all;
 
 package events is
 
-  -- The log level type.
-  type lvlog is (TRACE, DEBUG, INFO, WARN, ERROR, FATAL);
-
-  -- Returns the default name for the event log, which is "events.log".
-  function default_events_log return str;
-
   -- Captures an event during simulation and writes the outcome to the file `fd`.
   -- The time when the procedure is called is recorded in the timestamp.
   procedure log_event(file fd: text; level: lvlog; topic: str; why: str; how: str := "");
@@ -44,14 +38,13 @@ package events is
   -- Checks that the logic bit `flag` is activated (active-low) before timing out after `cycles` clock cycles.
   procedure monitor_l(file fd: text; signal clk: logic; signal flag: logic; cycles: usize; variable timeout: out bool; details: str := "");
 
+  -- The log level type.
+  type lvlog is (TRACE, DEBUG, INFO, WARN, ERROR, FATAL);
+
 end package;
 
 
 package body events is
-
-  function default_events_log return str is begin
-    return "events.log";
-  end function;
 
   procedure log_event(file fd: text; level: lvlog; topic: str; why: str; how: str := "") is
     variable row: line;

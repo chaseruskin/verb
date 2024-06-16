@@ -37,7 +37,7 @@ architecture sim of add_tb is
     --! declare internal required testbench signals
     constant TIMEOUT_LIMIT: usize := 1_000;
 
-    file events: text open write_mode is default_events_log;
+    file events: text open write_mode is "events.log";
 
 begin
     -- instantiate UUT
