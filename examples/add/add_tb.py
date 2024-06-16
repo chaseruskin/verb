@@ -11,17 +11,6 @@ import random
 from vertex.context import *
 from vertex.model import *
 from vertex.coverage import *
-from vertex.vectors import *
-
-# also allow to specify the set of command-line arguments
-# .param_args(sys.argv) \
-c = Context() \
-    .tb_interface('add_tb_if.json') \
-    .dut_interface('add_if.json') \
-    .coverage_report('coverage.txt') \
-    .max_test_count(10000) \
-    .seed(0) \
-    .build()
 
 # define the functional model
 class Add:
@@ -50,7 +39,7 @@ class Add:
     pass
 
 
-add = Add(width=c.param('WORD_SIZE', type=int))
+add = Add(width=context.param('WORD_SIZE', type=int))
 
 # Specify coverage areas
 

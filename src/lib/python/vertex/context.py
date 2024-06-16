@@ -5,9 +5,59 @@
 
 import os
 
+
+def param(key: str, type=str):
+    '''
+    Accesses the generic based upon the provided `key`.
+
+    Define a type to help with converting to a Python-friendly datatype, as all
+    generics are initially stored as `str`.
+    '''
+    from . import cast
+    # verify the key exists
+    value: dict
+    for param in Context.current()._parameters:
+        if param['name'] == key:
+            value = param['default']
+            break
+    else:
+        all_keys = ''
+        for param in Context.current()._parameters:
+            all_keys += str(param['name']) + ', '
+        if len(all_keys) > 0:
+            all_keys = all_keys[:len(all_keys)-2]
+        raise Exception('unknown parameter "'+key+'" (possible values: ' + all_keys + ')')
+    if type == int:
+        value = cast.from_vhdl_int(value)
+    elif type == bool:
+        value = cast.from_vhdl_bool(value)
+    elif type == str:
+        value = cast.from_vhdl_str(value)
+    elif type == [int]:
+        value = cast.from_vhdl_ints(value)
+    elif type == [bool]:
+        value = cast.from_vhdl_bools(value)
+    elif type == [str]:
+        value = cast.from_vhdl_strs(value)
+    else:
+        raise Exception('unsupported casting for generic "'+key+'" to type: ' + str(type))
+    return value
+
+
+def port(key: str) -> dict:
+    '''
+    Finds the first index that has a port with a name equal to `key`.
+    '''
+    for port in Context.current()._ports:
+        if port['name'] == key:
+            return port
+    return None
+
+
 class Runner:
 
     _current = None
+    _locked = False
 
     def __init__(self, context) -> None:
         import json, random
@@ -140,13 +190,22 @@ class Context:
         Sets the random number generation seed.
         '''
         if self._built == True: return self
-        self._seed = int(value)
+        self._seed = value
         return self
 
 
+    def lock(self) -> Runner:
+        self._built = True
+        if Runner._locked == False:
+            Runner._current = Runner(self)
+            Runner._locked = True
+        return Runner._current
+    
+
     def build(self) -> Runner:
         self._built = True
-        Runner._current = Runner(self)
+        if Runner._locked == False:
+            Runner._current = Runner(self)
         return Runner._current
     
 
