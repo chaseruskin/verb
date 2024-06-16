@@ -99,6 +99,8 @@ class Signal:
         # store internal raw value
         self._raw_data = data
 
+        self.data = None 
+
         # set the signal's mode
         self._mode = mode if isinstance(mode, Mode) else Mode.from_str(str(mode))
         self._inferred_mode = None
@@ -210,7 +212,17 @@ class Signal:
         if temp_int < self.min() or temp_int > self.max():
             raise ValueError("value out of bounds " + str(temp_int) + " must be between " + str(self.min()) + " and " + str(self.max()))
         self._raw_data = data
-        pass
+        return self
+    
+
+    def __setattr__(self, name, value):
+        if name == "data":
+            if value != None:
+                self.store(value)
+            if value == None:
+                self._raw_data = 0
+        else:
+            self.__dict__[name] = value
 
     
     def bits(self) -> str:

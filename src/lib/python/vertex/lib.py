@@ -56,7 +56,6 @@ def bits(data, width: int=None, trunc: bool=True, endianness: str='big', signed:
         raise ValueError("expected endianness to be 'big' or 'little' but got " + str(endianness))
     is_big_endian = str(endianness).lower() == 'big'
 
-    flip_msb_on_overflow = False
     logic_vec = ''
     # handle vector of ints (1s and 0s)
     if isinstance(data, list) == True:
@@ -111,11 +110,11 @@ def digits(data, signed: bool=False) -> int:
     the sequence).
     
     ### Parameters
-    - `b`: binary string to convert (example: '011101')
+    - `data`: binary string to convert (example: '011101')
     - `signed`: apply two's complement when MSB = '1' during conversion
 
     ### Returns
-    - `b` as integer form (decimal)
+    - `data` as integer form (decimal)
     '''
     bits = ''
     if isinstance(data, int) == True:

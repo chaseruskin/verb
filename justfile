@@ -8,7 +8,7 @@ VERSION := "0.1.0"
 
 # Test the software library
 test-sw-lib:
-    python -m unittest src/lib/python/vertex/tests/*.py
+    python -m unittest src/lib/python/tests/*.py
 
 # Perform an installation of the latest libraries using stable versions.
 user-install:
@@ -34,3 +34,7 @@ version-ok:
 # Updates the agglomerated VHDL package.
 agglo-vhdl:
     python scripts/agglomerate.py
+
+# Example
+ex-adder:
+    python examples/add/add_tb.py

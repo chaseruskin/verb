@@ -1,0 +1,15 @@
+{
+  "entity": "add_tb",
+  "generics": [
+    {
+      "name": "WORD_SIZE",
+      "mode": "in",
+      "type": "psize",
+      "default": "16"
+    }
+  ],
+  "ports": [],
+  "architectures": [
+    "sim"
+  ]
+}
