@@ -1,5 +1,5 @@
 # Project: Vertex
-# Plugin: vgsim
+# Plugin: gvert
 # References: https://github.com/ghdl/ghdl
 #
 # Defines a common workflow for working with the GHDL simulator and software
