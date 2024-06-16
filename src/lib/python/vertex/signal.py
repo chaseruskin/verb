@@ -6,7 +6,6 @@
 from enum import Enum as _Enum
 from .lib import pow2m1, pow2, bits as _bits, digits as _digits
 
-
 class Mode(_Enum):
     IN  = 0
     OUT = 1
@@ -18,13 +17,13 @@ class Mode(_Enum):
     @staticmethod
     def from_str(s: str):
         s = s.lower()
-        if s == 'in':
+        if s == 'in' or s == 'i':
             return Mode.IN
-        elif s == 'out':
+        elif s == 'out' or s == 'o':
             return Mode.OUT
-        elif s == 'inout':
+        elif s == 'inout' or s == 'io':
             return Mode.INOUT
-        elif s == 'local':
+        elif s == 'local' or s == 'l':
             return Mode.LOCAL
         else:
             raise Exception('failed to convert str '+s+' to type Mode')
@@ -113,7 +112,7 @@ class Signal:
         self._is_signed = bool(signed)
 
         # explicitly set the signal's name
-        self._name = str(name)
+        self._name = name
 
         if distribution != None:
             if isinstance(distribution, Distribution) == False and isinstance(distribution, list) == False:

@@ -7,8 +7,10 @@ import os
 
 class Runner:
 
+    _current = None
+
     def __init__(self, context) -> None:
-        import json
+        import json, random
         self._context = context
         self._parameters = []
         self._ports = []
@@ -20,6 +22,8 @@ class Runner:
         with open(os.path.join(self._context._work_dir, self._context._dut_if_path), 'r') as fd:
             data = fd.read()
             self._ports = json.loads(data)['ports']
+        # set the randomness seed
+        random.seed(context._seed)
         pass
 
 
@@ -65,24 +69,25 @@ class Runner:
         '''
         Finds the first index that has a port with a name equal to `key`.
         '''
-        for (i, port) in enumerate(self._ports):
+        for port in self._ports:
             if port['name'] == key:
                 return port
         return None
     
 
-    def get_port_by_index(self, i: int) -> dict:
+    def port_index(self, key: str) -> int:
         '''
-        Access the port element at the `i`th index.
+        Returns the location of the port, if it exists. Returns -1 otherwise.
         '''
-        return self._ports[i]
+        for (i, port) in enumerate(self._ports):
+            if port['name'] == key:
+                return i
+        return -1
     
     pass
 
 
 class Context:
-
-    _current = None
 
     def __init__(self) -> None:
         '''
@@ -90,7 +95,7 @@ class Context:
         '''
         self._built = False
 
-        self._max_test_count = None
+        self._max_test_count = -1
         self._seed = None
 
         self._work_dir = os.getcwd()
@@ -141,16 +146,24 @@ class Context:
 
     def build(self) -> Runner:
         self._built = True
-        Context._current = self
-        return Runner(self)
+        Runner._current = Runner(self)
+        return Runner._current
     
 
-    def coverage_report(self, path: str) -> str:
+    def coverage_report(self, path: str):
         '''
         Sets the path of the coverage report file.
         '''
         if self._built == True: return self
         self._coverage_report = str(path)
         return self
+    
+
+    @staticmethod
+    def current() -> Runner:
+        '''
+        Reference the current context being ran.
+        '''
+        return Runner._current
     
     pass

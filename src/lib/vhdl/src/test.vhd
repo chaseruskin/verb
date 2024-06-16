@@ -19,6 +19,9 @@ package test is
   -- The log level type.
   type lvlog is (TRACE, DEBUG, INFO, WARN, ERROR, FATAL);
 
+  -- Returns the default name for the event log, which is "events.log".
+  function default_events_log return str;
+
   -- Captures an event during simulation and writes the outcome to the file `fd`.
   -- The time when the procedure is called is recorded in the timestamp.
   procedure log_event(file fd: text; level: lvlog; topic: str; why: str; how: str := "");
@@ -88,6 +91,10 @@ package test is
 end package;
 
 package body test is
+
+  function default_events_log return str is begin
+    return "events.log";
+  end function;
 
   procedure log_event(file fd: text; level: lvlog; topic: str; why: str; how: str := "") is
     variable row: line;

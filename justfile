@@ -6,6 +6,12 @@
 
 VERSION := "0.1.0"
 
+# A full end-to-end test
+test MOD:
+    cd examples/add; orbit plan --clean --plugin gsim --top {{MOD}}
+    cd examples/add; orbit b -- --add-on vertex
+# vertex check ./build/gsim/events.log --coverage ./build/gsim/coverage.txt
+
 # Test the software library
 test-sw-lib:
     python -m unittest src/lib/python/tests/*.py
