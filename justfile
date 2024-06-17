@@ -16,6 +16,12 @@ test MOD *FLAGS:
 test-sw-lib:
     python -m unittest src/lib/python/tests/*.py
 
+# Test the hardware library
+test-hw-lib:
+    just agglo-vhdl
+    cd src/lib/vhdl; orbit plan --clean --top basic --plugin gvert
+    cd src/lib/vhdl; orbit b --
+
 # Perform an installation of the latest libraries using stable versions.
 user-install:
     just version-ok

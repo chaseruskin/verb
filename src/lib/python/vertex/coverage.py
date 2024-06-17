@@ -50,14 +50,12 @@ class Coverage:
         Coverage.save()
         return True
 
-
     @staticmethod
     def get_nets():
         '''
         Returns the list of all coverage nets being tracked.
         '''
         return CoverageNet._group
-    
 
     @staticmethod
     def get_failing_nets():
@@ -75,7 +73,6 @@ class Coverage:
             pass
         return result
 
-
     @staticmethod
     def report(verbose: bool=True) -> str:
         '''
@@ -87,7 +84,6 @@ class Coverage:
         for cov in CoverageNet._group:
             contents += cov.log(verbose) + '\n'
         return contents
-    
 
     @staticmethod
     def count() -> int:
@@ -99,7 +95,6 @@ class Coverage:
         '''
         return CoverageNet._counter
     
-
     @staticmethod
     def tally_score():
         '''
@@ -123,7 +118,6 @@ class Coverage:
                 Coverage._passed_coverages += 1
             pass
 
-
     @staticmethod
     def percent() -> float:
         '''
@@ -139,7 +133,6 @@ class Coverage:
         passed = Coverage._goals_met
         total = Coverage._total_points
         return round((passed/total) * 100.0, 2) if total > 0 else None
-
 
     @staticmethod
     def save() -> str:
@@ -168,7 +161,6 @@ class Coverage:
             f.write(Coverage.report(True))
             pass
         return os.path.abspath(path)
-
 
     @staticmethod
     def summary() -> str:
@@ -262,7 +254,6 @@ class CoverageNet(_ABC):
             self._sink = tuple(sink)
         return self
 
-
     def apply(self):
         '''
         Build the coverage net and add it the list of tracking coverages.
@@ -272,7 +263,6 @@ class CoverageNet(_ABC):
         self._sink = self._target if self._sink == None else self._sink
         CoverageNet._group += [self]
         return self
-    
 
     def __init__(self, name: str):
         '''
@@ -286,7 +276,6 @@ class CoverageNet(_ABC):
         self._sink = None
         pass
 
-    
     def has_sink(self) -> bool:
         '''
         Checks if the net is configured with a set of signal(s) to read from
@@ -294,14 +283,12 @@ class CoverageNet(_ABC):
         '''
         return self._sink != None
     
-
     def has_source(self) -> bool:
         '''
         Checks if the net is configured with a set of signal(s) to write to
         to advance coverage.
         '''
         return self._source != None
-    
 
     def get_sink_list(self):
         '''
@@ -323,7 +310,6 @@ class CoverageNet(_ABC):
 
         return self._sink_list
 
-
     def get_source_list(self):
         '''
         Returns an iterable object of the signals to be written for advancing coverage.
@@ -341,23 +327,19 @@ class CoverageNet(_ABC):
             else:
                 self._source_list = list(self._source)
             pass
-
         return self._source_list
-    
 
     def get_sink(self):
         '''
         Returns the object that has reading permissions to check coverage.
         '''
         return self._sink
-    
 
     def get_source(self):
         '''
         Returns the object that has writing permissions to advance coverage.
         '''
         return self._source
-
 
     @_abstractmethod
     def get_range(self) -> range:
@@ -366,14 +348,12 @@ class CoverageNet(_ABC):
         '''
         pass
     
-
     @_abstractmethod
     def get_partition_count(self) -> int:
         '''
         Returns the number of unique partitions required to cover the entire sample space.
         '''
         pass
-
 
     @_abstractmethod
     def is_in_sample_space(self, item) -> bool:
@@ -382,7 +362,6 @@ class CoverageNet(_ABC):
         '''
         pass
     
-
     @_abstractmethod
     def _map_onto_range(self, item) -> int:
         '''
@@ -391,7 +370,6 @@ class CoverageNet(_ABC):
         If there is no possible mapping, return None.
         '''
         pass
-
 
     @_abstractmethod
     def cover(self, item) -> bool:
@@ -403,7 +381,6 @@ class CoverageNet(_ABC):
         '''
         pass
 
-
     @_abstractmethod
     def advance(self, rand=False):
         '''
@@ -414,7 +391,6 @@ class CoverageNet(_ABC):
         '''
         pass
 
-
     @_abstractmethod
     def get_points_met(self) -> int:
         '''
@@ -422,14 +398,12 @@ class CoverageNet(_ABC):
         '''
         pass
 
-
     @_abstractmethod
     def passed(self) -> bool:
         '''
         Returns `True` if the coverage met its goal.
         '''
         pass
-
 
     def log(self, verbose: bool=True) -> str:
         '''
@@ -452,14 +426,12 @@ class CoverageNet(_ABC):
         else:
             return label + ": " + self._name + ':' + ' ...'+str(self.status().name) + '\n    ' + self.to_string(verbose)
 
-
     def skipped(self) -> bool:
         '''
         Checks if this coverage is allowed to be bypassed during simulation due
         to an external factor making it impossible to pass.
         '''
         return self._bypass 
-    
 
     def status(self) -> Status:
         '''
@@ -470,8 +442,7 @@ class CoverageNet(_ABC):
         elif self.passed() == True:
             return Status.PASSED
         else:
-            return Status.FAILED
-        
+            return Status.FAILED  
 
     @_abstractmethod
     def to_string(self, verbose: bool) -> str:
@@ -526,36 +497,29 @@ class CoverPoint(CoverageNet):
         super().__init__(name=name)
         pass
 
-
     def _transform(self, item):
         return item if self._fn_cover == None else self._fn_cover(item)
-
 
     def is_in_sample_space(self, item) -> bool:
         mapped_item = int(self._transform(item))
         return mapped_item >= 0 and mapped_item < 2
-    
 
     def _map_onto_range(self, item) -> int:
         if self.is_in_sample_space(item) == False:
             return None
         return int(self._transform(item))
-    
 
     def get_range(self) -> range:
         return range(0, 2, 1)
     
-
     def get_partition_count(self) -> int:
         return 2
     
-
     def get_points_met(self) -> int:
         '''
         Returns the number of points that have met their goal.
         '''
         return 1 if self._count >= self._goal else 0
-
 
     def cover(self, item):
         '''
@@ -569,14 +533,11 @@ class CoverPoint(CoverageNet):
             self._count += 1
         return cond
     
-
     def advance(self, rand=False):
         return int(True) if self._fn_advance == None else self._fn_advance(self._source)
 
-
     def passed(self):
         return self._count >= self._goal
-    
 
     def to_string(self, verbose: bool):
         return str(self._count) + '/' + str(self._goal)
@@ -618,7 +579,6 @@ class CoverGroup(CoverageNet):
         self._max_bins = limit
         return self
     
-    
     def bins(self, bins):
         '''
         Defines the explicit grouping of bins.
@@ -626,7 +586,6 @@ class CoverGroup(CoverageNet):
         self._bins = bins
         return self
     
-
     def apply(self):
         # will need to provide a division operation step before inserting into
         if len(self._bins) > self._max_bins:
@@ -647,7 +606,6 @@ class CoverGroup(CoverageNet):
             self._macro_bins[i_macro] += [int(item)]
             pass
         return super().apply()
-
 
     def __init__(self, name: str):
         '''
@@ -682,37 +640,30 @@ class CoverGroup(CoverageNet):
         super().__init__(name=name)
         pass
 
-
     def _transform(self, item):
         return int(item if self._fn_cover == None else self._fn_cover(item))
-
 
     def is_in_sample_space(self, item) -> bool:
         return self._bins_lookup.get(self._transform(item)) != None
     
-
     def _map_onto_range(self, item) -> int:
         if self.is_in_sample_space(item) == False:
             return None
         return int(self._bins_lookup[self._transform(item)])
-    
 
     def get_range(self) -> range:
         return range(0, len(self._bins_lookup.keys()), self._items_per_bin)
     
-
     def get_partition_count(self) -> int:
         # the real number of partitions of the sample space
         return len(self._macro_bins)
     
-
     def _get_macro_bin_index(self, item) -> int:
         '''
         Returns the macro index for the `item` according to the bin division.
         '''
         return int(self._bins_lookup[item] / self._items_per_bin)
     
-
     def cover(self, item):
         '''
         Return's true if it got the entire group closer to meeting coverage.
@@ -742,7 +693,6 @@ class CoverGroup(CoverageNet):
             pass
         return is_progress
     
-
     def get_points_met(self) -> int:
         points_met = 0
         for count in self._macro_bins_count:
@@ -750,7 +700,6 @@ class CoverGroup(CoverageNet):
                 points_met += 1
         return points_met
     
-
     def advance(self, rand=False):
         '''
         Returns the next item currently not meeting the coverage goal.
@@ -788,7 +737,6 @@ class CoverGroup(CoverageNet):
         i_macro = available[0]
         return self._macro_bins[i_macro][0]
 
-    
     def passed(self) -> bool:
         '''
         Checks if each bin within the `CoverGroup` has met or exceeded its goal. 
@@ -800,7 +748,6 @@ class CoverGroup(CoverageNet):
                 return False
         return True
     
-
     def _macro_to_string(self, i) -> str:
         '''
         Write a macro_bin as a string.
@@ -820,7 +767,6 @@ class CoverGroup(CoverageNet):
             pass
         result += ']'
         return result
-
 
     def to_string(self, verbose: bool=False) -> str:
         from .primitives import _find_longest_str_len
@@ -887,7 +833,6 @@ class CoverRange(CoverageNet):
         self._fn_advance = fn
         return self
     
-
     def def_cover(self, fn):
         '''
         Sets the function or lambda expression that provides a way to read values from the sink to check coverage.
@@ -895,14 +840,12 @@ class CoverRange(CoverageNet):
         self._fn_cover = fn
         return self
     
-
     def span(self, span: range):
         '''
         Specify the range of values to cover.
         '''
         self._domain = span
         return self
-    
 
     def max_steps(self, limit: int):
         '''
@@ -911,7 +854,6 @@ class CoverRange(CoverageNet):
         self._max_steps = limit
         return self
     
-
     def apply(self):
         import math
         # domain = range
@@ -933,7 +875,6 @@ class CoverRange(CoverageNet):
         self._start = self._domain.start
         self._stop = self._domain.stop
         return super().apply()
-
 
     def __init__(self, name: str):
         '''
@@ -957,15 +898,12 @@ class CoverRange(CoverageNet):
         super().__init__(name)
         pass
 
-
     def get_range(self) -> range:
         return range(self._start, self._stop, self._step_size)
     
-
     def get_partition_count(self) -> int:
         return self._num_of_steps
     
-
     def get_points_met(self) -> int:
         points_met = 0
         for entry in self._table_counts:
@@ -973,7 +911,6 @@ class CoverRange(CoverageNet):
                 points_met += 1
         return points_met
     
-
     def passed(self) -> bool:
         '''
         Checks if each bin within the `CoverGroup` has met or exceeded its goal. 
@@ -984,22 +921,18 @@ class CoverRange(CoverageNet):
             if entry < self._goal:
                 return False
         return True
-    
 
     def _transform(self, item):
         return int(item) if self._fn_cover == None else int(self._fn_cover(item))
 
-
     def is_in_sample_space(self, item) -> bool:
         mapped_item = self._transform(item)
         return mapped_item >= self._start and mapped_item < self._stop
-    
 
     def _map_onto_range(self, item) -> int:
         if self.is_in_sample_space(item) == False:
             return None
         return self._transform(item)
-
 
     def cover(self, item) -> bool:
         '''
@@ -1029,7 +962,6 @@ class CoverRange(CoverageNet):
             
         return is_progress
     
-
     def advance(self, rand: bool=False):
         '''
         Returns the next item currently not meeting the coverage goal.
@@ -1065,7 +997,6 @@ class CoverRange(CoverageNet):
         j = available[0]
         return _random.randint(j * self._step_size, ((j+1) * self._step_size) - 1)
     
-
     def to_string(self, verbose: bool) -> str:
         from .primitives import _find_longest_str_len
         result = ''
@@ -1122,7 +1053,6 @@ class CoverCross(CoverageNet):
     '''
     from typing import List as List
 
-
     def nets(self, *net: CoverageNet):
         '''
         Specifies the coverage nets to cross.
@@ -1130,11 +1060,9 @@ class CoverCross(CoverageNet):
         self._nets = list(net)[::-1]
         return self
     
-
     def goal(self, goal: int):
         self._goal = goal
         return self
-
 
     def apply(self):
         self._crosses = len(self._nets)
@@ -1151,9 +1079,8 @@ class CoverCross(CoverageNet):
             .max_steps(None) \
             .apply()
 
-        net: CoverageNet
-
         sink = []
+        net: CoverageNet
         for net in self._nets:
             # cannot auto-check coverage if a sink is not defined
             if net.has_sink() == False:
@@ -1177,7 +1104,6 @@ class CoverCross(CoverageNet):
         self._sink = sink
         return super().apply()
 
-
     def __init__(self, name: str):
         self._nets = []
         self._goal = 1
@@ -1186,32 +1112,26 @@ class CoverCross(CoverageNet):
         super().__init__(name=name)
         pass
     
-    
     def get_sink_list(self):
         if hasattr(self, "_sink_list") == True:
             return self._sink_list
         
         self._sink_list = []
-        
         net: CoverageNet
         for net in self._nets:
             self._sink_list += net.get_sink_list()
-
         return self._sink_list
-
 
     def get_source_list(self):
         if hasattr(self, "_source_list") == True:
             return self._source_list
         
         self._source_list = []
-        
         net: CoverageNet
         for net in self._nets:
             self._source_list += net.get_source_list()
 
         return self._source_list
-
 
     def advance(self, rand=False):
         index = self._inner.advance(rand)
@@ -1230,21 +1150,17 @@ class CoverCross(CoverageNet):
         # exit('implement!')
         return item
 
-
     def get_range(self) -> range:
         return self._inner.get_range()
     
-
     def get_partition_count(self) -> int:
         return self._inner.get_partition_count()
-    
 
     def is_in_sample_space(self, item) -> bool:
         for i, x in enumerate(item[::-1]):
             if self._nets[i].is_in_sample_space(x) == False:
                 return False
         return True
-
     
     def get_cross_count(self) -> int:
         '''
@@ -1252,7 +1168,6 @@ class CoverCross(CoverageNet):
         '''
         return self._crosses
     
-
     def _pack(self, index):
         '''
         Packs a 1-dimensional index into a N-dimensional item.
@@ -1289,7 +1204,6 @@ class CoverCross(CoverageNet):
                 pass
 
         return item
-    
 
     def _flatten(self, item):
         '''
@@ -1314,17 +1228,14 @@ class CoverCross(CoverageNet):
             index += acc_step_counts * int(y / self._nets[i].get_range().step)
         return index
 
-
     def _map_onto_range(self, item):
         return self._flatten(item)
     
-
     def get_points_met(self) -> int:
         '''
         Returns the number of points that have met their goal.
         '''
         return self._inner.get_points_met()
-
 
     def cover(self, item):
         if self.is_in_sample_space(item) == False:
@@ -1332,11 +1243,9 @@ class CoverCross(CoverageNet):
         index = self._flatten(item)
         return self._inner.cover(index)
 
-
     def passed(self):
         return self._inner.passed()
     
-
     def to_string(self, verbose: bool):
         return self._inner.to_string(verbose)
 

@@ -16,9 +16,12 @@ use amp.cast.all;
 
 package test is
 
+  -- The log level type.
+  type acuity is (TRACE, DEBUG, INFO, WARN, ERROR, FATAL);
+
   -- Captures an event during simulation and writes the outcome to the file `fd`.
   -- The time when the procedure is called is recorded in the timestamp.
-  procedure log_event(file fd: text; level: lvlog; topic: str; why: str; how: str := "");
+  procedure capture(file fd: text; level: acuity; topic: str; why: str; how: str := "");
 
   -- Asserts that two logic bits are equal to each other.
   procedure assert_eq(file fd: text; received: logic; expected: logic; details: str := "");
@@ -27,19 +30,16 @@ package test is
   procedure assert_eq(file fd: text; received: logics; expected: logics; details: str := "");
 
   -- Checks that the logic vector `vec` does not change value while `cond` is active (active-high).
-  procedure stabilize_h(file fd: text; signal clk: logic; signal cond: logic; signal vec: logics; details: str := "");
+  procedure stabilize_hi(file fd: text; signal clk: logic; signal cond: logic; signal vec: logics; details: str := "");
 
   -- Checks that the logic vector `vec` does not change value while `cond` is active (active-low).
-  procedure stabilize_l(file fd: text; signal clk: logic; signal cond: logic; signal vec: logics; details: str := "");
+  procedure stabilize_lo(file fd: text; signal clk: logic; signal cond: logic; signal vec: logics; details: str := "");
 
   -- Checks that the logic bit `flag` is activated (active-high) before timing out after `cycles` clock cycles.
-  procedure monitor_h(file fd: text; signal clk: logic; signal flag: logic; cycles: usize; variable timeout: out bool; details: str := "");
+  procedure monitor_hi(file fd: text; signal clk: logic; signal flag: logic; cycles: usize; variable timeout: out bool; details: str := "");
 
   -- Checks that the logic bit `flag` is activated (active-low) before timing out after `cycles` clock cycles.
-  procedure monitor_l(file fd: text; signal clk: logic; signal flag: logic; cycles: usize; variable timeout: out bool; details: str := "");
-
-  -- The log level type.
-  type lvlog is (TRACE, DEBUG, INFO, WARN, ERROR, FATAL);
+  procedure monitor_lo(file fd: text; signal clk: logic; signal flag: logic; cycles: usize; variable timeout: out bool; details: str := "");
 
   -- Generates a half duty cycle clock `clk` with a period of `period` that
   -- is continuously driven until `halt` is set to true. 
@@ -89,7 +89,7 @@ end package;
 
 package body test is
 
-  procedure log_event(file fd: text; level: lvlog; topic: str; why: str; how: str := "") is
+  procedure capture(file fd: text; level: acuity; topic: str; why: str; how: str := "") is
     variable row: line;
     variable topic_filtered: str(topic'range);
     constant TIMESTAMP_SHIFT: psize := 5 + 15;
@@ -141,10 +141,10 @@ package body test is
     for ii in topic'range loop
         if topic(ii) = '"' then
             topic_filtered(ii) := '_';
-            assert false report "LOG.LOG_EVENT: converting '""' to '_' in event name" severity warning;
+            assert false report "EVENTS.CAPTURE: converting '""' to '_' in event name" severity warning;
         elsif topic(ii) = ' ' then
             topic_filtered(ii) := '_';
-            assert false report "LOG.LOG_EVENT: converting ' ' to '_' in event name" severity warning;
+            assert false report "EVENTS.CAPTURE: converting ' ' to '_' in event name" severity warning;
         end if;
     end loop;
     write(row, topic_filtered, left, TOPIC_SHIFT);
@@ -170,9 +170,9 @@ package body test is
   procedure assert_eq(file fd: text; received: logic; expected: logic; details: str := "") is
   begin
     if received = expected then
-      log_event(fd, INFO, "ASSERT_EQ", to_str(received) & " (received) is equal to " & to_str(expected) & " (expected)", details);
+      capture(fd, INFO, "ASSERT_EQ", to_str(received) & " (received) is equal to " & to_str(expected) & " (expected)", details);
     else 
-      log_event(fd, ERROR, "ASSERT_EQ", to_str(received) & " (received) is not equal to " & to_str(expected) & " (expected)", details);
+      capture(fd, ERROR, "ASSERT_EQ", to_str(received) & " (received) is not equal to " & to_str(expected) & " (expected)", details);
     end if;
   end procedure;
 
@@ -180,14 +180,14 @@ package body test is
   procedure assert_eq(file fd: text; received: logics; expected: logics; details: str := "") is
   begin
     if received = expected then
-      log_event(fd, INFO, "ASSERT_EQ", to_str(received) & " (received) is equal to " & to_str(expected) & " (expected)", details);
+      capture(fd, INFO, "ASSERT_EQ", to_str(received) & " (received) is equal to " & to_str(expected) & " (expected)", details);
     else
-      log_event(fd, ERROR, "ASSERT_EQ", to_str(received) & " (received) is not equal to " & to_str(expected) & " (expected)", details);
+      capture(fd, ERROR, "ASSERT_EQ", to_str(received) & " (received) is not equal to " & to_str(expected) & " (expected)", details);
     end if;
   end procedure;
 
 
-  procedure monitor_h(file fd: text; signal clk: logic; signal flag: logic; cycles: usize; variable timeout: out bool; details: str := "") is
+  procedure monitor_hi(file fd: text; signal clk: logic; signal flag: logic; cycles: usize; variable timeout: out bool; details: str := "") is
     variable cycle_count: usize := 0;
     constant cycle_limit: usize := cycles + 1;
   begin
@@ -203,7 +203,7 @@ package body test is
       while cycle_count < cycle_limit loop
         if flag = '1' then
           timeout := false;
-          log_event(fd, INFO, "MONITOR_H", "Active after waiting " & to_str(cycle_count) & " cycles", details);
+          capture(fd, INFO, "MONITOR_HI", "Active after waiting " & to_str(cycle_count) & " cycles", details);
           return;
         end if;
         -- necessary ordering to escape at correct time in simulation
@@ -214,11 +214,11 @@ package body test is
       end loop;
     end if;
     -- reached this point, then a violation has occurred
-    log_event(fd, ERROR, "MONITOR_H", "Failed to activate after waiting " & to_str(cycles) & " cycles", details);
+    capture(fd, ERROR, "MONITOR_HI", "Failed to activate after waiting " & to_str(cycles) & " cycles", details);
   end procedure;
 
 
-  procedure monitor_l(file fd: text; signal clk: logic; signal flag: logic; cycles: usize; variable timeout: out bool; details: str := "") is
+  procedure monitor_lo(file fd: text; signal clk: logic; signal flag: logic; cycles: usize; variable timeout: out bool; details: str := "") is
     variable cycle_count: usize := 0;
     constant cycle_limit: usize := cycles + 1;
   begin
@@ -234,7 +234,7 @@ package body test is
       while cycle_count < cycle_limit loop
         if flag = '0' then
           timeout := false;
-          log_event(fd, INFO, "MONITOR_L", "Active after waiting " & to_str(cycle_count) & " cycles", details);
+          capture(fd, INFO, "MONITOR_LO", "Active after waiting " & to_str(cycle_count) & " cycles", details);
           return;
         end if;
         -- necessary ordering to escape at correct time in simulation
@@ -245,11 +245,11 @@ package body test is
       end loop;
     end if;
     -- reached this point, then a violation has occurred
-    log_event(fd, ERROR, "MONITOR_L", "Failed to activate after waiting " & to_str(cycles) & " cycles", details);
+    capture(fd, ERROR, "MONITOR_LO", "Failed to activate after waiting " & to_str(cycles) & " cycles", details);
   end procedure;
 
   
-  procedure stabilize_h(file fd: text; signal clk: logic; signal cond: logic; signal vec: logics; details: str := "") is
+  procedure stabilize_hi(file fd: text; signal clk: logic; signal cond: logic; signal vec: logics; details: str := "") is
     variable vec_prev: logics(vec'range);
     variable is_okay: bool := true;
   begin
@@ -260,18 +260,18 @@ package body test is
       -- check if its been stable since the rising edge of done
       if vec_prev /= vec then
         is_okay := false;
-        log_event(fd, ERROR, "STABILIZE_H", "Lost stability of " & to_str(vec_prev) & " by changing to " & to_str(vec), details);
+        capture(fd, ERROR, "STABILIZE_HI", "Lost stability of " & to_str(vec_prev) & " by changing to " & to_str(vec), details);
       end if;
 
       wait until rising_edge(clk);
     end loop;
     if is_okay = true then
-      log_event(fd, INFO, "STABILIZE_H", "Kept stability at " & to_str(vec_prev), details);
+      capture(fd, INFO, "STABILIZE_HI", "Kept stability at " & to_str(vec_prev), details);
     end if;
   end procedure;
 
 
-  procedure stabilize_l(file fd: text; signal clk: logic; signal cond: logic; signal vec: logics; details: str := "") is
+  procedure stabilize_lo(file fd: text; signal clk: logic; signal cond: logic; signal vec: logics; details: str := "") is
     variable vec_prev: logics(vec'range);
     variable is_okay: bool := true;
   begin
@@ -282,13 +282,13 @@ package body test is
       -- check if its been stable since the rising edge of done
       if vec_prev /= vec then
         is_okay := false;
-        log_event(fd, ERROR, "STABILIZE_L", "Lost stability of " & to_str(vec_prev) & " by changing to " & to_str(vec), details);
+        capture(fd, ERROR, "STABILIZE_LO", "Lost stability of " & to_str(vec_prev) & " by changing to " & to_str(vec), details);
       end if;
 
       wait until rising_edge(clk);
     end loop;
     if is_okay = true then
-      log_event(fd, INFO, "STABILIZE_L", "Kept stability at " & to_str(vec_prev), details);
+      capture(fd, INFO, "STABILIZE_LO", "Kept stability at " & to_str(vec_prev), details);
     end if;
   end procedure;
 
