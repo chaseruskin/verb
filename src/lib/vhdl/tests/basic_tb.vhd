@@ -127,7 +127,7 @@ begin
 
         while endfile(outputs) = false loop
             -- wait for a valid time to check
-            monitor_hi(events, clk, valid, TIMEOUT_LIMIT, timeout, "valid");
+            monitor(events, clk, valid, '1', TIMEOUT_LIMIT, "valid");
             -- compare outputs
             score_transaction(outputs, events);
             wait until rising_edge(clk);

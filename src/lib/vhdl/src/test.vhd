@@ -21,13 +21,16 @@ package test is
 
   -- Captures an event during simulation and writes the outcome to the file `fd`.
   -- The time when the procedure is called is recorded in the timestamp.
-  procedure capture(file fd: text; level: acuity; topic: str; why: str; how: str := "");
+  procedure capture(file fd: text; level: acuity; topic: str; subject: str := ""; predicate: str := "");
 
   -- Asserts that two logic bits are equal to each other.
   procedure assert_eq(file fd: text; received: logic; expected: logic; details: str := "");
 
   -- Asserts that two logic vectors are equal to each other.
   procedure assert_eq(file fd: text; received: logics; expected: logics; details: str := "");
+
+  -- Checks the logic vector `datum` for its active state.
+  procedure monitor(file fd: text; signal clk: logic; signal datum: logic; constant active: logic; constant cycles: usize; details: str := "");
 
   -- Checks that the logic vector `vec` does not change value while `cond` is active (active-high).
   procedure stabilize_hi(file fd: text; signal clk: logic; signal cond: logic; signal vec: logics; details: str := "");
@@ -89,7 +92,7 @@ end package;
 
 package body test is
 
-  procedure capture(file fd: text; level: acuity; topic: str; why: str; how: str := "") is
+  procedure capture(file fd: text; level: acuity; topic: str; subject: str := ""; predicate: str := "") is
     variable row: line;
     variable topic_filtered: str(topic'range);
     constant TIMESTAMP_SHIFT: psize := 5 + 15;
@@ -141,26 +144,26 @@ package body test is
     for ii in topic'range loop
         if topic(ii) = '"' then
             topic_filtered(ii) := '_';
-            assert false report "EVENTS.CAPTURE: converting '""' to '_' in event name" severity warning;
+            assert false report "EVENTS.CAPTURE: converting '""' to '_' in event topic" severity warning;
         elsif topic(ii) = ' ' then
             topic_filtered(ii) := '_';
-            assert false report "EVENTS.CAPTURE: converting ' ' to '_' in event name" severity warning;
+            assert false report "EVENTS.CAPTURE: converting ' ' to '_' in event topic" severity warning;
         end if;
     end loop;
     write(row, topic_filtered, left, TOPIC_SHIFT);
 
-    -- write the high-level summary of why this event was triggered
-    write(row, ' ');
-    write(row, '"');
-    write(row, why);
-    write(row, '"');
-
-    -- write additional details pertaining to how this event happened
-    if how /= "" then
+    -- write the subject (noun))
+    if subject /= "" then
       write(row, ' ');
-      write(row, '"');
-      write(row, how);
-      write(row, '"');
+      write(row, subject);
+      write(row, ' ');
+    end if;
+
+    -- write the predicate (verb)
+    if predicate /= "" then
+      write(row, ' ');
+      write(row, predicate);
+      write(row, ' ');
     end if;
 
     writeline(fd, row);
@@ -184,6 +187,34 @@ package body test is
     else
       capture(fd, ERROR, "ASSERT_EQ", to_str(received) & " (received) is not equal to " & to_str(expected) & " (expected)", details);
     end if;
+  end procedure;
+
+
+  procedure monitor(file fd: text; signal clk: logic; signal datum: logic; constant active: logic; constant cycles: usize; details: str := "") is
+    variable cycle_count: usize := 0;
+    constant cycle_limit: usize := cycles + 1;
+  begin
+    -- wait forever if there is no clock cycle limit
+    if cycle_limit = 0 then
+      wait until falling_edge(clk) and datum = active;
+      return;
+    else
+      -- wonky way to count cycles and evaluate on first edge of flag being asserted...
+      -- maybe break monitor into 2 separate processes (a cycle counter and a rising flag detector)
+      while cycle_count < cycle_limit loop
+        if datum = active then
+          capture(fd, INFO, "MONITOR", "Active at '" & to_str(active) & "' after waiting " & to_str(cycle_count) & " cycles", details);
+          return;
+        end if;
+        -- necessary ordering to escape at correct time in simulation
+        cycle_count := cycle_count + 1;
+        if cycle_count < cycle_limit then
+          wait until falling_edge(clk);
+        end if;
+      end loop;
+    end if;
+    -- reached this point, then a violation has occurred
+    capture(fd, ERROR, "MONITOR", "Failed to activate to '" & to_str(active) & "' after waiting " & to_str(cycles) & " cycles", details);
   end procedure;
 
 
