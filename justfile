@@ -22,7 +22,7 @@ test-hw-lib:
     cd src/lib/vhdl; orbit plan --clean --top basic --plugin gvert
     cd src/lib/vhdl; orbit b --
 
-# Perform an installation of the latest libraries using stable versions.
+# Perform an installation of the latest libraries using stable versions
 user-install:
     just version-ok
     just agglo-vhdl
@@ -30,7 +30,7 @@ user-install:
     orbit install vertex:latest --url "https://github.com/cdotrus/vertex/archive/refs/heads/stable.zip"
     cargo install --path src/bin/vertex
 
-# Perform an installation of the latest libraries using development versions.
+# Perform an installation of the latest libraries using development versions
 dev-install:
     just version-ok
     just agglo-vhdl
@@ -44,14 +44,10 @@ dev-hw-install:
     orbit install --path src/lib/vhdl --force
 
 # Checks to make sure all locations where a version is specified has the correct
-# version.
+# version
 version-ok:
     python scripts/version-ok.py {{VERSION}}
 
-# Updates the agglomerated VHDL package.
+# Updates the agglomerated VHDL package
 agglo-vhdl:
     python scripts/agglomerate.py
-
-# Example
-ex-adder:
-    python examples/add/add_tb.py

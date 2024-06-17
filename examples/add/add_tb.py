@@ -49,7 +49,7 @@ class Add:
     pass
 
 
-add = Add(width=context.param('WORD_SIZE', type=int))
+add = Add(width=context.generic('WORD_SIZE', type=int))
 
 # Specify coverage areas
 

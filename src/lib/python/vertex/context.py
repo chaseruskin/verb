@@ -4,7 +4,7 @@
 # Handles input/output interface between components outside of the library.
 
 
-def param(key: str, type=str):
+def generic(key: str, type=str):
     '''
     Accesses the generic based upon the provided `key`.
 
@@ -15,13 +15,13 @@ def param(key: str, type=str):
     # verify the key exists
     value: dict
     for param in Context.current()._parameters:
-        if param['name'] == key:
+        if param['identifier'] == key:
             value = param['default']
             break
     else:
         all_keys = ''
         for param in Context.current()._parameters:
-            all_keys += str(param['name']) + ', '
+            all_keys += str(param['identifier']) + ', '
         if len(all_keys) > 0:
             all_keys = all_keys[:len(all_keys)-2]
         raise Exception('unknown parameter "'+key+'" (possible values: ' + all_keys + ')')
@@ -47,7 +47,7 @@ def port(key: str) -> dict:
     Finds the first index that has a port with a name equal to `key`.
     '''
     for port in Context.current()._ports:
-        if port['name'] == key:
+        if port['identifier'] == key:
             return port
     return None
 
@@ -73,7 +73,7 @@ class Runner:
         pass
 
 
-    def param(self, key: str, type=str):
+    def generic(self, key: str, type=str):
         '''
         Accesses the generic based upon the provided `key`.
 
@@ -84,13 +84,13 @@ class Runner:
         # verify the key exists
         value: dict
         for param in self._parameters:
-            if param['name'] == key:
+            if param['identifier'] == key:
                 value = param['default']
                 break
         else:
             all_keys = ''
             for param in self._parameters:
-                all_keys += str(param['name']) + ', '
+                all_keys += str(param['identifier']) + ', '
             if len(all_keys) > 0:
                 all_keys = all_keys[:len(all_keys)-2]
             raise Exception('unknown parameter "'+key+'" (possible values: ' + all_keys + ')')
@@ -116,14 +116,14 @@ class Runner:
         Finds the first index that has a port with a name equal to `key`.
         '''
         for port in self._ports:
-            if port['name'] == key:
+            if port['identifier'] == key:
                 return port
         return None
     
 
     def param_index(self, key: str) -> int:
         for (i, param) in enumerate(self._parameters):
-            if param['name'] == key:
+            if param['identifier'] == key:
                 return i
         return -1
 
@@ -133,7 +133,7 @@ class Runner:
         Returns the location of the port, if it exists. Returns -1 otherwise.
         '''
         for (i, port) in enumerate(self._ports):
-            if port['name'] == key:
+            if port['identifier'] == key:
                 return i
         return -1
     

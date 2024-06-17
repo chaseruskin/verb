@@ -8,6 +8,9 @@ requires-python = ">=3.8"
 [project.urls]
 Homepage = "https://github.com/cdotrus/vertex"
 
+[project.scripts]
+vertex = "vertex.main:main"
+
 [build-system]
 requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"

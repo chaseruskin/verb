@@ -70,8 +70,8 @@ class BcdEncoder:
 
 
 # collect parameters
-DIGITS = context.param('DIGITS', type=int)
-LEN  = context.param('LEN', type=int)
+DIGITS = context.generic('DIGITS', type=int)
+LEN  = context.generic('LEN', type=int)
 
 bcd_algo = BcdEncoder(width=LEN, digits=DIGITS)
 bcd_algo_dupe = BcdEncoder(width=LEN, digits=DIGITS)
