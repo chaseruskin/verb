@@ -7,7 +7,7 @@
 # Generates a coverage report as well to indicate the robust of the test.
 
 import random
-from vertex.context import *
+from vertex import context, coverage, pow2m1
 from vertex.model import *
 from vertex.coverage import *
 
@@ -28,7 +28,6 @@ class Add:
         self.sum = Signal(width)
         self.cout = Signal(1)
         pass
-
 
     def eval(self):
         '''
@@ -127,7 +126,7 @@ CoverPoint("cout generated") \
 
 # Run the model!
 with vectors('inputs.txt', 'i') as inputs, vectors('outputs.txt', 'o') as outputs:
-    while Coverage.met(10_000) == False:
+    while coverage.met(10_000) == False:
         outcome: Add = randomize(add)
         inputs.append(outcome)
 
@@ -135,5 +134,5 @@ with vectors('inputs.txt', 'i') as inputs, vectors('outputs.txt', 'o') as output
         outputs.append(outcome)
         pass
     
-    print(Coverage.summary())
+    print(coverage.summary())
     pass

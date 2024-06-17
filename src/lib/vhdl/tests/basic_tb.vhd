@@ -52,7 +52,7 @@ architecture sim of basic_tb is
 
     -- always include these signals in a testbench
     signal clk   : logic;
-    signal reset : logic;
+    signal reset : logic := '0';
     signal halt  : boolean := false;
 
     file events : text open write_mode is "events.log";
@@ -70,12 +70,12 @@ begin
     spin_clock(clk, 40 ns, halt);
 
     --! test reading a file filled with test vectors
-    PRODUCER : process
+    producer: process
         file inputs : text open read_mode is "inputs.txt";
 
         -- @note: auto-generate procedure from python script because that is where
         -- order is defined for test vector inputs
-        procedure drive_transaction(file fd: text) is 
+        procedure send(file fd: text) is 
             variable row : line;
         begin
             if endfile(fd) = false then
@@ -90,13 +90,13 @@ begin
 
     begin  
         -- initialize input signals      
-        drive_transaction(inputs);
-        trigger_reset_h(clk, reset, 3);
+        send(inputs);
+        trigger_async(clk, reset, '1', 4);
         wait until rising_edge(clk);
 
         -- drive transactions
         while endfile(inputs) = false loop
-            drive_transaction(inputs);
+            send(inputs);
             wait until rising_edge(clk);
         end loop;
 
@@ -104,40 +104,46 @@ begin
         wait;
     end process;
 
-    CONSUMER : process
+    consumer: process
         file outputs : text open read_mode is "outputs.txt";
         variable timeout : boolean;
 
         -- @note: auto-generate procedure from python script because that is where
         -- order is defined for test vector outputs
-        procedure score_transaction(file fd: text; file ld: text) is
-            variable row : line;
-            variable ideal_tx : logic;
+        procedure compare(file fd: text) is
+            variable row: line;
+            variable ideal_tx: logic;
         begin
             if endfile(fd) = false then
                 -- compare expected outputs and inputs
                 readline(fd, row);
                 load(row, ideal_tx);
-                assert_eq(ld, tx, ideal_tx, "tx");
+                assert_eq(events, tx, ideal_tx, "tx");
             end if;
         end procedure;
 
     begin
-        wait until reset = '0';
+        monitor(events, clk, reset, '1', 1000, "reset");
+        monitor(events, clk, reset, '0', 1000, "reset");
 
         while endfile(outputs) = false loop
             -- wait for a valid time to check
             monitor(events, clk, valid, '1', TIMEOUT_LIMIT, "valid");
             -- compare outputs
-            score_transaction(outputs, events);
+            compare(outputs);
             wait until rising_edge(clk);
         end loop;
 
         -- use a custom log record (demonstrates filtering of topic too)
-        capture(events, TRACE, "SOME EVENT", "manual capture");
+        if valid = '1' then
+            capture(events, TRACE, "MEM_ACCESS", "cache", "hit");
+        else 
+            capture(events, TRACE, "MEM_ACCESS", "cache", "miss");
+        end if;
         
         -- force an ERROR assertion into log
         assert_eq(events, valid, '1', "valid");
+        assert_ne(events, tx, '1', "txt");
 
         -- halt the simulation
         complete(halt);

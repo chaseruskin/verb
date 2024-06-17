@@ -147,7 +147,6 @@ begin
                 done <= '1';
                 -- uncomment this line to see stability errors
                 -- bcd <= (others => '0');
-                ovfl_d <= '0';
                 state_d <= S_LOAD;
 
             --! default case

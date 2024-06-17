@@ -10,7 +10,9 @@
 # The script is written to be used as the entry-point to an Orbit plugin.
 
 import os, sys
-import argparse, random
+import sys
+import random
+import argparse
 from typing import List
 
 from mod import Command, Status, Env, Generic, Blueprint, Hdl
@@ -18,7 +20,7 @@ from mod import Command, Status, Env, Generic, Blueprint, Hdl
 # [STEP]: Set up environment and constants
 
 # directory to store artifacts within build directory
-SIM_DIR = 'gsim'
+SIM_DIR = os.path.splitext(os.path.basename(__file__))[0]
 
 BENCH: str = Env.read("ORBIT_BENCH", missing_ok=True)
 
@@ -36,6 +38,7 @@ parser.add_argument('--std', action='store', default='93', metavar='EDITION', he
 parser.add_argument('--relax', action='store_true', help='relax semantic rules for ghdl')
 parser.add_argument('--exit-on', action='store', default='error', metavar='LEVEL', help='select severity level to exit on (default: error)')
 
+parser.add_argument('--log', action='store', default='events.log', help='specify the log file path written during simulation')
 parser.add_argument('--skip-model', action='store_true', help='skip execution of a design model (if exists)')
 parser.add_argument('--seed', action='store', type=int, nargs='?', default=None, const=random.randrange(sys.maxsize), metavar='NUM', help='set the randomness seed')
 parser.add_argument('--max-tests', action='store', type=int, default=10_000, help='specify the limit of tests before timing out')
@@ -50,6 +53,7 @@ STD_VHDL = str(args.std)
 SEED = args.seed
 LINT_ONLY = bool(args.lint)
 SEVERITY_LVL = str(args.exit_on)
+EVENTS_LOG_FILE = str(args.log)
 
 # Construct the options for GHDL
 GHDL_OPTS = ['--ieee=synopsys']
@@ -80,7 +84,7 @@ os.makedirs(SIM_DIR, exist_ok=True)
 os.chdir(SIM_DIR)
 
 # analyze units
-print("info: Analyzing HDL source code ...")
+print("info: analyzing HDL source code ...")
 item: Hdl
 for item in rtl_order:
     print('  ->', Env.quote_str(item.path))
@@ -95,7 +99,7 @@ for item in rtl_order:
 
 # halt workflow here when only providing lint
 if LINT_ONLY == True:
-    print("info: Static analysis complete")
+    print("info: static analysis complete")
     exit(0)
 
 
@@ -108,22 +112,14 @@ if HAS_MODEL == True and SKIP_MODEL == False:
     ORBIT_TOP = Env.read("ORBIT_TOP", missing_ok=False)
 
     # export the interfaces using orbit to get the json data format
-    design_if = Command("orbit").arg("get").arg(ORBIT_TOP).arg("--json").output()[0]
+    top_if = Command("orbit").arg("get").arg(ORBIT_TOP).arg("--json").output()[0]
     bench_if = Command("orbit").arg("get").arg(ORBIT_BENCH).arg("--json").output()[0]
-    
-    tb_if_path = ORBIT_BENCH + '_if.json'
-    dut_if_path = ORBIT_TOP + '_if.json'
-    
-    with open(tb_if_path, 'w') as fd:
-        fd.write(bench_if)
-    
-    with open(dut_if_path, 'w') as fd:
-        fd.write(design_if)
 
     vertex.context.Context() \
         .coverage_report('coverage.txt') \
-        .tb_interface(tb_if_path) \
-        .dut_interface(dut_if_path) \
+        .event_log(EVENTS_LOG_FILE) \
+        .bench_interface(bench_if) \
+        .top_interface(top_if) \
         .max_test_count(MAX_TESTS) \
         .seed(SEED) \
         .lock()
@@ -137,7 +133,7 @@ if HAS_MODEL == True and SKIP_MODEL == False:
     # Switch the sys.path[0] from this script's path to the model's path
     this_script_path = sys.path[0]
     sys.path[0] = os.path.dirname(py_model)
-    print("info: Running Python software model ...")
+    print("info: running Python software model ...")
     # run the python model script in its own namespace
     runpy.run_path(py_model, init_globals={})
     sys.path[0] = this_script_path
@@ -147,11 +143,11 @@ if HAS_MODEL == True and SKIP_MODEL == False:
 # [STEP]: Run the VHDL simulation
 
 if BENCH is None:
-    exit('error: No testbench to simulate\n\nUse \"--lint\" to only compile the HDL code or set a testbench to simulate')
+    exit('error: no testbench to simulate\n\nhint: use \"--lint\" to only analyze the HDL code')
 
 VCD_FILE = str(BENCH)+'.vcd'
 
-print("info: Starting VHDL simulation for testbench", Env.quote_str(BENCH), "...")
+print("info: starting VHDL simulation for testbench", Env.quote_str(BENCH), "...")
 status: Status = Command('ghdl') \
     .arg('-r') \
     .args(GHDL_OPTS) \
@@ -160,20 +156,29 @@ status: Status = Command('ghdl') \
     .spawn(verbose=False)
 
 status.unwrap()
-print('info: Simulation complete')
+print('info: simulation complete')
+print("info: vcd file saved at:", os.path.join(os.getcwd(), VCD_FILE))
 
 # [STEP]: Analyze results from runnning simulation
 
 rc: int = 0
 
 if HAS_MODEL == True:
-    print("info: Coverage report saved at:", os.path.join(os.getcwd(), vertex.coverage.report_path()))
     # print("info: Simulation history saved at:", vertex.log.get_event_log_path())
-    print("info: Computing results ...")
-    print("info: Coverage score:", vertex.coverage.report_score())
-    # print("info: Simulation score:", vertex.log.report_score())
+    print("info: analyzing results ...\n")
 
-    # rc = 0 if vertex.log.check() == True and vertex.coverage.check() == True else 101
+    print('--- coverage analysis summary ---')
+    print(vertex.coverage.summary())
+    print('--- simulation analysis summary ---')
+    print(vertex.analysis.summary())
+
+    print("info: coverage report saved at:", os.path.join(os.getcwd(), vertex.coverage.report_path()))
+    print("info: events log saved at:", os.path.join(os.getcwd(), EVENTS_LOG_FILE))
+
+    print("info: coverage score:", vertex.coverage.report_score())
+    print("info: simulation score:", vertex.analysis.report_score())
+
+    rc = 0 if vertex.analysis.check() == True and vertex.coverage.check() == True else 101
     pass
 
 exit(rc)

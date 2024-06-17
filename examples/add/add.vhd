@@ -18,7 +18,7 @@ entity add is
     );
 end entity;
 
-architecture rtl of add is
+architecture gp of add is
     signal result: logics(WORD_SIZE-1+1 downto 0);
 
     signal cins: logics(WORD_SIZE-1 downto 0) := (others => '0');

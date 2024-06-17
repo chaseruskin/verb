@@ -5,7 +5,8 @@
 # bcd_enc_tb.vhd testbench. It also produces a coverage report to indicate the 
 # robust of the tests.
 
-from vertex.context import *
+import random
+from vertex import context, coverage
 from vertex.model import *
 from vertex.coverage import *
 
@@ -31,8 +32,10 @@ class BcdEncoder:
         self.fsm_delay = width+width+1+1
         pass
 
-
     def eval(self):
+        '''
+        Model the functional behavior of the design unit.
+        '''
         # separate each digit
         digits = []
         word = int(self.bin)
@@ -64,6 +67,7 @@ class BcdEncoder:
         return self
 
     pass
+
 
 # collect parameters
 DIGITS = context.param('DIGITS', type=int)
@@ -112,7 +116,7 @@ cp_go_while_active = CoverPoint("go while active") \
 with vectors('inputs.txt', 'i') as inputs, vectors('outputs.txt', 'o') as outputs:
     # initialize the values with defaults
     inputs.append(bcd_algo)
-    while Coverage.met(10_000) == False:
+    while coverage.met(10_000) == False:
         # Get a new set of inputs to process
         outcome: BcdEncoder = randomize(bcd_algo)
         bcd_algo.go.store(1)
@@ -122,10 +126,17 @@ with vectors('inputs.txt', 'i') as inputs, vectors('outputs.txt', 'o') as output
             outcome_dupe: BcdEncoder = randomize(bcd_algo_dupe)
             cp_bin_while_active.cover(int(bcd_algo_dupe.bin) != int(bcd_algo.bin))
             inputs.append(outcome_dupe)
+
         # Compute the output
         bcd_algo.eval()
         outputs.append(bcd_algo)
+
+        # place some random 'idle' time after a finished computation
+        for _ in range(0, random.randint(0, 10)):
+            outcome_dupe: BcdEncoder = randomize(bcd_algo_dupe)
+            outcome_dupe.go.store(0)
+            inputs.append(outcome_dupe)
         pass
 
-    print(Coverage.summary())
+    print(coverage.summary())
     pass

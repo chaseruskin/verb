@@ -38,6 +38,11 @@ dev-install:
     orbit install --path src/lib/vhdl --force
     cargo install --path src/bin/vertex --force
 
+dev-hw-install:
+    just version-ok
+    just agglo-vhdl
+    orbit install --path src/lib/vhdl --force
+
 # Checks to make sure all locations where a version is specified has the correct
 # version.
 version-ok:

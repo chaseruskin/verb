@@ -24,33 +24,6 @@ class Coverage:
     _coverage_report = 'coverage.txt'
 
     @staticmethod
-    def met(timeout: int=-1) -> bool:
-        '''
-        Checks if each coverage specification has met its goal.
-
-        If a coverage specification is bypassed, it counts as meeting its
-        goal. If the timeout is set to -1, it will be disabled and only return
-        `True` once all cases are covered.
-        '''
-        from .context import Context
-        if timeout == -1:
-            timeout = Context.current()._context._max_test_count
-        # force the simulation to pass if enough checks are evaluated
-        if timeout > 0 and CoverageNet._counter >= timeout:
-            # save the coverage report
-            Coverage.save()
-            return True        
-        # check every cover-node
-        cov: CoverageNet
-        for cov in CoverageNet._group:
-            if cov.skipped() == False and cov.passed() == False:
-                # increment the counter
-                CoverageNet._counter += 1
-                return False
-        Coverage.save()
-        return True
-
-    @staticmethod
     def get_nets():
         '''
         Returns the list of all coverage nets being tracked.
@@ -161,11 +134,42 @@ class Coverage:
             f.write(Coverage.report(True))
             pass
         return os.path.abspath(path)
+    
+    pass
 
-    @staticmethod
-    def summary() -> str:
-        return Coverage.report(False) + '\n' + \
-            "Score: " + report_score()
+
+def met(timeout: int=-1) -> bool:
+    '''
+    Checks if each coverage specification has met its goal.
+
+    If a coverage specification is bypassed, it counts as meeting its
+    goal. If the timeout is set to -1, it will be disabled and only return
+    `True` once all cases are covered.
+    '''
+    from .context import Context
+    if timeout == -1:
+        timeout = Context.current()._context._max_test_count
+    # force the simulation to pass if enough checks are evaluated
+    if timeout > 0 and CoverageNet._counter >= timeout:
+        # save the coverage report
+        Coverage.save()
+        return True        
+    # check every cover-node
+    cov: CoverageNet
+    for cov in CoverageNet._group:
+        if cov.skipped() == False and cov.passed() == False:
+            # increment the counter
+            CoverageNet._counter += 1
+            return False
+    Coverage.save()
+    return True
+
+
+def summary() -> str:
+    '''
+    Returns a high-level overview of the most recent coverage trial.
+    '''
+    return Coverage.report(False)
 
 
 def report_path() -> str:
@@ -180,7 +184,7 @@ def report_score() -> str:
     Formats the score as a `str`.
     '''
     Coverage.tally_score()
-    return (str(Coverage.percent()) + ' % ' if Coverage.percent() != None else 'N/A ') + '(' + str(Coverage._goals_met) + '/' + str(Coverage._total_points) + ')'
+    return (str(Coverage.percent()) + ' % ' if Coverage.percent() != None else 'N/A ') + '(' + str(Coverage._goals_met) + '/' + str(Coverage._total_points) + ' goals)'
 
 
 def check(threshold: float=1.0) -> bool:

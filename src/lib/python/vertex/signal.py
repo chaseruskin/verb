@@ -4,7 +4,6 @@
 # A Signal carries information.
 
 from enum import Enum as _Enum
-from .primitives import pow2m1, pow2, bits as _bits, digits as _digits
 
 class Mode(_Enum):
     IN  = 0
@@ -143,6 +142,7 @@ class Signal:
         Returns the minimum possible integer value stored in the allotted bits 
         (inclusive).
         '''
+        from .primitives import pow2
         return 0 if self._is_signed == False else -pow2(self._width)
     
 
@@ -151,6 +151,7 @@ class Signal:
         Returns the maximum possible integer value stored in the allotted bits
         (inclusive).
         '''
+        from .primitives import pow2m1
         return pow2m1(self._width) if self._is_signed == False else pow2m1(self._width-1)
     
 
@@ -206,6 +207,7 @@ class Signal:
 
         The `data` can either be a `str`, `int`, or `list`.
         '''
+        from .primitives import digits as _digits
         # verify the data is within bounds
         temp_int = _digits(data, self._is_signed)
         if temp_int < self.min() or temp_int > self.max():
@@ -228,6 +230,7 @@ class Signal:
         '''
         Accesses the Signal's internal data in its bit representation.
         '''
+        from .primitives import bits as _bits
         return _bits(self._raw_data, width=self._width, trunc=True, endianness=self.endianness(), signed=self._is_signed)
         
 
@@ -235,7 +238,7 @@ class Signal:
         '''
         Accesses the Signal's internal data in its integer representation.
         '''
-
+        from .primitives import digits as _digits
         return _digits(self._raw_data, signed=self._is_signed)
 
 

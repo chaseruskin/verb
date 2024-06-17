@@ -58,19 +58,16 @@ class Runner:
     _locked = False
 
     def __init__(self, context) -> None:
-        import os as _os
         import json, random
         self._context = context
         self._parameters = []
         self._ports = []
         # set the testbench generics
-        with open(_os.path.join(self._context._work_dir, self._context._tb_if_path), 'r') as fd:
-            data = fd.read()
-            self._parameters = json.loads(data)['generics']
+        if self._context._bench_if != None:
+            self._parameters = json.loads(self._context._bench_if)['generics']
         # set the design's ports
-        with open(_os.path.join(self._context._work_dir, self._context._dut_if_path), 'r') as fd:
-            data = fd.read()
-            self._ports = json.loads(data)['ports']
+        if self._context._top_if != None:
+            self._ports = json.loads(self._context._top_if)['ports']
         # set the randomness seed
         random.seed(context._seed)
         pass
@@ -181,32 +178,30 @@ class Context:
 
         self._work_dir = _os.getcwd()
 
-        self._tb_if_path = None
-        self._dut_if_path = None
+        self._bench_if = None
+        self._top_if = None
 
         self._event_log = 'events.log'
-        self._coverage_report = 'coverage.json'
+        self._coverage_report = 'coverage.txt'
         pass
-    
 
-    def tb_interface(self, path: str):
+    def bench_interface(self, data: str):
         '''
         Sets the path to the testbench interface json data.
         '''
         if self._built == True: return self
-        self._tb_if_path = str(path)
+        self._bench_if = str(data)
         return self
 
 
-    def dut_interface(self, path: str):
+    def top_interface(self, data: str):
         '''
         Sets the path to the design-under-test's interface json data.
         '''
         if self._built == True: return self
-        self._dut_if_path = str(path)
+        self._top_if = str(data)
         return self
     
-
     def max_test_count(self, limit: int):
         '''
         Sets the maximum number of tests allowed to be tested before timing out.
@@ -215,7 +210,6 @@ class Context:
         self._max_test_count = int(limit)
         return self
     
-
     def seed(self, value: int):
         '''
         Sets the random number generation seed.
@@ -224,7 +218,6 @@ class Context:
         self._seed = value
         return self
 
-
     def lock(self) -> Runner:
         self._built = True
         if Runner._locked == False:
@@ -232,13 +225,11 @@ class Context:
             Runner._locked = True
         return Runner._current
     
-
     def build(self) -> Runner:
         self._built = True
         if Runner._locked == False:
             Runner._current = Runner(self)
         return Runner._current
-    
 
     def coverage_report(self, path: str):
         '''
@@ -247,7 +238,14 @@ class Context:
         if self._built == True: return self
         self._coverage_report = str(path)
         return self
-    
+
+    def event_log(self, path: str):
+        '''
+        Sets the path of the coverage report file.
+        '''
+        if self._built == True: return self
+        self._event_log = str(path)
+        return self
 
     @staticmethod
     def current() -> Runner:

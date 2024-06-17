@@ -20,7 +20,7 @@ dependencies = ["amp:1.0.0"]
 [[ip]]
 name = "vertex-example-bcd"
 version = "0.0.0"
-uuid = "842c4a8b-0694-480f-af62-480859cbcf1f"
+uuid = "76214811-cf53-4873-a413-389f3784d97d"
 dependencies = [
     "amp:1.0.0",
     "vertex:0.1.0",
