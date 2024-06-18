@@ -89,7 +89,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded affix "><a href="index.html">Introduction</a></li><li class="chapter-item expanded "><a href="tutorials/tutorials.html"><strong aria-hidden="true">1.</strong> Tutorials</a></li><li class="chapter-item expanded "><a href="user/user.html"><strong aria-hidden="true">2.</strong> User Guide</a></li><li class="chapter-item expanded "><a href="topic/topic.html"><strong aria-hidden="true">3.</strong> Topic Guide</a></li><li class="chapter-item expanded "><a href="reference/reference.html"><strong aria-hidden="true">4.</strong> Reference</a></li><li class="chapter-item expanded "><a href="glossary.html"><strong aria-hidden="true">5.</strong> Appendix: Glossary</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="index.html">Introduction</a></li><li class="chapter-item expanded "><a href="tutorials/tutorials.html"><strong aria-hidden="true">1.</strong> Tutorials</a></li><li class="chapter-item expanded "><a href="user/user.html"><strong aria-hidden="true">2.</strong> User Guide</a></li><li class="chapter-item expanded "><a href="topic/topic.html"><strong aria-hidden="true">3.</strong> Topic Guide</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="topic/events.html"><strong aria-hidden="true">3.1.</strong> Events</a></li></ol></li><li class="chapter-item expanded "><a href="reference/reference.html"><strong aria-hidden="true">4.</strong> Reference</a></li><li class="chapter-item expanded "><a href="glossary.html"><strong aria-hidden="true">5.</strong> Appendix: Glossary</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle">
                 <div class="sidebar-resize-indicator"></div>
@@ -190,6 +190,41 @@
 <div style="break-before: page; page-break-before: always;"></div><h1 id="tutorials"><a class="header" href="#tutorials">Tutorials</a></h1>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="user-guide"><a class="header" href="#user-guide">User Guide</a></h1>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="topic-guide"><a class="header" href="#topic-guide">Topic Guide</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="events"><a class="header" href="#events">Events</a></h1>
+<p>An <em>event</em> is a thing of importance that takes place during hardware simulation. Events are <em>captured</em> during hardware simulation by being written to a log file, typically called "events.log".</p>
+<p>There are functions available in the HW libraries for event logging; see the <code>events</code> package for event logging functions such as <code>capture(...)</code>, <code>assert_eq(...)</code>, <code>monitor(...)</code>, and <code>stabilize(...)</code>.</p>
+<h2 id="event-log-file-format"><a class="header" href="#event-log-file-format">Event log file format</a></h2>
+<p>Each event captured during simulation is placed on its own line in the log file.</p>
+<p>Each captured event uses the following pattern:</p>
+<pre><code>&lt;timestamp&gt; &lt;severity&gt; &lt;topic&gt; &lt;comment&gt;
+</code></pre>
+<p>Example:</p>
+<pre><code>180000000fs         INFO      ASSERT_EQ      sum receives 0110 and expects 0110
+</code></pre>
+<h3 id="timestamp"><a class="header" href="#timestamp">Timestamp</a></h3>
+<p>The timestamp is the time at which the particular event was captured. The value will not include any spaces and may include the time units as a suffix.</p>
+<p>Example:</p>
+<pre><code>180000000fs
+</code></pre>
+<h3 id="severity"><a class="header" href="#severity">Severity</a></h3>
+<p>The severity is the importance of the captured event. It can only be one of the following values: TRACE, DEBUG, INFO, WARN, ERROR, FATAL.</p>
+<p>Example:</p>
+<pre><code>INFO
+</code></pre>
+<p>By default, any events that are of TRACE, DEBUG, or INFO importance are considered <em>OKs</em>. Any events that are of WARN, ERROR, or FATAL importance are considered <em>failures</em>.</p>
+<h3 id="topic"><a class="header" href="#topic">Topic</a></h3>
+<p>The topic is the high-level thing that is happening in the captured event. The value will not include any spaces and is typically the function name that was called that captured the event.</p>
+<p>Example:</p>
+<pre><code>ASSERT_EQ
+</code></pre>
+<h3 id="comment"><a class="header" href="#comment">Comment</a></h3>
+<p>The comment is low-level information that is important to this capture event. It is composed of two values: a subject and a predicate.</p>
+<pre><code>&lt;subject&gt; &lt;predicate&gt;
+</code></pre>
+<p>The comment is typically discarded during analysis by Vertex and is mainly for the benefit of the user.</p>
+<p>Example:</p>
+<pre><code>sum receives 0110 and expects 0110
+</code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="reference"><a class="header" href="#reference">Reference</a></h1>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="glossary"><a class="header" href="#glossary">Glossary</a></h1>
 
