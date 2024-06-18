@@ -21,31 +21,31 @@ package test is
 
   -- Captures an event during simulation and writes the outcome to the file `fd`.
   -- The time when the procedure is called is recorded in the timestamp.
-  procedure capture(file fd: text; level: tone; topic: str; subject: str := ""; predicate: str := "");
+  procedure capture(file fd: text; level: tone; topic: str; subject: str; predicate: str := "");
 
   -- Asserts that two logic bits `received` and `expected` are equal to each other.
-  procedure assert_eq(file fd: text; received: logic; expected: logic; subject: str := "");
+  procedure assert_eq(file fd: text; received: logic; expected: logic; subject: str);
 
   -- Asserts that two logic vectors `received` and `expected` are equal to each other.
-  procedure assert_eq(file fd: text; received: logics; expected: logics; subject: str := "");
+  procedure assert_eq(file fd: text; received: logics; expected: logics; subject: str);
 
   -- Asserts that two logic bits `received` and `expected` are not equal to each other.
-  procedure assert_ne(file fd: text; received: logic; expected: logic; subject: str := "");
+  procedure assert_ne(file fd: text; received: logic; expected: logic; subject: str);
 
   -- Asserts that two logic vectors `received` and `expected` are not equal to each other.
-  procedure assert_ne(file fd: text; received: logics; expected: logics; subject: str := "");
+  procedure assert_ne(file fd: text; received: logics; expected: logics; subject: str);
 
   -- Checks the logic bit `datum` enters its active state `active` on the rising edge of `clk` before `cycles` clock cycles elapse.
-  procedure monitor(file fd: text; signal clk: logic; signal datum: logic; constant active: logic; constant cycles: usize; subject: str := "");
+  procedure monitor(file fd: text; signal clk: logic; signal datum: logic; constant active: logic; constant cycles: usize; subject: str);
 
   -- Checks the logic vector `data` enters its active state `active` on the rising edge of `clk` before `cycles` clock cycles elapse.
-  procedure monitor(file fd: text; signal clk: logic; signal data: logics; constant active: logics; constant cycles: usize; subject: str := "");
+  procedure monitor(file fd: text; signal clk: logic; signal data: logics; constant active: logics; constant cycles: usize; subject: str);
 
   -- Checks the logic bit `datum` does not change value when its indicator `flag` is in the active state `active`.
-  procedure stabilize(file fd: text; signal clk: logic; signal datum: logic; signal flag: logic; constant active: logic; subject: str := "");
+  procedure stabilize(file fd: text; signal clk: logic; signal datum: logic; signal flag: logic; constant active: logic; subject: str);
 
   -- Checks the logic vector `data` does not change value when its indicator `flag` is in the active state `active`.
-  procedure stabilize(file fd: text; signal clk: logic; signal data: logics; signal flag: logic; constant active: logic; subject: str := "");
+  procedure stabilize(file fd: text; signal clk: logic; signal data: logics; signal flag: logic; constant active: logic; subject: str);
 
   -- Generates a half duty cycle clock `clk` with a period of `period` that
   -- is continuously driven until `halt` is set to true. 
@@ -90,7 +90,7 @@ end package;
 
 package body test is
 
-  procedure capture(file fd: text; level: tone; topic: str; subject: str := ""; predicate: str := "") is
+  procedure capture(file fd: text; level: tone; topic: str; subject: str; predicate: str := "") is
     variable row: line;
     variable topic_filtered: str(topic'range);
 
@@ -98,40 +98,34 @@ package body test is
     constant LOGLEVEL_SHIFT: psize := 10;
     constant TOPIC_SHIFT: psize := 15;
 
-    function format_time(moment: str; size: psize) return str is
-      variable padded: str(1 to size) := (others => '.');
-      variable wide: str(1 to moment'length) := (others => '.');
+    function format_time(moment: str) return str is
+      variable formatted: str(1 to moment'length-1) := (others => '0');
       variable delim_index: usize := 0;
     begin
-      -- collect until finding space character
+      -- Collect until finding space character
       for i in moment'length downto 1 loop
         if moment(i) = ' ' then
           delim_index := i;
           exit;
         end if;
       end loop;
-
-      if moment'length >= size then
-        if delim_index > 0 then
-          wide(1+1 to delim_index) := moment(1 to delim_index-1);
-        end if;
-        wide(delim_index+1 to wide'length) := moment(delim_index+1 to wide'length);
-        return wide;
+      
+      -- Remove the space from the time stamp
+      if delim_index > 0 then
+        formatted(1 to delim_index-1) := moment(1 to delim_index-1);
+        formatted(delim_index to formatted'length) := moment(delim_index+1 to moment'length);
+        return formatted;
+      -- Return the raw moment if there was no detected space
       else
-        if delim_index > 0 then
-          padded(size - moment'length + 2 to size - moment'length + delim_index) := moment(1 to delim_index-1);
-        end if;
-        padded(size - moment'length + delim_index + 1 to padded'length) := moment(delim_index + 1 to moment'length);
-        return padded;
+        return moment;
       end if;
     end function;
 
   begin
     -- record the timestamp of when the event occurred
-    write(row, format_time(to_str(now), TIMESTAMP_SHIFT), left, TIMESTAMP_SHIFT);
+    write(row, format_time(to_str(now)), left, TIMESTAMP_SHIFT);
 
     -- record the severity of the event
-    write(row, ' ');
     if level = TRACE then
       write(row, str'("TRACE"), left, LOGLEVEL_SHIFT);
     elsif level = DEBUG then
@@ -149,7 +143,6 @@ package body test is
     end if;
 
     -- record the topic of the event
-    write(row, ' ');
     -- filter the topic to prevent illegal characters from messing up format
     topic_filtered := topic;
     for ii in topic'range loop
@@ -162,20 +155,21 @@ package body test is
 
     -- record the subject of the event
     if subject /= "" then
-      write(row, ' ');
       write(row, subject);
     end if;
 
     -- record the information about the event
     if predicate /= "" then
-      write(row, ' ');
+      if subject /= "" then
+        write(row, ' ');
+      end if;
       write(row, predicate);
     end if;
 
     writeline(fd, row);
   end procedure;
 
-  procedure assert_eq(file fd: text; received: logic; expected: logic; subject: str := "") is
+  procedure assert_eq(file fd: text; received: logic; expected: logic; subject: str) is
   begin
     if received = expected then
       capture(fd, INFO, "ASSERT_EQ", subject, "receives " & to_str(received) & " and expects " & to_str(expected));
@@ -184,7 +178,7 @@ package body test is
     end if;
   end procedure;
 
-  procedure assert_eq(file fd: text; received: logics; expected: logics; subject: str := "") is
+  procedure assert_eq(file fd: text; received: logics; expected: logics; subject: str) is
   begin
     if received = expected then
       capture(fd, INFO, "ASSERT_EQ", subject, "receives " & to_str(received) & " and expects " & to_str(expected));
@@ -193,7 +187,7 @@ package body test is
     end if;
   end procedure;
 
-  procedure assert_ne(file fd: text; received: logic; expected: logic; subject: str := "") is
+  procedure assert_ne(file fd: text; received: logic; expected: logic; subject: str) is
   begin
     if received /= expected then
       capture(fd, INFO, "ASSERT_NE", subject, "receives" & to_str(received) & " and does not expect " & to_str(expected));
@@ -202,7 +196,7 @@ package body test is
     end if;
   end procedure;
 
-  procedure assert_ne(file fd: text; received: logics; expected: logics; subject: str := "") is
+  procedure assert_ne(file fd: text; received: logics; expected: logics; subject: str) is
   begin
     if received /= expected then
       capture(fd, INFO, "ASSERT_NE", subject, "receives " & to_str(received) & " and expects anything except " & to_str(expected));
@@ -211,7 +205,7 @@ package body test is
     end if;
   end procedure;
 
-  procedure monitor(file fd: text; signal clk: logic; signal datum: logic; constant active: logic; constant cycles: usize; subject: str := "") is
+  procedure monitor(file fd: text; signal clk: logic; signal datum: logic; constant active: logic; constant cycles: usize; subject: str) is
     variable cycle_count: usize := 0;
     constant cycle_limit: usize := cycles + 1;
   begin
@@ -238,7 +232,7 @@ package body test is
     capture(fd, ERROR, "MONITOR", subject, "fails to observe " & to_str(active) & " after waiting " & to_str(cycles) & " cycle(s)");
   end procedure;
 
-  procedure monitor(file fd: text; signal clk: logic; signal data: logics; constant active: logics; constant cycles: usize; subject: str := "") is
+  procedure monitor(file fd: text; signal clk: logic; signal data: logics; constant active: logics; constant cycles: usize; subject: str) is
     variable cycle_count: usize := 0;
     constant cycle_limit: usize := cycles + 1;
   begin
@@ -265,7 +259,7 @@ package body test is
     capture(fd, ERROR, "MONITOR", subject, "fails to observe " & to_str(active) & " after waiting " & to_str(cycles) & " cycle(s)");
   end procedure;
 
-  procedure stabilize(file fd: text; signal clk: logic; signal datum: logic; signal flag: logic; constant active: logic; subject: str := "") is
+  procedure stabilize(file fd: text; signal clk: logic; signal datum: logic; signal flag: logic; constant active: logic; subject: str) is
     variable prev_datum: logic;
     variable is_okay: bool := true;
     variable is_checked: bool := false;
@@ -290,7 +284,7 @@ package body test is
     end if;
   end procedure;
 
-  procedure stabilize(file fd: text; signal clk: logic; signal data: logics; signal flag: logic; constant active: logic; subject: str := "") is
+  procedure stabilize(file fd: text; signal clk: logic; signal data: logics; signal flag: logic; constant active: logic; subject: str) is
     variable prev_data: logics(data'range);
     variable is_okay: bool := true;
     variable is_checked: bool := false;
