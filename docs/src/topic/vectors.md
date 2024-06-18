@@ -35,6 +35,6 @@ It is the testbench's responsibility to determine _when_ to actually supply each
 
 One of the consequences of having the vectors files have a very simple format allows for easier parsing in the hardware languages. It also means not a lot of additional information is known, such as what order the ports are arranged in each vector.
 
-To check the order of ports that Vertex writes to vectors, see the `vertex link` command. An option is available to print the list of ports in their vertex order for inputs and outputs. 
+To check the order of ports that Vertex writes to vectors, see the `vertex link` command. An option is available to print the list of ports in their vector order for inputs and outputs. 
 
 A user can also find the port order by identifying the order in which the ports appear in the source code for the hardware design's port interface declarations.
