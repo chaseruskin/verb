@@ -194,7 +194,7 @@
 <p>An <em>event</em> is a thing of importance that takes place during hardware simulation. Events are <em>captured</em> during hardware simulation by being written to a log file, typically called "events.log".</p>
 <p>There are functions available in the HW libraries for event logging; see the <code>events</code> package for event logging functions such as <code>capture(...)</code>, <code>assert_eq(...)</code>, <code>monitor(...)</code>, and <code>stabilize(...)</code>.</p>
 <h2 id="event-log-file-format"><a class="header" href="#event-log-file-format">Event log file format</a></h2>
-<p>Each event captured during simulation is placed on its own line in the log file.</p>
+<p>Each event captured during simulation is placed on a new line log file.</p>
 <p>Each captured event uses the following pattern:</p>
 <pre><code>&lt;timestamp&gt; &lt;severity&gt; &lt;topic&gt; &lt;comment&gt;
 </code></pre>
