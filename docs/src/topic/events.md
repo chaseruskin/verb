@@ -62,3 +62,7 @@ Example:
 ```
 sum receives 0110 and expects 0110
 ```
+
+## Writing custom events
+
+You can easily write custom events by calling the `capture(...)` function or by wrapping `capture(...)` in another function. It is recommended to write in the present when providing values for comments.
