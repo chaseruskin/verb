@@ -6,7 +6,7 @@ There are functions available in the HW libraries for event logging; see the `ev
 
 ## Event log file format
 
-Each event captured during simulation is placed on its own line in the log file. 
+Each event captured during simulation is placed on a new line log file. 
 
 Each captured event uses the following pattern:
 
