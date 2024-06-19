@@ -41,7 +41,7 @@ By default, any events that are of TRACE, DEBUG, or INFO importance are consider
 
 ### Topic
 
-The topic is the high-level thing that is happening in the captured event. The value will not include any spaces and is typically the function name that was called that captured the event.
+The topic is the high-level thing that is happening in the captured event. The value will not include any spaces and is typically the function name that was called to capture the event.
 
 Example:
 ```
@@ -65,4 +65,4 @@ sum receives 0110 and expects 0110
 
 ## Writing custom events
 
-You can easily write custom events by calling the `capture(...)` function or by wrapping `capture(...)` in another function. It is recommended to write in the present when providing values for comments.
+You can easily write custom events by calling the `capture(...)` function or by wrapping `capture(...)` in another function. It is recommended to write in the present tense when providing values for comments.

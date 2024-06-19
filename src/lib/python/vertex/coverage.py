@@ -562,7 +562,7 @@ class CoverGroup(CoverageNet):
 
     def def_advance(self, fn): 
         '''
-        Set the function or lambda expression that provides vlues to write to the source to advance coverage for this particular goal.
+        Set the function or lambda expression that provides values to write to the source to advance coverage for this particular goal.
         '''
         self._fn_advance = fn
         return self
