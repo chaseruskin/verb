@@ -4,6 +4,8 @@ type LastError = String;
 pub enum Error {
     #[error("{0}")]
     InvalidJson(LastError),
+    #[error("expecting equal sign '=' character")]
+    GenericParseMissingEq,
 }
 
 impl Error {

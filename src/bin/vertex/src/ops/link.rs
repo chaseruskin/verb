@@ -1,8 +1,6 @@
-use crate::error::Error;
+use crate::unit::{Net, Unit};
 use cliproc::{cli, proc, stage::Memory};
 use cliproc::{Arg, Cli, Help, Subcommand};
-use serde::Deserialize;
-use std::str::FromStr;
 
 pub struct Link {
     json: Unit,
@@ -24,7 +22,7 @@ impl Subcommand<()> for Link {
             comp: cli.check(Arg::flag("comp"))?,
             list: cli.check(Arg::flag("list"))?,
             exclude: cli
-                .get_all(Arg::option("exclude").switch('e'))?
+                .get_all(Arg::option("exclude").switch('x'))?
                 .unwrap_or(Vec::new()),
             json: cli.require(Arg::positional("json"))?,
         })
@@ -33,23 +31,23 @@ impl Subcommand<()> for Link {
     fn execute(self, _c: &()) -> proc::Result {
         let filtered_ports: Vec<&Net> = self
             .json
-            .ports
+            .get_ports()
             .iter()
-            .filter(|p| self.exclude.contains(&p.identifier) == false)
+            .filter(|p| self.exclude.contains(p.get_identifier()) == false)
             .collect();
 
         if self.list == true {
             print!("input vectors order:\n ");
             filtered_ports
                 .iter()
-                .filter(|n| n.mode.eq_ignore_ascii_case("in"))
-                .for_each(|n| print!(" {}", n.identifier));
+                .filter(|n| n.is_input())
+                .for_each(|n| print!(" {}", n.get_identifier()));
             println!("\n");
             print!("output vectors order:\n ");
             filtered_ports
                 .iter()
-                .filter(|n| n.mode.eq_ignore_ascii_case("out"))
-                .for_each(|n| print!(" {}", n.identifier));
+                .filter(|n| n.is_output())
+                .for_each(|n| print!(" {}", n.get_identifier()));
             println!("\n");
             return Ok(());
         }
@@ -58,7 +56,7 @@ impl Subcommand<()> for Link {
         if self.bfm == true {
             println!(
                 "{}",
-                Self::to_string_bfm(&filtered_ports, &self.json.identifier, "bfm")
+                Self::to_string_bfm(&filtered_ports, &self.json.get_identifier(), "bfm")
             );
             space_next_display = true;
         }
@@ -69,7 +67,7 @@ impl Subcommand<()> for Link {
             let filtered_ports: Vec<&Net> = filtered_ports
                 .clone()
                 .into_iter()
-                .filter(|n| n.mode.eq_ignore_ascii_case("in"))
+                .filter(|n| n.is_input())
                 .collect();
             println!("{}", Self::to_string_send(&filtered_ports, "bfm"));
             space_next_display = true;
@@ -80,11 +78,11 @@ impl Subcommand<()> for Link {
             }
             let filtered_ports: Vec<&Net> = filtered_ports
                 .into_iter()
-                .filter(|n| n.mode.eq_ignore_ascii_case("out"))
+                .filter(|n| n.is_output())
                 .collect();
             println!(
                 "{}",
-                Self::to_string_comp(&filtered_ports, &self.json.identifier, "bfm")
+                Self::to_string_comp(&filtered_ports, &self.json.get_identifier(), "bfm")
             );
             space_next_display = true;
         }
@@ -105,7 +103,7 @@ Options:
     --bfm           print the hw bus functional model interface
     --send          print the hw function to send inputs to the dut
     --comp          print the hw function to compare outputs from the dut
-    --exclude, -e   omit specific ports from the code snippets
+    --exclude, -x   omit specific ports from the code snippets
     --list          list the port order and exit
 ";
 
@@ -113,7 +111,7 @@ impl Link {
     fn to_string_bfm(ports: &Vec<&Net>, unit: &str, bfm_inst: &str) -> String {
         let result = format!("type {}_bfm is record\n", unit);
         let mut result = ports.iter().fold(result, |mut acc, n| {
-            acc.push_str(&format!("  {}: {};\n", n.identifier, n.dtype));
+            acc.push_str(&format!("  {}: {};\n", n.get_identifier(), n.get_type()));
             acc
         });
         result.push_str(&format!(
@@ -128,7 +126,12 @@ impl Link {
         let drive_fn = "drive";
         let result = format!("procedure send(file {0}: text) is\n  variable row: line;\nbegin\n  if endfile({0}) = false then\n    readline({0}, row);\n", input_fd);
         let mut result = ports.iter().fold(result, |mut acc, n| {
-            acc.push_str(&format!("    {0}(row, {1}.{2});\n", drive_fn, bfm_inst, n.identifier));
+            acc.push_str(&format!(
+                "    {0}(row, {1}.{2});\n",
+                drive_fn,
+                bfm_inst,
+                n.get_identifier()
+            ));
             acc
         });
         result.push_str(&format!("  end if;\nend procedure;"));
@@ -142,10 +145,17 @@ impl Link {
         let assert_fn = "assert_eq";
         let result = format!("procedure compare(file {0}: text; file {1}: text) is\n  variable row: line;\n  variable expct: {2}_bfm;\nbegin\n  if endfile({1}) = false then\n    readline({1}, row);\n", event_fd, output_fd, unit);
         let mut result = ports.iter().fold(result, |mut acc, n| {
-            acc.push_str(&format!("    {0}(row, expct.{1});\n", load_fn, n.identifier));
+            acc.push_str(&format!(
+                "    {0}(row, expct.{1});\n",
+                load_fn,
+                n.get_identifier()
+            ));
             acc.push_str(&format!(
                 "    {3}({0}, {1}.{2}, expct.{2}, \"{2}\");\n",
-                event_fd, bfm_inst, n.identifier, assert_fn,
+                event_fd,
+                bfm_inst,
+                n.get_identifier(),
+                assert_fn,
             ));
             acc
         });
@@ -157,34 +167,5 @@ impl Link {
     /// identifier.
     fn longest_id_len(ids: Vec<&String>) -> usize {
         ids.iter().map(|s| s.len()).max().unwrap_or(0)
-    }
-}
-
-#[derive(Deserialize, Debug)]
-struct Net {
-    identifier: String,
-    #[serde(rename = "type")]
-    dtype: String,
-    mode: String,
-    default: Option<String>,
-}
-
-#[derive(Deserialize, Debug)]
-struct Unit {
-    identifier: String,
-    generics: Vec<Net>,
-    ports: Vec<Net>,
-    architectures: Vec<String>,
-    language: String,
-}
-
-impl FromStr for Unit {
-    type Err = Error;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        match serde_json::from_str(s) {
-            Ok(r) => Ok(r),
-            Err(e) => Err(Error::InvalidJson(Error::lowerize(e.to_string()))),
-        }
     }
 }
