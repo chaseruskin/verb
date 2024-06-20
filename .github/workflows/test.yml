@@ -21,8 +21,13 @@ jobs:
       - name: Setup just
         uses: extractions/setup-just@v2
 
-      - name: Setup just
+      - name: Setup orbit
         uses: cdotrus/setup-orbit@v0
+
+      - name: Setup ghdl
+        uses: ghdl/setup-ghdl-ci@nightly
+        with:
+          backend: llvm
 
       - name: Setup python
         uses: actions/setup-python@v5
