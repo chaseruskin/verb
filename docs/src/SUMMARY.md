@@ -2,6 +2,10 @@
 
 [Introduction](./index.md)
 
+- [Getting Started](./starting.md/starting.md)
+    - [Motivation](./starting/motivation.md)
+    - [Installing](./starting/installing.md)
+
 - [Tutorials](./tutorials/tutorials.md)
 
 - [User Guide](./user/user.md)

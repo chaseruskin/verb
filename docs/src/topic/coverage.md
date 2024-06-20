@@ -4,7 +4,7 @@ When verifying hardware, not only is checking _what_ the design generated as out
 
 ### The importance of coverage
 
-For example, consider we are testing a hardware addition unit. If we run 1,000 test cases and they are all correct, we may be led to believe our design is working perfectly! However, if we discover 500 of these test cases are testing 0+0 = 0 and the remaining 500 test cases are testing 0+1 = 1, I would not be so confident to claim the design is working properly. There are so many untested scenarios that we need to run more tests! This example shows the importance of not just making sure _what_ the design outputs is correct, but also making sure _how_ the test cases sufficiently cover the design's input/state space.
+For example, consider we are testing a hardware addition unit. If we run 1,000 test cases and they are all correct, we may be led to believe our design is working perfectly! However, if we discover 500 of these test cases are testing 0+0 = 0 and the remaining 500 test cases are testing 0+1 = 1, that may be a different story. For a 1-bit adder, this might be okay (we covered 2/4 possible input combinations), but if this was a 32-bit adder, we may need to run a lot more tests (there are ${2^{32} * 2^{32} = 2^{64}}$ possible input combinations!). This simple example shows the importance of not just making sure _what_ the design outputs is correct, but also making sure _how_ the test cases sufficiently cover the design's input/state space.
 
 ### Types of coverage
 
