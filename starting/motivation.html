@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>User Guide - Verifying Hardware with Vertex</title>
+        <title>Motivation - Verifying Hardware with Vertex</title>
 
 
         <!-- Custom HTML head -->
@@ -88,7 +88,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded affix "><a href="../index.html">Introduction</a></li><li class="chapter-item expanded "><a href="../starting.md/starting.html"><strong aria-hidden="true">1.</strong> Getting Started</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../starting/motivation.html"><strong aria-hidden="true">1.1.</strong> Motivation</a></li><li class="chapter-item expanded "><a href="../starting/installing.html"><strong aria-hidden="true">1.2.</strong> Installing</a></li></ol></li><li class="chapter-item expanded "><a href="../tutorials/tutorials.html"><strong aria-hidden="true">2.</strong> Tutorials</a></li><li class="chapter-item expanded "><a href="../user/user.html" class="active"><strong aria-hidden="true">3.</strong> User Guide</a></li><li class="chapter-item expanded "><a href="../topic/topic.html"><strong aria-hidden="true">4.</strong> Topic Guide</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../topic/overview.html"><strong aria-hidden="true">4.1.</strong> Overview</a></li><li class="chapter-item expanded "><a href="../topic/vectors.html"><strong aria-hidden="true">4.2.</strong> Test Vectors</a></li><li class="chapter-item expanded "><a href="../topic/coverage.html"><strong aria-hidden="true">4.3.</strong> Coverage</a></li><li class="chapter-item expanded "><a href="../topic/events.html"><strong aria-hidden="true">4.4.</strong> Events</a></li></ol></li><li class="chapter-item expanded "><a href="../reference/reference.html"><strong aria-hidden="true">5.</strong> Reference</a></li><li class="chapter-item expanded "><a href="../glossary.html"><strong aria-hidden="true">6.</strong> Appendix: Glossary</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="../index.html">Introduction</a></li><li class="chapter-item expanded "><a href="../starting.md/starting.html"><strong aria-hidden="true">1.</strong> Getting Started</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../starting/motivation.html" class="active"><strong aria-hidden="true">1.1.</strong> Motivation</a></li><li class="chapter-item expanded "><a href="../starting/installing.html"><strong aria-hidden="true">1.2.</strong> Installing</a></li></ol></li><li class="chapter-item expanded "><a href="../tutorials/tutorials.html"><strong aria-hidden="true">2.</strong> Tutorials</a></li><li class="chapter-item expanded "><a href="../user/user.html"><strong aria-hidden="true">3.</strong> User Guide</a></li><li class="chapter-item expanded "><a href="../topic/topic.html"><strong aria-hidden="true">4.</strong> Topic Guide</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../topic/overview.html"><strong aria-hidden="true">4.1.</strong> Overview</a></li><li class="chapter-item expanded "><a href="../topic/vectors.html"><strong aria-hidden="true">4.2.</strong> Test Vectors</a></li><li class="chapter-item expanded "><a href="../topic/coverage.html"><strong aria-hidden="true">4.3.</strong> Coverage</a></li><li class="chapter-item expanded "><a href="../topic/events.html"><strong aria-hidden="true">4.4.</strong> Events</a></li></ol></li><li class="chapter-item expanded "><a href="../reference/reference.html"><strong aria-hidden="true">5.</strong> Reference</a></li><li class="chapter-item expanded "><a href="../glossary.html"><strong aria-hidden="true">6.</strong> Appendix: Glossary</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle">
                 <div class="sidebar-resize-indicator"></div>
@@ -173,17 +173,41 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1 id="user-guide"><a class="header" href="#user-guide">User Guide</a></h1>
+                        <h1 id="motivation"><a class="header" href="#motivation">Motivation</a></h1>
+<p>Hardware is hard. <em>Verifying</em> hardware, forget about it. Unfortunately, you can't just forget about it.</p>
+<h2 id="introduction"><a class="header" href="#introduction">Introduction</a></h2>
+<p>Verification is an important process in the hardware development cycle that ensures a design functions as intended and is free of bugs. As a design increases in complexity, the number of coding errors also increases. Therefore, one approach to verifying a logic design conforms to specification is <em>functional verification</em>, where tests are performed to check if the design does what is intended under a set of conditions. However, designs typically have an insurmountable amount of test cases that make it impractical to create and perform each one. Therefore, producing test cases and determining when enough test cases is "enough" requires a well-designed and efficient approach.</p>
+<h2 id="the-problem"><a class="header" href="#the-problem">The problem</a></h2>
+<p>Hardware designs are typically described in hardware description languages (HDLs). These are like the software programming languages of the digital hardware space. To test something in HDLs, one may be inclined to continue to use their HDL to write a model (separate from the design itself) and use that to compare how the design functions during a simulation. However, HDLs are not as nice to write software in because, well, they are focused on describing hardware.</p>
+<p>Since digital hardware is at least necessary to write software (think about how your computer is built), digital hardware design can be translated behaviorally up the layers of abstraction to software. Therefore, a more natural option to verifying hardware may be to use software programming languages to write the model, and then test it under a simulation enviornment. Writing the model in software is typically easier with nicer language constructs and an abundance of existing libraries readily available. Writing the model in software also provides an extra layer of cross-checking to ensure the hardware design matches the specification. But, how does one integrate any software programming language with any hardware description language to verify a design's behavior?</p>
+<h2 id="the-solution"><a class="header" href="#the-solution">The solution</a></h2>
+<p>Enter <em>Vertex</em>- a functional verification framework for digital hardware designs.</p>
+<p>Vertex defines a collection of low-level functions, also known as <em>drivers</em>, that allow a user to communicate between software models and hardware designs for verification. The main form of communication Vertex uses to pass data between hardware and software is <em>file I/O</em>. This method was chosen due to its simplicity and wide support in existing HDLs. Drivers are implemented in both the software programming languages and the HDLs to faciliate the interaction between the design and the model.</p>
+<p>By using the drivers available through Vertex, for every new hardware design users must only focus on writing the model, not configuring the whole testbench.</p>
+<p>This framework attempts to decouple the functional and timing aspects of a hardware simulation. The functional model is written in software, while the exact timing of how to monitor and check the design under test is kept in HDL. This separation of layers allows each language to excel at what it is good at.</p>
+<h2 id="project-goals"><a class="header" href="#project-goals">Project Goals</a></h2>
+<p>The following objectives drive the design choices behind building this framework:</p>
+<ul>
+<li>
+<p><strong>ease of use</strong>: Verifying the next design should be intuitive and easy to set up</p>
+</li>
+<li>
+<p><strong>general-purpose</strong>: Be generic and allow the user enough control to support a wide range of designs, from purely combinational logic to control-flow architectures</p>
+</li>
+<li>
+<p><strong>increased productivity</strong>: Using the framework should result in shorter times spent in the verification phase due to reusing highly modular components with insightful results</p>
+</li>
+</ul>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
-                            <a rel="prev" href="../tutorials/tutorials.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                            <a rel="prev" href="../starting.md/starting.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                                 <i class="fa fa-angle-left"></i>
                             </a>
 
-                            <a rel="next prefetch" href="../topic/topic.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                            <a rel="next prefetch" href="../starting/installing.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                                 <i class="fa fa-angle-right"></i>
                             </a>
 
@@ -193,11 +217,11 @@
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
-                    <a rel="prev" href="../tutorials/tutorials.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                    <a rel="prev" href="../starting.md/starting.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
                         <i class="fa fa-angle-left"></i>
                     </a>
 
-                    <a rel="next prefetch" href="../topic/topic.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                    <a rel="next prefetch" href="../starting/installing.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
                         <i class="fa fa-angle-right"></i>
                     </a>
             </nav>
