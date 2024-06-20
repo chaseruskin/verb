@@ -1,0 +1,41 @@
+name: build
+on:
+  workflow_call:
+
+env:
+  project: 'vertex'
+  version: '0.1.0'
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-13, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Fetch repository
+        uses: actions/checkout@v4
+      
+      - name: Configure Rust toolchain
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: stable
+
+      - name: Enable Cargo caching
+        uses: Swatinem/rust-cache@v2
+
+      - name: Test
+        working-directory: ./src/bin/vertex
+        run: cargo test
+
+      - name: Build application
+        working-directory: ./src/bin/vertex
+        run: cargo build --release
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.project }}-${{ env.version }}-${{ runner.arch }}-${{ runner.os }}
+          path: |
+            ./src/bin/vertex/target/release/${{ env.project }}
+            ./src/bin/vertex/target/release/${{ env.project }}.exe

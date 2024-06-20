@@ -8,8 +8,11 @@ VERSION := "0.1.0"
 
 # A full end-to-end test from the /examples directory
 test MOD *FLAGS:
+    cp -R ./src/lib/vhdl/.orbit ./examples/{{MOD}}
     cd examples/{{MOD}}; orbit plan --clean --plugin gvert
     cd examples/{{MOD}}; orbit b -- {{FLAGS}}
+    rm -Rf ./examples/{{MOD}}/.orbit
+
 # vertex check ./build/gsim/events.log --coverage ./build/gsim/coverage.txt
 
 # Test the software library

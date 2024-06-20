@@ -6,4 +6,6 @@ on:
 
 jobs:
   build:
+    uses: cdotrus/vertex/.github/workflows/build.yml@trunk
+  test:
     uses: cdotrus/vertex/.github/workflows/test.yml@trunk

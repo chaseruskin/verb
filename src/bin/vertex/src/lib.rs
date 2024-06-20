@@ -1,10 +1,3 @@
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn ut_it_works() {
-        assert_eq!(true, true);
-    }
-}
+pub mod error;
+pub mod ops;
+pub mod vertex;

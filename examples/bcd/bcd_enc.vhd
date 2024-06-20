@@ -42,7 +42,7 @@ entity bcd_enc is
 end entity;
 
 
-architecture rtl of bcd_enc is
+architecture gp of bcd_enc is
 
     type state is (S_LOAD, S_SHIFT, S_ADD, S_COMPLETE, S_WAIT);
 
