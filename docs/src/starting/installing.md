@@ -15,6 +15,12 @@ Using Pip, run the following command:
 pip install git+"https://github.com/cdotrus/vertex.git@trunk#egg=vertex"
 ```
 
+To check if it is properly installed, run:
+```
+echo "import vertex\nprint(vertex.__version__)" | python
+```
+The version you installed should print to the console.
+
 ## Hardware library
 
 The hardware library provides the driver-level code for creating testbenches.
@@ -26,6 +32,12 @@ Using Orbit, run the following command:
 orbit install vertex --url "https://github.com/cdotrus/vertex/archive/refs/heads/trunk.zip"
 ```
 
+To check if it is properly installed, run:
+```
+orbit show vertex --versions
+```
+The version you installed should print to the console.
+
 ## Command-line application
 
 The command-line application provides commands for faster development and running pre-simulation and post-simulation processes.
@@ -34,3 +46,9 @@ Using Cargo, run the following command:
 ```
 cargo install --git https://github.com/cdotrus/vertex.git
 ```
+
+To check if it is properly installed, run:
+```
+vertex --version
+```
+The version you installed should print to the console.

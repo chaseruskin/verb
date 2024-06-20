@@ -1,3 +1,5 @@
+const VERSION: &str = env!("CARGO_PKG_VERSION");
+
 fn main() {
-    println!("{}", "hello world!");
+    println!("vertex {}", VERSION);
 }
