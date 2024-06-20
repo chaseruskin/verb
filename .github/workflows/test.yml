@@ -39,9 +39,6 @@ jobs:
       - name: Enable Cargo caching
         uses: Swatinem/rust-cache@v2
 
-      - name: Configure orbit plugins
-        run: orbit config --append include=$PWD"/.orbit/config.toml"
-
       - name: Install Vertex components
         run: just dev-install
 

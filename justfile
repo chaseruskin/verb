@@ -22,6 +22,9 @@ test-hw-lib:
     cd src/lib/vhdl; orbit plan --clean --top basic --plugin gvert
     cd src/lib/vhdl; orbit b --
 
+test-sw-bin:
+    cd src/bin/vertex; cargo test
+
 # Perform an installation of the latest libraries using stable versions
 user-install:
     just version-ok
