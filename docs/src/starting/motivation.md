@@ -20,7 +20,7 @@ Vertex defines a collection of low-level functions, also known as _drivers_, tha
 
 By using the drivers available through Vertex, for every new hardware design users must only focus on writing the model, not configuring the whole testbench.
 
-This framework attempts to decouple the functional and timing aspects of a hardware simulation. The functional model is written in software, while the exact timing of how to monitor and check the design under test is kept in HDL. This separation of layers allows each language to excel at what it is good at.
+This framework attempts to decouple the functional and timing aspects of a hardware simulation. The functional model is written in software, while the exact timing of how to monitor and check the design under test is kept in HDL. This separation of layers allows each language to focus in how they are naturally used.
 
 ## Project Goals
 
@@ -31,3 +31,12 @@ The following objectives drive the design choices behind building this framework
 - __general-purpose__: Be generic and allow the user enough control to support a wide range of designs, from purely combinational logic to control-flow architectures
 
 - __increased productivity__: Using the framework should result in shorter times spent in the verification phase due to reusing highly modular components with insightful results
+
+
+## Related Works
+
+- [cocotb](https://www.cocotb.org): coroutine based cosimulation testbench environment for verifying VHDL and SystemVerilog RTL using Python
+
+## References
+
+- https://en.wikipedia.org/wiki/Functional_verification
