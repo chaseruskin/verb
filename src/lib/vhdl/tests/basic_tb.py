@@ -13,8 +13,8 @@ with open('inputs.txt', 'w') as f:
 
 DATA: str = '''\
 1,
-1,
 0,
+1,
 1,
 '''
 

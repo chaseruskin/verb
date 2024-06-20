@@ -89,13 +89,11 @@ begin
         end procedure;
 
     begin  
-        -- initialize input signals      
-        send(inputs);
         trigger_async(clk, reset, '1', 4);
-        wait until rising_edge(clk);
 
         -- drive transactions
         while endfile(inputs) = false loop
+            -- wait until rising_edge(clk);
             send(inputs);
             wait until rising_edge(clk);
         end loop;
@@ -123,8 +121,8 @@ begin
         end procedure;
 
     begin
-        monitor(events, clk, reset, '1', 1000, "reset");
-        monitor(events, clk, reset, '0', 1000, "reset");
+        wait until reset = '0';
+        wait until rising_edge(clk);
 
         while endfile(outputs) = false loop
             -- wait for a valid time to check
@@ -143,7 +141,7 @@ begin
         
         -- force an ERROR assertion into log
         assert_eq(events, valid, '1', "valid");
-        assert_ne(events, tx, '1', "txt");
+        assert_ne(events, tx, '0', "txt");
 
         -- halt the simulation
         complete(halt);

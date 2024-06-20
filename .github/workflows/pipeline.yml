@@ -1,0 +1,9 @@
+name: pipeline
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    uses: cdotrus/vertex/.github/workflows/test.yml@trunk
