@@ -6,7 +6,7 @@ env:
   project: vertex
 
 jobs:
-  build:
+  test:
     strategy:
       matrix:
         os: [ubuntu-22.04, windows-2022, macos-13]
@@ -49,8 +49,7 @@ jobs:
         run: just dev-install
 
       - name: Test software library
-        working-directory: ./src/lib/python
-        run: python -m unittest tests/*.py
+        run: python -m unittest src/lib/python/tests/*.py
 
       - name: Test hardware library
         working-directory: ./src/lib/vhdl

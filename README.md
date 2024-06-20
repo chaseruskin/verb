@@ -1,5 +1,7 @@
 # _Vertex_
 
+[![Pipeline](https://github.com/cdotrus/vertex/actions/workflows/pipeline.yml/badge.svg?branch=trunk)](https://github.com/cdotrus/vertex/actions/workflows/pipeline.yml) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 Vertex is a simulation-based functional verification framework for digital hardware designs. 
 
 Vertex leverages _file I/O_ and _software programming languages_ to verify hardware designs in their native hardware description language.
