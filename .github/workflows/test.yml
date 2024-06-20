@@ -58,5 +58,5 @@ jobs:
           orbit build
 
       - name: Test command-line application
-        working-directory: ./src/bin
+        working-directory: ./src/bin/vertex
         run: cargo test --verbose
