@@ -244,17 +244,29 @@
 <p>Using Pip, run the following command:</p>
 <pre><code>pip install git+"https://github.com/cdotrus/vertex.git@trunk#egg=vertex"
 </code></pre>
+<p>To check if it is properly installed, run:</p>
+<pre><code>echo "import vertex\nprint(vertex.__version__)" | python
+</code></pre>
+<p>The version you installed should print to the console.</p>
 <h2 id="hardware-library"><a class="header" href="#hardware-library">Hardware library</a></h2>
 <p>The hardware library provides the driver-level code for creating testbenches.</p>
 <h3 id="vhdl"><a class="header" href="#vhdl">VHDL</a></h3>
 <p>Using Orbit, run the following command:</p>
 <pre><code>orbit install vertex --url "https://github.com/cdotrus/vertex/archive/refs/heads/trunk.zip"
 </code></pre>
+<p>To check if it is properly installed, run:</p>
+<pre><code>orbit show vertex --versions
+</code></pre>
+<p>The version you installed should print to the console.</p>
 <h2 id="command-line-application"><a class="header" href="#command-line-application">Command-line application</a></h2>
 <p>The command-line application provides commands for faster development and running pre-simulation and post-simulation processes.</p>
 <p>Using Cargo, run the following command:</p>
 <pre><code>cargo install --git https://github.com/cdotrus/vertex.git
 </code></pre>
+<p>To check if it is properly installed, run:</p>
+<pre><code>vertex --version
+</code></pre>
+<p>The version you installed should print to the console.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="tutorials"><a class="header" href="#tutorials">Tutorials</a></h1>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="user-guide"><a class="header" href="#user-guide">User Guide</a></h1>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="topic-guide"><a class="header" href="#topic-guide">Topic Guide</a></h1>
