@@ -133,6 +133,4 @@ with vectors('inputs.txt', 'i') as inputs, vectors('outputs.txt', 'o') as output
         outcome.eval()
         outputs.append(outcome)
         pass
-    
-    print(coverage.summary())
     pass

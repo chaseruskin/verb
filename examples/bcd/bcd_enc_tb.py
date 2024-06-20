@@ -137,6 +137,4 @@ with vectors('inputs.txt', 'i') as inputs, vectors('outputs.txt', 'o') as output
             outcome_dupe.go.store(0)
             inputs.append(outcome_dupe)
         pass
-
-    print(coverage.summary())
     pass

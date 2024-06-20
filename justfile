@@ -26,9 +26,9 @@ test-hw-lib:
 user-install:
     just version-ok
     just agglo-vhdl
-    pip install git+"https://github.com/cdotrus/vertex.git@stable#egg=vertex"
-    orbit install vertex:latest --url "https://github.com/cdotrus/vertex/archive/refs/heads/stable.zip"
-    cargo install --path src/bin/vertex
+    pip install git+"https://github.com/cdotrus/vertex.git@trunk#egg=vertex"
+    orbit install vertex --url "https://github.com/cdotrus/vertex/archive/refs/heads/trunk.zip"
+    cargo install --git "https://github.com/cdotrus/vertex.git"
 
 # Perform an installation of the latest libraries using development versions
 dev-install:
