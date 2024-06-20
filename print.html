@@ -175,6 +175,20 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="verifying-hardware-with-vertex"><a class="header" href="#verifying-hardware-with-vertex">Verifying Hardware with Vertex</a></h1>
+<p><em>Vertex</em> is a simulation-based functional verification framework for digital hardware designs.</p>
+<p>Vertex leverages <em>file I/O</em> and <em>software programming languages</em> to verify hardware designs in their native hardware description language.</p>
+<p>The verifying hardware with Vertex is separated into 3 steps:</p>
+<ol>
+<li>
+<p>Model the hardware design in software to generate input vectors and expected output vectors</p>
+</li>
+<li>
+<p>Simulate the hardware design by sending input vectors to the design under test, receiving output vectors from the design under test, and logging comparisons between simulated output vectors and expected output vectors</p>
+</li>
+<li>
+<p>Analyze the logged comparisons for any errors</p>
+</li>
+</ol>
 <h2 id="sections"><a class="header" href="#sections">Sections</a></h2>
 <p>The following documentation will be mainly divided into 4 sections:</p>
 <ol>
@@ -199,7 +213,7 @@
 <p>Enter <em>Vertex</em>- a functional verification framework for digital hardware designs.</p>
 <p>Vertex defines a collection of low-level functions, also known as <em>drivers</em>, that allow a user to communicate between software models and hardware designs for verification. The main form of communication Vertex uses to pass data between hardware and software is <em>file I/O</em>. This method was chosen due to its simplicity and wide support in existing HDLs. Drivers are implemented in both the software programming languages and the HDLs to faciliate the interaction between the design and the model.</p>
 <p>By using the drivers available through Vertex, for every new hardware design users must only focus on writing the model, not configuring the whole testbench.</p>
-<p>This framework attempts to decouple the functional and timing aspects of a hardware simulation. The functional model is written in software, while the exact timing of how to monitor and check the design under test is kept in HDL. This separation of layers allows each language to excel at what it is good at.</p>
+<p>This framework attempts to decouple the functional and timing aspects of a hardware simulation. The functional model is written in software, while the exact timing of how to monitor and check the design under test is kept in HDL. This separation of layers allows each language to focus in how they are naturally used.</p>
 <h2 id="project-goals"><a class="header" href="#project-goals">Project Goals</a></h2>
 <p>The following objectives drive the design choices behind building this framework:</p>
 <ul>
@@ -212,6 +226,14 @@
 <li>
 <p><strong>increased productivity</strong>: Using the framework should result in shorter times spent in the verification phase due to reusing highly modular components with insightful results</p>
 </li>
+</ul>
+<h2 id="related-works"><a class="header" href="#related-works">Related Works</a></h2>
+<ul>
+<li><a href="https://www.cocotb.org">cocotb</a>: coroutine based cosimulation testbench environment for verifying VHDL and SystemVerilog RTL using Python</li>
+</ul>
+<h2 id="references"><a class="header" href="#references">References</a></h2>
+<ul>
+<li>https://en.wikipedia.org/wiki/Functional_verification</li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="installing"><a class="header" href="#installing">Installing</a></h1>
 <p>Vertex comes in three separate components: a library for software drivers, a library for hardware drivers, and a command-line application for development as well as running pre-simulation and post-simulation processes.</p>
@@ -238,6 +260,25 @@
 <div style="break-before: page; page-break-before: always;"></div><h1 id="topic-guide"><a class="header" href="#topic-guide">Topic Guide</a></h1>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="overview"><a class="header" href="#overview">Overview</a></h1>
 <p><img src="topic/./../images/system.png" alt="" /></p>
+<p>The Vertex framework is divided into three main layers.</p>
+<ul>
+<li><em>Software Layer</em>: low-level functions to generate inputs and outputs and analyze recorded data</li>
+<li><em>Data Layer</em>: persistent storage of data to be shared between hardware and software layers</li>
+<li><em>Hardware Layer</em>: low-level functions to load inputs and outputs, drive inputs, check outputs, and log events</li>
+</ul>
+<p>This separation of functionality is important for modularity. If a model needs to be written in a different language (Python/C++/Rust), then only the software layer requires changes; the data layer and hardware layer are left unmodified. Having well-defined interfaces between these layers allows for the framework to easily expand to new software languages and HDLs.</p>
+<h3 id="software-layer"><a class="header" href="#software-layer">Software Layer</a></h3>
+<p>The software layer implements the low-level functions required to run any form of test. It translates your test cases into the data layer represented by a specific file format.</p>
+<p>The software layer is responsible for generating test inputs, tracking coverage, and generating test outputs. When defining signals in your software model, you can also specify their probability distribution to randomly sample based on distributions. If not specified, the default is uniform distribution.</p>
+<p>The software layer can also generate HDL code, which can be directly copied into the testbench for establishing connections between the hardware design and the data layer.</p>
+<p>The software layer is available as a library and as a stand-alone program.</p>
+<h3 id="data-layer"><a class="header" href="#data-layer">Data Layer</a></h3>
+<p>The data layer stores the tests to run during simulation and the expected outputs. This information is typically stored in a specific file format already handled by Vertex.</p>
+<p>Each line in a data file is a <em>transaction</em>. A transaction in this sense is the combination of complete set of inputs or outputs. For data stored in an input file, each transaction is to be the input into the design-under-test on a single clock cycle. For data stored in an output file, each transaction is the outputs to be checked against the design-under-test's outputs in the scoreboard. The output transactions do not have to be checked every clock cycle, and may only be cared when a certain condition occurs (such as a valid signal being asserted).</p>
+<p>The number of transactions stored as inputs and outputs does not have to be 1-to-1. There may be more input transactions (fed every clock cycle) than output transactions (only checked when valid).</p>
+<h3 id="hardware-layer"><a class="header" href="#hardware-layer">Hardware Layer</a></h3>
+<p>The hardware drivers implement the low-level functions required to receive data from the data layer. This data is read during simulation to run test cases and automatically assert outputs.</p>
+<p>The hardware layer is responsible for the timing of the simulation: specifically determining when to drive inputs and monitoring when to check outputs.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="test-vectors"><a class="header" href="#test-vectors">Test Vectors</a></h1>
 <p>One of the key concepts in the Vertex framework is using <em>file I/O</em> to communicate data between the software model and the hardware design throughout the verification process. When running the hardware simulation, the testbench receives the information about the inputs and expected outputs by reading files called <em>vectors</em>.</p>
 <p><em>Vectors</em> store the test vectors for the hardware design to use- that is, they contain the actual data to either drive as inputs or compare with their outputs.</p>

@@ -184,7 +184,7 @@
 <p>Enter <em>Vertex</em>- a functional verification framework for digital hardware designs.</p>
 <p>Vertex defines a collection of low-level functions, also known as <em>drivers</em>, that allow a user to communicate between software models and hardware designs for verification. The main form of communication Vertex uses to pass data between hardware and software is <em>file I/O</em>. This method was chosen due to its simplicity and wide support in existing HDLs. Drivers are implemented in both the software programming languages and the HDLs to faciliate the interaction between the design and the model.</p>
 <p>By using the drivers available through Vertex, for every new hardware design users must only focus on writing the model, not configuring the whole testbench.</p>
-<p>This framework attempts to decouple the functional and timing aspects of a hardware simulation. The functional model is written in software, while the exact timing of how to monitor and check the design under test is kept in HDL. This separation of layers allows each language to excel at what it is good at.</p>
+<p>This framework attempts to decouple the functional and timing aspects of a hardware simulation. The functional model is written in software, while the exact timing of how to monitor and check the design under test is kept in HDL. This separation of layers allows each language to focus in how they are naturally used.</p>
 <h2 id="project-goals"><a class="header" href="#project-goals">Project Goals</a></h2>
 <p>The following objectives drive the design choices behind building this framework:</p>
 <ul>
@@ -197,6 +197,14 @@
 <li>
 <p><strong>increased productivity</strong>: Using the framework should result in shorter times spent in the verification phase due to reusing highly modular components with insightful results</p>
 </li>
+</ul>
+<h2 id="related-works"><a class="header" href="#related-works">Related Works</a></h2>
+<ul>
+<li><a href="https://www.cocotb.org">cocotb</a>: coroutine based cosimulation testbench environment for verifying VHDL and SystemVerilog RTL using Python</li>
+</ul>
+<h2 id="references"><a class="header" href="#references">References</a></h2>
+<ul>
+<li>https://en.wikipedia.org/wiki/Functional_verification</li>
 </ul>
 
                     </main>
