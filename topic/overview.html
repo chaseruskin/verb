@@ -174,7 +174,6 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="overview"><a class="header" href="#overview">Overview</a></h1>
-<p><img src="./../images/system.png" alt="" /></p>
 <p>The Vertex framework is divided into three main layers.</p>
 <ul>
 <li><em>Software Layer</em>: low-level functions to generate inputs and outputs and analyze recorded data</li>
@@ -182,6 +181,7 @@
 <li><em>Hardware Layer</em>: low-level functions to load inputs and outputs, drive inputs, check outputs, and log events</li>
 </ul>
 <p>This separation of functionality is important for modularity. If a model needs to be written in a different language (Python/C++/Rust), then only the software layer requires changes; the data layer and hardware layer are left unmodified. Having well-defined interfaces between these layers allows for the framework to easily expand to new software languages and HDLs.</p>
+<p><img src="./../images/system.png" alt="" /></p>
 <h3 id="software-layer"><a class="header" href="#software-layer">Software Layer</a></h3>
 <p>The software layer implements the low-level functions required to run any form of test. It translates your test cases into the data layer represented by a specific file format.</p>
 <p>The software layer is responsible for generating test inputs, tracking coverage, and generating test outputs. When defining signals in your software model, you can also specify their probability distribution to randomly sample based on distributions. If not specified, the default is uniform distribution.</p>
