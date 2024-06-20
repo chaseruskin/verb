@@ -42,19 +42,22 @@ jobs:
       - name: Enable Cargo caching
         uses: Swatinem/rust-cache@v2
 
+      - name: Configure orbit plugins
+        run: orbit config --append include=".orbit/config.toml"
+
       - name: Install Vertex components
         run: just dev-install
 
       - name: Test software library
-        run: python -m unittest src/lib/python/tests/*.py
+        working-directory: ./src/lib/python
+        run: python -m unittest tests/*.py
 
       - name: Test hardware library
+        working-directory: ./src/lib/vhdl
         run: |
-          just agglo-vhdl
-          cp -R .orbit ./src/lib/vhdl
-          cd ./src/lib/vhdl
           orbit plan --clean --top basic --plugin gvert
           orbit build
 
       - name: Test command-line application
+        working-directory: ./src/bin
         run: cargo test --verbose
