@@ -4,7 +4,7 @@ Vertex is a simulation-based functional verification framework for digital hardw
 
 Vertex leverages _file I/O_ and _software programming languages_ to verify hardware designs in their native hardware description language.
 
-The verifying hardware with Vertex is separated into 3 steps: 
+Verifying hardware with Vertex is separated into 3 steps: 
 
 1. Model the hardware design in software to generate input vectors and expected output vectors
 
