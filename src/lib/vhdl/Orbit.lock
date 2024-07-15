@@ -13,5 +13,5 @@ dependencies = []
 name = "vertex"
 version = "0.1.0"
 uuid = "4f86de3f-64f2-4252-a150-4276788dafcf"
-url = "https://github.com/cdotrus/vertex/archive/refs/tags/0.1.0.zip"
+url = "https://github.com/cdotrus/vertex/archive/refs/tags/{{orbit.ip.version}}.zip"
 dependencies = ["amp:1.0.0"]
