@@ -64,10 +64,8 @@ class Rule:
 
 class Blueprint:
     def __init__(self):
-        ip_path = Env.read("ORBIT_IP_PATH", missing_ok=False)
-        build_dir = Env.read("ORBIT_BUILD_DIR", missing_ok=False)
         blueprint_name = Env.read("ORBIT_BLUEPRINT", missing_ok=False)
-        self._file = ip_path + '/' + build_dir + '/' + blueprint_name
+        self._file = blueprint_name
         pass
 
 

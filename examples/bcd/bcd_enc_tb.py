@@ -10,8 +10,6 @@ from vertex import context, coverage
 from vertex.model import *
 from vertex.coverage import *
 
-print('hello world!')
-
 # Model the hardware
 class BcdEncoder:
 

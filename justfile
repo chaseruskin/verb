@@ -4,14 +4,16 @@
 # This file contains common commands for different stages in the development
 # cycle.
 
+set windows-shell := ["powershell.exe", "-NoLogo", "-Command"]
+
+_default:
+	just --list
+
 VERSION := "0.1.0"
 
 # A full end-to-end test from the /examples directory
 test MOD *FLAGS:
-    cp -R ./src/lib/vhdl/.orbit ./examples/{{MOD}}
-    cd examples/{{MOD}}; orbit plan --clean --plugin gvert
-    cd examples/{{MOD}}; orbit b -- {{FLAGS}}
-    rm -Rf ./examples/{{MOD}}/.orbit
+    cd examples/{{MOD}}; orbit test --target gvert -- {{FLAGS}}
 
 # vertex check ./build/gsim/events.log --coverage ./build/gsim/coverage.txt
 
@@ -22,8 +24,7 @@ test-sw-lib:
 # Test the hardware library
 test-hw-lib:
     just agglo-vhdl
-    cd src/lib/vhdl; orbit plan --clean --top basic --plugin gvert
-    cd src/lib/vhdl; orbit b --
+    cd src/lib/vhdl; orbit test --dut basic --target gvert
 
 test-sw-bin:
     cd src/bin/vertex; cargo test

@@ -1,4 +1,4 @@
-name: test
+name: Test
 on:
   workflow_call:
 
@@ -26,11 +26,6 @@ jobs:
         with:
           backend: mcode
 
-      - name: Setup python
-        uses: actions/setup-python@v5
-        with:
-          python-version: 3.8
-
       - name: Configure Rust toolchain
         uses: dtolnay/rust-toolchain@master
         with:
@@ -47,9 +42,7 @@ jobs:
 
       - name: Test hardware library
         working-directory: ./src/lib/vhdl
-        run: |
-          orbit plan --clean --top basic --plugin gvert
-          orbit build
+        run: orbit test
 
       - name: Test command-line application
         working-directory: ./src/bin/vertex

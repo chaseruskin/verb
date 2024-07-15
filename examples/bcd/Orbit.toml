@@ -6,4 +6,4 @@ version = "0.0.0"
 amp = "1.0.0"
 
 [dev-dependencies]
-vertex = "0.1.0"
+vertex = { path = "../../src/lib/vhdl", version = "0.1.0" }

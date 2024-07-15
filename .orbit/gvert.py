@@ -1,5 +1,5 @@
 # Project: Vertex
-# Plugin: gvert
+# Target: gvert
 # References: https://github.com/ghdl/ghdl
 #
 # Defines a common workflow for working with the GHDL simulator and software
@@ -7,7 +7,7 @@
 # are passed to the software script as well as the VHDL testbench for
 # synchronization across code.
 #
-# The script is written to be used as the entry-point to an Orbit plugin.
+# The script is written to be used as the entry-point to an Orbit target.
 
 import os, sys
 import sys
@@ -19,10 +19,7 @@ from mod import Command, Status, Env, Generic, Blueprint, Hdl
 
 # [STEP]: Set up environment and constants
 
-# directory to store artifacts within build directory
-SIM_DIR = os.path.splitext(os.path.basename(__file__))[0]
-
-BENCH: str = Env.read("ORBIT_BENCH", missing_ok=True)
+BENCH = Env.read("ORBIT_BENCH", missing_ok=True)
 
 # temporarily append ghdl path to PATH env variable
 GHDL_PATH: str = Env.read("ORBIT_ENV_GHDL_PATH", missing_ok=True)
@@ -30,7 +27,7 @@ Env.add_path(GHDL_PATH)
 
 # [STEP]: Handle command-line arguments
 
-parser = argparse.ArgumentParser(prog='gsim', allow_abbrev=False)
+parser = argparse.ArgumentParser(prog='gvert', allow_abbrev=False)
 
 parser.add_argument('--lint', action='store_true', default=False, help='run static analysis and exit')
 parser.add_argument('--generic', '-g', action='append', type=Generic.from_arg, default=[], metavar='KEY=VALUE', help='override top-level VHDL generics')
@@ -56,7 +53,7 @@ SEVERITY_LVL = str(args.exit_on)
 EVENTS_LOG_FILE = str(args.log)
 
 # Construct the options for GHDL
-GHDL_OPTS = ['--ieee=synopsys']
+GHDL_OPTS = ['--ieee=synopsys', '--syn-binding']
 
 GHDL_OPTS += ['--std='+STD_VHDL]
 
@@ -67,21 +64,19 @@ if IS_RELAXED == True:
 
 py_model: str = None
 rtl_order: List[Hdl] = []
+working_lib: str = ''
 # collect data from the blueprint
 for rule in Blueprint().parse():
-    if rule.fileset == 'VHDL-RTL' or rule.fileset == 'VHDL-SIM':
+    if rule.fileset == 'VHDL':
         rtl_order += [Hdl(rule.identifier, rule.path)]
-    elif rule.fileset == 'PY-MODEL':
+        working_lib = rule.identifier
+    elif rule.fileset == 'PYMDL':
         py_model = rule.path
     pass
 
 HAS_MODEL = py_model != None
 
 # [STEP]: Analyze VHDL source code
-
-# enter GHDL simulation working directory
-os.makedirs(SIM_DIR, exist_ok=True)
-os.chdir(SIM_DIR)
 
 # analyze units
 print("info: analyzing HDL source code ...")
@@ -109,7 +104,7 @@ if HAS_MODEL == True and SKIP_MODEL == False:
     import vertex
 
     ORBIT_BENCH = Env.read("ORBIT_BENCH", missing_ok=False)
-    ORBIT_TOP = Env.read("ORBIT_TOP", missing_ok=False)
+    ORBIT_TOP = Env.read("ORBIT_DUT", missing_ok=False)
 
     # export the interfaces using orbit to get the json data format
     top_if = Command("orbit").arg("get").arg(ORBIT_TOP).arg("--json").output()[0]
@@ -151,7 +146,9 @@ print("info: starting VHDL simulation for testbench", Env.quote_str(BENCH), "...
 status: Status = Command('ghdl') \
     .arg('-r') \
     .args(GHDL_OPTS) \
-    .args([BENCH, '--vcd='+VCD_FILE, '--assert-level='+SEVERITY_LVL]) \
+    .arg('--work='+working_lib) \
+    .arg(BENCH) \
+    .args(['--vcd='+VCD_FILE, '--assert-level='+SEVERITY_LVL]) \
     .args(['-g' + item.to_str() for item in GENERICS]) \
     .spawn(verbose=False)
 

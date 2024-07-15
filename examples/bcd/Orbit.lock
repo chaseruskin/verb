@@ -13,8 +13,8 @@ dependencies = []
 name = "vertex"
 version = "0.1.0"
 uuid = "4f86de3f-64f2-4252-a150-4276788dafcf"
-checksum = "8d350003e5459791c4e4c16772a5984341e1bc5c8dd30de15e334438447653d5"
 url = "https://github.com/cdotrus/vertex/archive/refs/tags/0.1.0.zip"
+path = "/Users/chase/Develop/py/vertex/src/lib/vhdl"
 dependencies = ["amp:1.0.0"]
 
 [[ip]]

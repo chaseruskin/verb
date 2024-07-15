@@ -13,7 +13,7 @@ dependencies = []
 name = "vertex"
 version = "0.1.0"
 uuid = "4f86de3f-64f2-4252-a150-4276788dafcf"
-checksum = "8d350003e5459791c4e4c16772a5984341e1bc5c8dd30de15e334438447653d5"
+checksum = "6ac6e38bd38c31ff605541cff325c605da3119448f0b2d345f3574c4e17f598e"
 url = "https://github.com/cdotrus/vertex/archive/refs/tags/0.1.0.zip"
 dependencies = ["amp:1.0.0"]
 
