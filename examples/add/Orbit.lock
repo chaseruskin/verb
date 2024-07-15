@@ -13,14 +13,14 @@ dependencies = []
 name = "vertex"
 version = "0.1.0"
 uuid = "4f86de3f-64f2-4252-a150-4276788dafcf"
-checksum = "6ac6e38bd38c31ff605541cff325c605da3119448f0b2d345f3574c4e17f598e"
-url = "https://github.com/cdotrus/vertex/archive/refs/tags/0.1.0.zip"
+url = "https://github.com/cdotrus/vertex/archive/refs/tags/{{orbit.ip.version}}.zip"
+path = "/Users/chase/Develop/py/vertex/src/lib/vhdl"
 dependencies = ["amp:1.0.0"]
 
 [[ip]]
-name = "vertex-example-bcd"
+name = "vertex-example-add"
 version = "0.0.0"
-uuid = "76214811-cf53-4873-a413-389f3784d97d"
+uuid = "2f3771c4-9032-4cd7-b20c-480a4b9cf525"
 dependencies = [
     "amp:1.0.0",
     "vertex:0.1.0",
