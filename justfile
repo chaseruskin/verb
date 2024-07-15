@@ -41,7 +41,7 @@ user-install:
 dev-install:
     just version-ok
     just agglo-vhdl
-    pip install -e src/lib/python --force
+    pip install --user -e src/lib/python --force
     orbit install --path src/lib/vhdl --force
     cargo install --path src/bin/vertex --force
 
