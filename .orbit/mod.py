@@ -159,12 +159,14 @@ class Command:
     
 
     def spawn(self, verbose: bool=False) -> Status:
-        job = self._command
-        for c in self._args:
-            job = job + ' ' + Env.quote_str(c)
+        job = [self._command] + self._args
         if verbose == True:
-            print('info:', job)
-        status = os.system(job)
+            command_line = self._command
+            for c in self._args:
+                command_line += ' ' + Env.quote_str(c)
+            print('info:', command_line)
+        child = subprocess.Popen(job)
+        status = child.wait()
         return Status.from_int(status)
     
 
@@ -180,7 +182,7 @@ class Command:
         try:
             pipe = subprocess.Popen(job, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         except FileNotFoundError:
-            print('error: Command not found: \"'+self._command+'\"')
+            print('error: command not found: \"'+self._command+'\"')
             return ('', Status.FAIL)
         out, err = pipe.communicate()
         if err is not None:

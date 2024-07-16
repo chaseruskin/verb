@@ -1,5 +1,5 @@
 use crate::error::Error;
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 use std::{fmt::Display, str::FromStr};
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -28,12 +28,24 @@ impl Net {
         self.default.as_ref()
     }
 
+    pub fn set_default(&mut self, val: String) {
+        self.default = Some(val);
+    }
+
     pub fn is_input(&self) -> bool {
         self.mode.starts_with("in") == true && self.mode.contains("inout") == false
     }
 
     pub fn is_output(&self) -> bool {
         self.mode.starts_with("out") == true
+    }
+
+    /// Checks if this net has the same identifier
+    pub fn is_identifier(&self, name: &str, ignore_case: bool) -> bool {
+        match ignore_case {
+            true => &self.identifier.to_uppercase() == &name.to_uppercase(),
+            false => &self.identifier == &name,
+        }
     }
 }
 
@@ -53,6 +65,18 @@ impl Unit {
 
     pub fn get_identifier(&self) -> &String {
         &self.identifier
+    }
+
+    pub fn get_generics(&self) -> &Vec<Net> {
+        &self.generics
+    }
+
+    pub fn get_generics_mut(&mut self) -> &mut Vec<Net> {
+        &mut self.generics
+    }
+
+    pub fn get_language(&self) -> &String {
+        &self.language
     }
 }
 

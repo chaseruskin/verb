@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 # Project: Verb
 # Script: bcd_enc_tb.py
 #

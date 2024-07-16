@@ -79,13 +79,3 @@ Options:
     --version    print the version information and exit
     --help, -h   print this help information and exit
 ";
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn ut_it_works() {
-        assert_eq!(true, true);
-    }
-}

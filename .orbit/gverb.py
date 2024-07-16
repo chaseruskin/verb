@@ -27,7 +27,7 @@ Env.add_path(GHDL_PATH)
 
 # Handle command-line arguments
 
-parser = argparse.ArgumentParser(prog='gvert', allow_abbrev=False)
+parser = argparse.ArgumentParser(prog='gverb', allow_abbrev=False)
 
 parser.add_argument('--lint', action='store_true', default=False, help='run static analysis and exit')
 parser.add_argument('--generic', '-g', action='append', type=Generic.from_arg, default=[], metavar='KEY=VALUE', help='override top-level VHDL generics')
@@ -38,11 +38,11 @@ parser.add_argument('--exit-on', action='store', default='error', metavar='LEVEL
 parser.add_argument('--log', action='store', default='events.log', help='specify the log file path written during simulation')
 parser.add_argument('--skip-model', action='store_true', help='skip execution of a design model (if exists)')
 parser.add_argument('--seed', action='store', type=int, nargs='?', default=None, const=random.randrange(sys.maxsize), metavar='NUM', help='set the randomness seed')
-parser.add_argument('--max-tests', action='store', type=int, default=10_000, help='specify the limit of tests before timing out')
+parser.add_argument('--loop-limit', action='store', type=int, default=10_000, help='specify the limit of tests before timing out')
 
 args = parser.parse_args()
 
-MAX_TESTS = int(args.max_tests)
+MAX_TESTS = int(args.loop_limit)
 SKIP_MODEL = bool(args.skip_model)
 IS_RELAXED = bool(args.relax)
 GENERICS: List[Generic] = args.generic
@@ -98,50 +98,57 @@ if LINT_ONLY == True:
     exit(0)
 
 
-# [STEP]: Run the design model to generate test vectors
+# Run the design model to generate test vectors
 
 if HAS_MODEL == True and SKIP_MODEL == False:
-    import json
-
     ORBIT_TB = Env.read("ORBIT_BENCH", missing_ok=False)
     ORBIT_DUT = Env.read("ORBIT_DUT", missing_ok=False)
 
     # export the interfaces using orbit to get the json data format
-    dut_data = Command("orbit").arg("get").arg(ORBIT_DUT).arg("--json").output()[0]
-    tb_data = Command("orbit").arg("get").arg(ORBIT_TB).arg("--json").output()[0]
+    dut_data = Command("orbit").arg("get").arg(ORBIT_DUT).arg("--json").output()[0].strip()
+    tb_data = Command("orbit").arg("get").arg(ORBIT_TB).arg("--json").output()[0].strip()
 
-    tb_json = json.loads(tb_data)
-    # modify the json data and set defaults
-    for g in GENERICS:
-        for tb_gen in tb_json['generics']:
-            if tb_gen['identifier'].upper() == g.key.upper():
-                tb_gen['default'] = str(g.val)
-                pass
-            pass
-        pass
+    # tb_json = json.loads(tb_data)
+    # # modify the json data and set defaults
+    # for g in GENERICS:
+    #     for tb_gen in tb_json['generics']:
+    #         if tb_gen['identifier'].upper() == g.key.upper():
+    #             tb_gen['default'] = str(g.val)
+    #             pass
+    #         pass
+    #     pass
+    # tb_data = json.dumps(tb_json, separators=(',', ':'))
+    # # send environment variables for verb
+    # Env.write("VERTEX_DUT", dut_data.strip())
+    # Env.write("VERTEX_TB", tb_data.strip())
+    # Env.write("VERTEX_EVENTS_LOG", EVENTS_LOG_FILE)
+    # Env.write("VERTEX_COVERAGE_REPORT", 'coverage.txt')
+    # Env.write("VERTEX_RANDOM_SEED", SEED)
+    # Env.write("VERTEX_TEST_COUNT_LIMIT", MAX_TESTS)
 
-    tb_data = json.dumps(tb_json, separators=(',', ':'))
+    status = Command("verb") \
+        .arg("model") \
+        .arg("--coverage").arg('coverage.txt') \
+        .arg("--seed="+str(SEED) if SEED != None else None) \
+        .arg("--loop-limit="+str(MAX_TESTS) if MAX_TESTS != None else None) \
+        .arg("--dut").arg(dut_data) \
+        .arg("--tb").arg(tb_data) \
+        .args(['-g ' + item.to_str() for item in GENERICS]) \
+        .arg("python") \
+        .arg("--") \
+        .arg(py_model) \
+        .spawn()
+    
+    status.unwrap()
 
-    # send environment variables for verb
-    Env.write("VERTEX_DUT", dut_data.strip())
-    Env.write("VERTEX_TB", tb_data.strip())
-
-    Env.write("VERTEX_EVENTS_LOG", EVENTS_LOG_FILE)
-    Env.write("VERTEX_COVERAGE_REPORT", 'coverage.txt')
-
-    Env.write("VERTEX_RANDOM_SEED", SEED)
-    Env.write("VERTEX_TEST_COUNT_LIMIT", MAX_TESTS)
-
-    # or set these on the command-line of the verb tool
-
-    import runpy, sys, os
-    # Switch the sys.path[0] from this script's path to the model's path
-    this_script_path = sys.path[0]
-    sys.path[0] = os.path.dirname(py_model)
-    print("info: running python software model ...")
-    # run the python model script in its own namespace
-    runpy.run_path(py_model, init_globals={})
-    sys.path[0] = this_script_path
+    # import runpy, sys, os
+    # # Switch the sys.path[0] from this script's path to the model's path
+    # this_script_path = sys.path[0]
+    # sys.path[0] = os.path.dirname(py_model)
+    # print("info: running python software model ...")
+    # # run the python model script in its own namespace
+    # runpy.run_path(py_model, init_globals={})
+    # sys.path[0] = this_script_path
     pass
 
 
@@ -171,22 +178,31 @@ print("info: vcd file saved at:", os.path.join(os.getcwd(), VCD_FILE))
 rc: int = 0
 
 if HAS_MODEL == True:
-    import verb
-    # print("info: Simulation history saved at:", verb.log.get_event_log_path())
-    print("info: analyzing results ...\n")
 
-    print('--- coverage analysis summary ---')
-    print(verb.coverage.summary())
-    print('--- simulation analysis summary ---')
-    print(verb.analysis.summary())
+    status: Status = Command('verb') \
+        .arg('check') \
+        .arg(EVENTS_LOG_FILE) \
+        .arg("--coverage=coverage.txt" if os.path.exists('coverage.txt') else None) \
+        .arg('--stats') \
+        .spawn()
+    
+    status.unwrap()
 
-    print("info: coverage report saved at:", os.path.join(os.getcwd(), verb.coverage.report_path()))
-    print("info: events log saved at:", os.path.join(os.getcwd(), EVENTS_LOG_FILE))
+    # # print("info: Simulation history saved at:", verb.log.get_event_log_path())
+    # print("info: analyzing results ...\n")
 
-    print("info: coverage score:", verb.coverage.report_score())
-    print("info: simulation score:", verb.analysis.report_score())
+    # print('--- coverage analysis summary ---')
+    # print(verb.coverage.summary())
+    # print('--- simulation analysis summary ---')
+    # print(verb.analysis.summary())
 
-    rc = 0 if verb.analysis.check() == True and verb.coverage.check() == True else 101
+    # print("info: coverage report saved at:", os.path.join(os.getcwd(), verb.coverage.report_path()))
+    # print("info: events log saved at:", os.path.join(os.getcwd(), EVENTS_LOG_FILE))
+
+    # print("info: coverage score:", verb.coverage.report_score())
+    # print("info: simulation score:", verb.analysis.report_score())
+
+    # rc = 0 if verb.analysis.check() == True and verb.coverage.check() == True else 101
     pass
 
 exit(rc)

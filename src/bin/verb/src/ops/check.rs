@@ -1,14 +1,100 @@
+use std::path::PathBuf;
+
 use cliproc::{cli, proc, stage::Memory};
 use cliproc::{Arg, Cli, Help, Subcommand};
 
-pub struct Check {}
+use crate::error::Error;
+
+pub struct Check {
+    events: PathBuf,
+    coverage: Option<String>,
+    stats: bool,
+}
 
 impl Subcommand<()> for Check {
     fn interpret(cli: &mut Cli<Memory>) -> cli::Result<Self> {
-        Ok(Self {})
+        cli.help(Help::with(HELP))?;
+        Ok(Self {
+            stats: cli.check(Arg::flag("stats"))?,
+            coverage: cli.get(Arg::option("coverage"))?,
+            events: cli.require(Arg::positional("events"))?,
+        })
     }
 
-    fn execute(self, c: &()) -> proc::Result {
-        Ok(())
+    fn execute(self, _c: &()) -> proc::Result {
+        // load the events file
+        let data = std::fs::read_to_string(&self.events)?;
+        // parse the events
+        let mut okays = 0;
+        let mut total = 0;
+        let events = data.split_terminator('\n');
+        for e in events {
+            // split an event into its pieces
+            let mut items = e.split_whitespace();
+            let _timestamp = items.next().unwrap();
+            let level = items.next().unwrap();
+            if level == "INFO" || level == "TRACE" || level == "DEBUG" {
+                okays += 1;
+            }
+            total += 1;
+        }
+
+        let mut total_points: Option<usize> = None;
+        let mut points_covered: Option<usize> = None;
+        // load the coverage file
+        if let Some(path) = &self.coverage {
+            let data = std::fs::read_to_string(path)?;
+            // find the coverage lines
+            let stats = data.split_terminator('\n');
+            for s in stats {
+                let is_total_points = s.starts_with("Total points:");
+                let is_points_covered = s.starts_with("Points covered:");
+                if is_total_points == true || is_points_covered == true {
+                    let (_name, value) = s.split_once(':').unwrap();
+                    let value = value.trim();
+                    if is_total_points == true {
+                        total_points = Some(usize::from_str_radix(value, 10).unwrap());
+                    } else {
+                        points_covered = Some(usize::from_str_radix(value, 10).unwrap());
+                    }
+                }
+            }
+        }
+
+        if self.stats == true {
+            println!("info: simulation score: {}/{}", okays, total);
+        }
+
+        // check coverage
+        if total_points.is_some() && points_covered.is_some() {
+            let tp = total_points.unwrap();
+            let pc = points_covered.unwrap();
+            if self.stats == true {
+                println!("info: coverage score: {}/{}", pc, tp);
+            }
+            match tp == pc {
+                true => (),
+                false => return Err(Error::FailedCoverage(tp - pc))?,
+            }
+        }
+        // check events
+        match okays == total {
+            true => Ok(()),
+            false => Err(Error::FoundUnexpectedEvents(total - okays))?,
+        }
     }
 }
+
+const HELP: &str = "\
+Analyze the simulation's results.
+
+Usage:
+    verb check [options] <events>
+
+Args:
+    <events>       file system path to the events log
+    --stats        display summary statistics
+
+Options:
+    --coverage <file>  path to read coverage report
+";

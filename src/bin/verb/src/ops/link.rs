@@ -84,7 +84,7 @@ impl Subcommand<()> for Link {
                 "{}",
                 Self::to_string_comp(&filtered_ports, &self.json.get_identifier(), "bfm")
             );
-            space_next_display = true;
+            // space_next_display = true;
         }
         Ok(())
     }
@@ -165,7 +165,7 @@ impl Link {
 
     /// Computes the number of characters required for the longest known
     /// identifier.
-    fn longest_id_len(ids: Vec<&String>) -> usize {
+    fn _longest_id_len(ids: Vec<&String>) -> usize {
         ids.iter().map(|s| s.len()).max().unwrap_or(0)
     }
 }
