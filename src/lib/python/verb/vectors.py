@@ -1,4 +1,4 @@
-# Project: Vertex
+# Project: Verb
 # Module: vectors
 #
 # A Vectors contains the test vectors for a particular model.

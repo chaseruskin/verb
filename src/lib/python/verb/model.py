@@ -82,14 +82,14 @@ def __compile_ports(model):
     and the 'value' is a tuple (Signal, Dict).
     '''
     # save computations
-    if hasattr(model, '__vertex_cached_ports') == True:
-        return model.__vertex_cached_ports
+    if hasattr(model, '__verb_cached_ports') == True:
+        return model.__verb_cached_ports
     
     from .context import Context, Runner
 
     runner: Runner = Context.current()
     
-    model.__vertex_cached_ports = dict()
+    model.__verb_cached_ports = dict()
     for (key, val) in vars(model).items():
         # only python variables declared as signals can be a port
         if isinstance(val, Signal) == False:
@@ -101,9 +101,9 @@ def __compile_ports(model):
         if port != None:
             index = runner.port_index(defined_name)
             # store the interface data and the signal data together
-            model.__vertex_cached_ports[defined_name] = (index, val, port)
+            model.__verb_cached_ports[defined_name] = (index, val, port)
         pass
-    return model.__vertex_cached_ports
+    return model.__verb_cached_ports
 
 
 def _extract_ports(model, mode: Mode):

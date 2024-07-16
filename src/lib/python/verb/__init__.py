@@ -1,5 +1,5 @@
 '''
-Software drivers for the verifying hardware with Vertex.
+Software drivers for simulating hardware with Verb.
 '''
 
 __all__ = ["primitives", "context", "signal", "model", "coverage", "analysis"]

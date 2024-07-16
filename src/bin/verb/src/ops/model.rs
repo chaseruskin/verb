@@ -71,7 +71,7 @@ const HELP: &str = "\
 Run the software script for a design's model.
 
 Usage:
-    vertex model [options] --dut <json> --tb <json> <model> [--] [args]...
+    verb model [options] --dut <json> --tb <json> <model> [--] [args]...
 
 Args:
     <model>         file system path to the software model

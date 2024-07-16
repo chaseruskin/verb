@@ -1,6 +1,6 @@
 # Test Vectors
 
-One of the key concepts in the Vertex framework is using _file I/O_ to communicate data between the software model and the hardware design throughout the verification process. When running the hardware simulation, the testbench receives the information about the inputs and expected outputs by reading files called _vectors_.
+One of the key concepts in the Verb framework is using _file I/O_ to communicate data between the software model and the hardware design throughout the verification process. When running the hardware simulation, the testbench receives the information about the inputs and expected outputs by reading files called _vectors_.
 
 _Vectors_ store the test vectors for the hardware design to use- that is, they contain the actual data to either drive as inputs or compare with their outputs.
 
@@ -35,6 +35,6 @@ It is the testbench's responsibility to determine _when_ to actually supply each
 
 One of the consequences of having the vectors files have a very simple format allows for easier parsing in the hardware languages. It also means not a lot of additional information is known, such as what order the ports are arranged in each vector.
 
-To check the order of ports that Vertex writes to vectors, see the `vertex link` command. An option is available to print the list of ports in their vector order for inputs and outputs. 
+To check the order of ports that Verb writes to vectors, see the `verb link` command. An option is available to print the list of ports in their vector order for inputs and outputs. 
 
 A user can also find the port order by identifying the order in which the ports appear in the source code for the hardware design's port interface declarations.

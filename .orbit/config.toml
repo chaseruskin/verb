@@ -1,16 +1,16 @@
 [[target]]
-name   = "gvert"
-description = "Run verification workflows with ghdl and vertex"
+name   = "gverb"
+description = "Run simulations with ghdl and verb"
 command = "python"
-args    = ["gvert.py"]
+args    = ["gverb.py"]
 fileset.pymdl = "{{ orbit.bench }}.py"
 explanation = """
 Analyzes and simulates a testbench with GHDL. This target supports running
-a design model in Python to generate test vectors using the Vertex verification
+a design model in Python to generate test vectors using the Verb simulation
 framework.
 
 Help:
-    orbit build --target gvert --force -- --help
+    orbit build --target gverb --force -- --help
 
 Environment:
     ORBIT_ENV_GHDL_PATH             Filesystem path specifying GHDL binary
@@ -21,4 +21,4 @@ Dependencies:
 """
 
 [test]
-default-target = "gvert"
+default-target = "gverb"

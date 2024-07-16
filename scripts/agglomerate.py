@@ -1,4 +1,4 @@
-# Project: Vertex
+# Project: Verb
 # Script: agglomerate.py
 #
 # Reads the existing VHDL files and copies the existing functions and types 
@@ -52,7 +52,7 @@ for (path, should_inc) in FILE_ORDER:
 
 
 HEADER = '''\
--- Project: Vertex
+-- Project: Verb
 -- Package: ''' + PACKAGE_NAME + '''
 --
 -- This package brings the separate VHDL packages under a single package

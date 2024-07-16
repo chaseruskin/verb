@@ -1,4 +1,4 @@
--- Project: Vertex
+-- Project: Verb
 -- Package: test
 --
 -- This package brings the separate VHDL packages under a single package

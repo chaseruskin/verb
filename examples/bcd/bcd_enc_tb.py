@@ -1,4 +1,4 @@
-# Project: Vertex
+# Project: Verb
 # Script: bcd_enc_tb.py
 #
 # This script generates the I/O test vector files to be used with the 
@@ -6,9 +6,9 @@
 # robust of the tests.
 
 import random
-from vertex import context, coverage
-from vertex.model import *
-from vertex.coverage import *
+from verb import context, coverage
+from verb.model import *
+from verb.coverage import *
 
 # Model the hardware
 class BcdEncoder:

@@ -1,4 +1,4 @@
-# Project: Vertex
+# Project: Verb
 # Target: gvert
 # References: https://github.com/ghdl/ghdl
 #
@@ -101,7 +101,6 @@ if LINT_ONLY == True:
 # [STEP]: Run the design model to generate test vectors
 
 if HAS_MODEL == True and SKIP_MODEL == False:
-    import vertex
     import json
 
     ORBIT_TB = Env.read("ORBIT_BENCH", missing_ok=False)
@@ -123,7 +122,7 @@ if HAS_MODEL == True and SKIP_MODEL == False:
 
     tb_data = json.dumps(tb_json, separators=(',', ':'))
 
-    # send environment variables for vertex
+    # send environment variables for verb
     Env.write("VERTEX_DUT", dut_data.strip())
     Env.write("VERTEX_TB", tb_data.strip())
 
@@ -133,7 +132,7 @@ if HAS_MODEL == True and SKIP_MODEL == False:
     Env.write("VERTEX_RANDOM_SEED", SEED)
     Env.write("VERTEX_TEST_COUNT_LIMIT", MAX_TESTS)
 
-    # or set these on the command-line of the vertex tool
+    # or set these on the command-line of the verb tool
 
     import runpy, sys, os
     # Switch the sys.path[0] from this script's path to the model's path
@@ -172,21 +171,22 @@ print("info: vcd file saved at:", os.path.join(os.getcwd(), VCD_FILE))
 rc: int = 0
 
 if HAS_MODEL == True:
-    # print("info: Simulation history saved at:", vertex.log.get_event_log_path())
+    import verb
+    # print("info: Simulation history saved at:", verb.log.get_event_log_path())
     print("info: analyzing results ...\n")
 
     print('--- coverage analysis summary ---')
-    print(vertex.coverage.summary())
+    print(verb.coverage.summary())
     print('--- simulation analysis summary ---')
-    print(vertex.analysis.summary())
+    print(verb.analysis.summary())
 
-    print("info: coverage report saved at:", os.path.join(os.getcwd(), vertex.coverage.report_path()))
+    print("info: coverage report saved at:", os.path.join(os.getcwd(), verb.coverage.report_path()))
     print("info: events log saved at:", os.path.join(os.getcwd(), EVENTS_LOG_FILE))
 
-    print("info: coverage score:", vertex.coverage.report_score())
-    print("info: simulation score:", vertex.analysis.report_score())
+    print("info: coverage score:", verb.coverage.report_score())
+    print("info: simulation score:", verb.analysis.report_score())
 
-    rc = 0 if vertex.analysis.check() == True and vertex.coverage.check() == True else 101
+    rc = 0 if verb.analysis.check() == True and verb.coverage.check() == True else 101
     pass
 
 exit(rc)

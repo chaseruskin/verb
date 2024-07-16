@@ -56,7 +56,7 @@ The comment is low-level information that is important to this capture event. It
 <subject> <predicate>
 ```
 
-The comment is typically discarded during analysis by Vertex and is mainly for the benefit of the user.
+The comment is typically discarded during analysis by Verb and is mainly for the benefit of the user.
 
 Example:
 ```

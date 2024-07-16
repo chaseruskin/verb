@@ -1,6 +1,6 @@
 # Overview
 
-The Vertex framework is divided into three main layers.
+The Verb framework is divided into three main layers.
 
 - _Software Layer_: low-level functions to generate inputs and outputs and analyze recorded data
 - _Data Layer_: persistent storage of data to be shared between hardware and software layers
@@ -22,7 +22,7 @@ The software layer is available as a library and as a stand-alone program.
 
 ### Data Layer
 
-The data layer stores the tests to run during simulation and the expected outputs. This information is typically stored in a specific file format already handled by Vertex.
+The data layer stores the tests to run during simulation and the expected outputs. This information is typically stored in a specific file format already handled by Verb.
 
 Each line in a data file is a _transaction_. A transaction in this sense is the combination of complete set of inputs or outputs. For data stored in an input file, each transaction is to be the input into the design-under-test on a single clock cycle. For data stored in an output file, each transaction is the outputs to be checked against the design-under-test's outputs in the scoreboard. The output transactions do not have to be checked every clock cycle, and may only be cared when a certain condition occurs (such as a valid signal being asserted).
 

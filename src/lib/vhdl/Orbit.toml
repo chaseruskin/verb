@@ -1,8 +1,8 @@
 [ip]
-name = "vertex"
+name = "verb"
 version = "0.1.0"
-description = "Hardware drivers for functional verification"
-source = "https://github.com/cdotrus/vertex/archive/refs/tags/{{orbit.ip.version}}.zip"
+description = "Hardware drivers for simulating digital hardware"
+source = "https://github.com/cdotrus/verb/archive/refs/tags/{{orbit.ip.version}}.zip"
 public = ["/src"]
 
 # See more keys and their definitions at https://cdotrus.github.io/orbit/reference/manifest.html

@@ -1,4 +1,4 @@
-# Project: Vertex
+# Project: Verb
 # Module: context
 #
 # Handles input/output interface between components outside of the library.

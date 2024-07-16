@@ -1,5 +1,5 @@
 import unittest as ut
-from ..vertex.coverage import *
+from ..verb.coverage import *
 
 class Test(ut.TestCase):
 

@@ -1,4 +1,4 @@
-# Project: Vertex
+# Project: Verb
 # Module: mod.py
 # 
 # This module contains common low-level functions used across plugins written 

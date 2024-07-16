@@ -1,4 +1,4 @@
--- Project: Vertex
+-- Project: Verb
 -- Package: events
 --
 -- This package contains data recording procedures to capture events of 

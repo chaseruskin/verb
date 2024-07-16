@@ -1,4 +1,4 @@
-# Project: Vertex
+# Project: Verb
 # Model: add
 #
 # This script generates the I/O test vector files to be used with the 
@@ -7,9 +7,9 @@
 # Generates a coverage report as well to indicate the robust of the test.
 
 import random
-from vertex import context, coverage, pow2m1
-from vertex.model import *
-from vertex.coverage import *
+from verb import context, coverage, pow2m1
+from verb.model import *
+from verb.coverage import *
 
 # Define the functional model
 class Add:

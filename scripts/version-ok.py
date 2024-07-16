@@ -1,4 +1,4 @@
-# Project: Vertex
+# Project: Verb
 # Script: version-ok.py
 #
 # Verifies all locations where a version is specified with an explicit value is
@@ -10,7 +10,7 @@ version = sys.argv[1]
 
 paths = [
     'src/lib/python/pyproject.toml',
-    'src/bin/vertex/Cargo.toml',
+    'src/bin/verb/Cargo.toml',
     'src/lib/vhdl/Orbit.toml',
 ]
 

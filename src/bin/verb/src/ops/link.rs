@@ -94,7 +94,7 @@ const HELP: &str = "\
 Generate code snippets for hw/sw synchronization.
 
 Usage:
-    vertex link [options] <json>
+    verb link [options] <json>
 
 Args:
     <json>      hw unit's interface encoded in json format

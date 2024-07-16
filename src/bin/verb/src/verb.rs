@@ -4,16 +4,16 @@ use cliproc::{Arg, Cli, Command, Help, Subcommand};
 use std::env;
 
 // Define the struct and the data required to perform its task
-pub struct Vertex {
+pub struct Verb {
     version: bool,
     subcommand: Option<Operation>,
 }
 
-impl Command for Vertex {
+impl Command for Verb {
     // Map the command-line data to the struct's data
     fn interpret(cli: &mut Cli<Memory>) -> cli::Result<Self> {
         cli.help(Help::with(HELP))?;
-        Ok(Vertex {
+        Ok(Verb {
             version: cli.check(Arg::flag("version"))?,
             subcommand: cli.nest(Arg::subcommand("command"))?,
         })
@@ -65,13 +65,13 @@ impl Subcommand<()> for Operation {
 const VERSION: &str = env!("CARGO_PKG_VERSION");
 
 const HELP: &str = "\
-A tool to help verify digital hardware.
+Verb is a tool to help simulate digital hardware.
 
 Usage:
-    vertex [options] [command]
+    verb [options] [command]
 
 Commands:
-    link        generate code snippets for hw/sw synchronization 
+    link        generate code snippets for hw/sw coherency 
     model       run the software script for a design's model
     check       analyze the output from a hardware simulation
     

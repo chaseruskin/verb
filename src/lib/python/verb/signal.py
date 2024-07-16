@@ -1,4 +1,4 @@
-# Project: Vertex
+# Project: Verb
 # Module: signal
 #
 # A Signal carries information.

@@ -1,9 +1,9 @@
 [ip]
-name = "vertex-example-bcd"
+name = "verb-example-bcd"
 version = "0.0.0"
 
 [dependencies]
 amp = "1.0.0"
 
 [dev-dependencies]
-vertex = { path = "../../src/lib/vhdl", version = "0.1.0" }
+verb = { path = "../../src/lib/vhdl", version = "0.1.0" }

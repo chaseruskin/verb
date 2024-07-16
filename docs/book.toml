@@ -3,4 +3,4 @@ authors = ["Chase Ruskin"]
 language = "en"
 multilingual = false
 src = "src"
-title = "Verifying Hardware with Vertex"
+title = "Verifying Hardware with Verb"

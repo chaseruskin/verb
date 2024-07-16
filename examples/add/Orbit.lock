@@ -10,18 +10,18 @@ url = "https://github.com/hyperspace-labs/amp/archive/refs/tags/1.0.0.zip"
 dependencies = []
 
 [[ip]]
-name = "vertex"
+name = "verb"
 version = "0.1.0"
-uuid = "4f86de3f-64f2-4252-a150-4276788dafcf"
-url = "https://github.com/cdotrus/vertex/archive/refs/tags/{{orbit.ip.version}}.zip"
-path = "/Users/chase/Develop/py/vertex/src/lib/vhdl"
+uuid = "41121578-6fc8-4c17-80ef-19c6492d5b64"
+url = "https://github.com/cdotrus/verb/archive/refs/tags/{{orbit.ip.version}}.zip"
+path = "/Users/chase/Develop/py/verb/src/lib/vhdl"
 dependencies = ["amp:1.0.0"]
 
 [[ip]]
-name = "vertex-example-add"
+name = "verb-example-add"
 version = "0.0.0"
-uuid = "2f3771c4-9032-4cd7-b20c-480a4b9cf525"
+uuid = "5fb5c0b5-0de7-489a-9e4c-686df8b8458e"
 dependencies = [
     "amp:1.0.0",
-    "vertex:0.1.0",
+    "verb:0.1.0",
 ]

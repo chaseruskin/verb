@@ -1,4 +1,4 @@
--- Project: Vertex
+-- Project: Verb
 -- Package: tutils
 --
 -- Provides test utility functions for testbench simulation. This involves

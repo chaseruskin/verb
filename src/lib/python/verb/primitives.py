@@ -1,4 +1,4 @@
-# Project: Vertex
+# Project: Verb
 # Module: primitives
 #
 # Implements standard set of common functions.

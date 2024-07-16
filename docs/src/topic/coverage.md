@@ -10,13 +10,13 @@ For example, consider we are testing a hardware addition unit. If we run 1,000 t
 
 There are various forms of coverage. One form of coverage is _code coverage_, which involves tracking the actual lines of code that have been executed during testing. Another form of coverage is _functional coverage_, which involves tracking a set of _scenarios_ that have occurred during testing. We define a _scenario_ as a sequence of events that are of interest that set the design into a particular state.
 
-Currently, Vertex only supports functional coverage. Users define coverage goals according to a design's coverage specification through coverage nets.
+Currently, Verb only supports functional coverage. Users define coverage goals according to a design's coverage specification through coverage nets.
 
 ## Coverage Nets
 
 _Coverage nets_ allow the user to specify the coverage scenarios in software by determining how the design can reach a particular scenario and what the design's state should be when that scenario occurs.
 
-The following coverage nets are available in Vertex:
+The following coverage nets are available in Verb:
 
 - `CoverPoint`: Scenarios involving a single state
 
@@ -40,7 +40,7 @@ Randomness is good for verification- it increases the confidence in your design 
 
 _Coverage-driven test generation_ (CDTG) is a form of constrained randomness that uses the knowledge of the existing coverage nets to generate the next random test vector within the constraints of advancing toward a currently unmet coverage goal.
 
-Vertex supports this form of constrained random test generation by maintaining a list of all the known coverage nets during modeling and assigning the inputs of the model instance with random values that would advance a currently unmet coverage goal.
+Verb supports this form of constrained random test generation by maintaining a list of all the known coverage nets during modeling and assigning the inputs of the model instance with random values that would advance a currently unmet coverage goal.
 
 ## Relating fishing to coverage - an analogy
 
@@ -68,6 +68,6 @@ Your main source of guidance during the fishing expedition was the _old map_, wh
 
 With the knowledge of what locations in the sea are important, you then create your nets for each location. This is the same as using the knowledge of which coverage scenarios are important to then create _coverage nets_, which formalize the particular scenario in software, how to reach that scenario, and what the design's state should look like during the scenario.
 
-The remaining steps, reaching a marked location and casting the net, may be hard to translate to software. That's where Vertex and coverage-driven test generation shines. CDTG essentially steers your boat automatically (with some degree of randomness) and then casts the correct the net once it arrives at the given scenario. Using CTDG can automate the task of arriving at coverage scenarios for currently unmet coverage goals.
+The remaining steps, reaching a marked location and casting the net, may be hard to translate to software. That's where Verb and coverage-driven test generation shines. CDTG essentially steers your boat automatically (with some degree of randomness) and then casts the correct the net once it arrives at the given scenario. Using CTDG can automate the task of arriving at coverage scenarios for currently unmet coverage goals.
 
 Once all coverage goals are met, it is sufficient to say there are no more inputs required to be tested and testing can conclude. At this point, if all tests generated their correct expected values, then the design is successfully verified. Woo-hoo! Time to return home and tell everyone in your town about functional coverage.

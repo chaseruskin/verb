@@ -14,11 +14,11 @@ Since digital hardware is at least necessary to write software (think about how 
 
 ## The solution
 
-Enter _Vertex_- a functional verification framework for digital hardware designs.
+Enter _Verb_- a functional verification framework for digital hardware designs.
 
-Vertex defines a collection of low-level functions, also known as _drivers_, that allow a user to communicate between software models and hardware designs for verification. The main form of communication Vertex uses to pass data between hardware and software is _file I/O_. This method was chosen due to its simplicity and wide support in existing HDLs. Drivers are implemented in both the software programming languages and the HDLs to faciliate the interaction between the design and the model.
+Verb defines a collection of low-level functions, also known as _drivers_, that allow a user to communicate between software models and hardware designs for verification. The main form of communication Verb uses to pass data between hardware and software is _file I/O_. This method was chosen due to its simplicity and wide support in existing HDLs. Drivers are implemented in both the software programming languages and the HDLs to faciliate the interaction between the design and the model.
 
-By using the drivers available through Vertex, for every new hardware design users must only focus on writing the model, not configuring the whole testbench.
+By using the drivers available through Verb, for every new hardware design users must only focus on writing the model, not configuring the whole testbench.
 
 This framework attempts to decouple the functional and timing aspects of a hardware simulation. The functional model is written in software, while the exact timing of how to monitor and check the design under test is kept in HDL. This separation of layers allows each language to focus in how they are naturally used.
 

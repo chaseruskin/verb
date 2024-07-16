@@ -1,10 +1,10 @@
-# Project: Vertex
+# Project: Verb
 # Test: signal.py
 #
 # Verifies behavior for the Signal class.
 
 import unittest as ut
-from ..vertex.signal import *
+from ..verb.signal import *
 
 class Test(ut.TestCase):
 

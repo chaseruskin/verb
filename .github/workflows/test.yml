@@ -3,7 +3,7 @@ on:
   workflow_call:
 
 env:
-  project: vertex
+  project: verb
 
 jobs:
   test:
@@ -34,7 +34,7 @@ jobs:
       - name: Enable Cargo caching
         uses: Swatinem/rust-cache@v2
 
-      - name: Install Vertex components
+      - name: Install verb components
         run: just dev-install
 
       - name: Test software library
@@ -45,5 +45,5 @@ jobs:
         run: orbit test
 
       - name: Test command-line application
-        working-directory: ./src/bin/vertex
+        working-directory: ./src/bin/verb
         run: cargo test --verbose

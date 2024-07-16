@@ -17,5 +17,6 @@
     - [Events](./topic/events.md)
 
 - [Reference](./reference/reference.md)
+    - [Environment Variables](./reference/environment.md)
     
 - [Appendix: Glossary](./glossary.md)

@@ -1,4 +1,4 @@
-# Project: Vertex
+# Project: Verb
 # Module: coverage
 #
 # This module handles coverage implementations to track coverage nets: 

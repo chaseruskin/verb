@@ -1,8 +1,8 @@
 [package]
-name = "vertex"
+name = "verb"
 version = "0.1.0"
 edition = "2021"
-description = "A tool for functional verification"
+description = "A tool to help simulate digital hardware"
 
 [dependencies]
 cliproc = "2.1"
