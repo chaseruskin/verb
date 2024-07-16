@@ -377,14 +377,16 @@ package body test is
   end procedure;
 
   procedure drive(variable row: inout line; signal x: out logics) is
-    variable word: str(x'range);
-    variable temp: logics(x'range);
+    variable word: str(1 to x'length);
+    variable temp: logics(x'range) := (others => '0');
     variable delim: char;
+    variable j: psize := 1;
   begin
     if row'length > 0 then
       read(row, word);
       for i in x'range loop
-        temp(i) := to_logic(word(i));
+        temp(i) := to_logic(word(j));
+        j := j + 1;
       end loop;
       x <= temp;
       -- ignore the delimiter
@@ -394,13 +396,15 @@ package body test is
   end procedure;
 
   procedure load(variable row: inout line; variable x: out logics) is
-    variable word: str(x'range);
+    variable word: str(1 to x'length);
     variable delim: char;
+    variable j: psize := 1;
   begin
     if row'length > 0 then
       read(row, word);
       for i in x'range loop
-        x(i) := to_logic(word(i));
+        x(i) := to_logic(word(j));
+        j := j + 1;
       end loop;
       -- ignore the delimiter
       read(row, delim);

@@ -22,6 +22,12 @@ Verb is available as 3 separate components: a library for software drivers, a li
 
 Any of the components may have one or more implementations; install the component in the programming language or HDL you prefer. See [Installing](https://cdotrus.github.io/verb/starting/installing.html) for more details and available implementations.
 
+If you are using Linux or macOS, you can install all the components (using `pip`, `orbit`, and `cargo`):
+```
+curl --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/cdotrus/verb/trunk/install.sh | bash -s --
+
+```
+
 ## Details
 
 Verb defines a collection of low-level functions, also known as _drivers_, that allow a user to communicate between software models and hardware designs for simulation. The main form of communication Verb uses to pass data between hardware and software is _file I/O_. This method was chosen due to its simplicity and wide support in existing HDLs. Drivers are implemented in both the software programming languages and the HDLs to faciliate the interaction between the design and the model.
