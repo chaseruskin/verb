@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Coverage - Verifying Hardware with Vertex</title>
+        <title>Coverage - Verifying Hardware with Verb</title>
 
 
         <!-- Custom HTML head -->
@@ -88,7 +88,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded affix "><a href="../index.html">Introduction</a></li><li class="chapter-item expanded "><a href="../starting.md/starting.html"><strong aria-hidden="true">1.</strong> Getting Started</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../starting/motivation.html"><strong aria-hidden="true">1.1.</strong> Motivation</a></li><li class="chapter-item expanded "><a href="../starting/installing.html"><strong aria-hidden="true">1.2.</strong> Installing</a></li></ol></li><li class="chapter-item expanded "><a href="../tutorials/tutorials.html"><strong aria-hidden="true">2.</strong> Tutorials</a></li><li class="chapter-item expanded "><a href="../user/user.html"><strong aria-hidden="true">3.</strong> User Guide</a></li><li class="chapter-item expanded "><a href="../topic/topic.html"><strong aria-hidden="true">4.</strong> Topic Guide</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../topic/overview.html"><strong aria-hidden="true">4.1.</strong> Overview</a></li><li class="chapter-item expanded "><a href="../topic/vectors.html"><strong aria-hidden="true">4.2.</strong> Test Vectors</a></li><li class="chapter-item expanded "><a href="../topic/coverage.html" class="active"><strong aria-hidden="true">4.3.</strong> Coverage</a></li><li class="chapter-item expanded "><a href="../topic/events.html"><strong aria-hidden="true">4.4.</strong> Events</a></li></ol></li><li class="chapter-item expanded "><a href="../reference/reference.html"><strong aria-hidden="true">5.</strong> Reference</a></li><li class="chapter-item expanded "><a href="../glossary.html"><strong aria-hidden="true">6.</strong> Appendix: Glossary</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="../index.html">Introduction</a></li><li class="chapter-item expanded "><a href="../starting.md/starting.html"><strong aria-hidden="true">1.</strong> Getting Started</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../starting/motivation.html"><strong aria-hidden="true">1.1.</strong> Motivation</a></li><li class="chapter-item expanded "><a href="../starting/installing.html"><strong aria-hidden="true">1.2.</strong> Installing</a></li></ol></li><li class="chapter-item expanded "><a href="../tutorials/tutorials.html"><strong aria-hidden="true">2.</strong> Tutorials</a></li><li class="chapter-item expanded "><a href="../user/user.html"><strong aria-hidden="true">3.</strong> User Guide</a></li><li class="chapter-item expanded "><a href="../topic/topic.html"><strong aria-hidden="true">4.</strong> Topic Guide</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../topic/overview.html"><strong aria-hidden="true">4.1.</strong> Overview</a></li><li class="chapter-item expanded "><a href="../topic/vectors.html"><strong aria-hidden="true">4.2.</strong> Test Vectors</a></li><li class="chapter-item expanded "><a href="../topic/coverage.html" class="active"><strong aria-hidden="true">4.3.</strong> Coverage</a></li><li class="chapter-item expanded "><a href="../topic/events.html"><strong aria-hidden="true">4.4.</strong> Events</a></li></ol></li><li class="chapter-item expanded "><a href="../reference/reference.html"><strong aria-hidden="true">5.</strong> Reference</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../reference/environment.html"><strong aria-hidden="true">5.1.</strong> Environment Variables</a></li></ol></li><li class="chapter-item expanded "><a href="../glossary.html"><strong aria-hidden="true">6.</strong> Appendix: Glossary</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle">
                 <div class="sidebar-resize-indicator"></div>
@@ -141,7 +141,7 @@
                         </button>
                     </div>
 
-                    <h1 class="menu-title">Verifying Hardware with Vertex</h1>
+                    <h1 class="menu-title">Verifying Hardware with Verb</h1>
 
                     <div class="right-buttons">
                         <a href="../print.html" title="Print this book" aria-label="Print this book">
@@ -179,10 +179,10 @@
 <p>For example, consider we are testing a hardware addition unit. If we run 1,000 test cases and they are all correct, we may be led to believe our design is working perfectly! However, if we discover 500 of these test cases are testing 0+0 = 0 and the remaining 500 test cases are testing 0+1 = 1, that may be a different story. For a 1-bit adder, this might be okay (we covered 2/4 possible input combinations), but if this was a 32-bit adder, we may need to run a lot more tests (there are ${2^{32} * 2^{32} = 2^{64}}$ possible input combinations!). This simple example shows the importance of not just making sure <em>what</em> the design outputs is correct, but also making sure <em>how</em> the test cases sufficiently cover the design's input/state space.</p>
 <h3 id="types-of-coverage"><a class="header" href="#types-of-coverage">Types of coverage</a></h3>
 <p>There are various forms of coverage. One form of coverage is <em>code coverage</em>, which involves tracking the actual lines of code that have been executed during testing. Another form of coverage is <em>functional coverage</em>, which involves tracking a set of <em>scenarios</em> that have occurred during testing. We define a <em>scenario</em> as a sequence of events that are of interest that set the design into a particular state.</p>
-<p>Currently, Vertex only supports functional coverage. Users define coverage goals according to a design's coverage specification through coverage nets.</p>
+<p>Currently, Verb only supports functional coverage. Users define coverage goals according to a design's coverage specification through coverage nets.</p>
 <h2 id="coverage-nets"><a class="header" href="#coverage-nets">Coverage Nets</a></h2>
 <p><em>Coverage nets</em> allow the user to specify the coverage scenarios in software by determining how the design can reach a particular scenario and what the design's state should be when that scenario occurs.</p>
-<p>The following coverage nets are available in Vertex:</p>
+<p>The following coverage nets are available in Verb:</p>
 <ul>
 <li><code>CoverPoint</code>: Scenarios involving a single state</li>
 </ul>
@@ -202,7 +202,7 @@
 <h2 id="coverage-driven-test-generation-cdtg"><a class="header" href="#coverage-driven-test-generation-cdtg">Coverage-driven test generation (CDTG)</a></h2>
 <p>Randomness is good for verification- it increases the confidence in your design that it is robust against all kinds of inputs. However, randomness without constraints may make it difficult for complex designs to enter coverage scenarios in order to meet coverage in as reasonable number of test vectors. Therefore, a form of constrained randomness is ideal for balancing the robustness factor of a design as well as meeting all coverage goals.</p>
 <p><em>Coverage-driven test generation</em> (CDTG) is a form of constrained randomness that uses the knowledge of the existing coverage nets to generate the next random test vector within the constraints of advancing toward a currently unmet coverage goal.</p>
-<p>Vertex supports this form of constrained random test generation by maintaining a list of all the known coverage nets during modeling and assigning the inputs of the model instance with random values that would advance a currently unmet coverage goal.</p>
+<p>Verb supports this form of constrained random test generation by maintaining a list of all the known coverage nets during modeling and assigning the inputs of the model instance with random values that would advance a currently unmet coverage goal.</p>
 <h2 id="relating-fishing-to-coverage---an-analogy"><a class="header" href="#relating-fishing-to-coverage---an-analogy">Relating fishing to coverage - an analogy</a></h2>
 <p>You can think of functional coverage as fishing in a large open sea. We will first tell the story, and then relate it back to functional coverage.</p>
 <h3 id="fishing"><a class="header" href="#fishing">Fishing</a></h3>
@@ -216,7 +216,7 @@
 <p>The entire state space of the design can be considered the large unexplored sea. It can be very daunting to try to characterize the entire sea without any form of guidance.</p>
 <p>Your main source of guidance during the fishing expedition was the <em>old map</em>, which can be considered the <em>coverage specification</em> in the verification process. The coverage specification details the desired scenarios and how many times they should occur without failure during testing. Specifying <em>what</em> you would like to cover is typically good practice before trying to cover everything, which at many times is impractical for complex designs.</p>
 <p>With the knowledge of what locations in the sea are important, you then create your nets for each location. This is the same as using the knowledge of which coverage scenarios are important to then create <em>coverage nets</em>, which formalize the particular scenario in software, how to reach that scenario, and what the design's state should look like during the scenario.</p>
-<p>The remaining steps, reaching a marked location and casting the net, may be hard to translate to software. That's where Vertex and coverage-driven test generation shines. CDTG essentially steers your boat automatically (with some degree of randomness) and then casts the correct the net once it arrives at the given scenario. Using CTDG can automate the task of arriving at coverage scenarios for currently unmet coverage goals.</p>
+<p>The remaining steps, reaching a marked location and casting the net, may be hard to translate to software. That's where Verb and coverage-driven test generation shines. CDTG essentially steers your boat automatically (with some degree of randomness) and then casts the correct the net once it arrives at the given scenario. Using CTDG can automate the task of arriving at coverage scenarios for currently unmet coverage goals.</p>
 <p>Once all coverage goals are met, it is sufficient to say there are no more inputs required to be tested and testing can conclude. At this point, if all tests generated their correct expected values, then the design is successfully verified. Woo-hoo! Time to return home and tell everyone in your town about functional coverage.</p>
 
                     </main>

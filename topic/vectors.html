@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Test Vectors - Verifying Hardware with Vertex</title>
+        <title>Test Vectors - Verifying Hardware with Verb</title>
 
 
         <!-- Custom HTML head -->
@@ -88,7 +88,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded affix "><a href="../index.html">Introduction</a></li><li class="chapter-item expanded "><a href="../starting.md/starting.html"><strong aria-hidden="true">1.</strong> Getting Started</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../starting/motivation.html"><strong aria-hidden="true">1.1.</strong> Motivation</a></li><li class="chapter-item expanded "><a href="../starting/installing.html"><strong aria-hidden="true">1.2.</strong> Installing</a></li></ol></li><li class="chapter-item expanded "><a href="../tutorials/tutorials.html"><strong aria-hidden="true">2.</strong> Tutorials</a></li><li class="chapter-item expanded "><a href="../user/user.html"><strong aria-hidden="true">3.</strong> User Guide</a></li><li class="chapter-item expanded "><a href="../topic/topic.html"><strong aria-hidden="true">4.</strong> Topic Guide</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../topic/overview.html"><strong aria-hidden="true">4.1.</strong> Overview</a></li><li class="chapter-item expanded "><a href="../topic/vectors.html" class="active"><strong aria-hidden="true">4.2.</strong> Test Vectors</a></li><li class="chapter-item expanded "><a href="../topic/coverage.html"><strong aria-hidden="true">4.3.</strong> Coverage</a></li><li class="chapter-item expanded "><a href="../topic/events.html"><strong aria-hidden="true">4.4.</strong> Events</a></li></ol></li><li class="chapter-item expanded "><a href="../reference/reference.html"><strong aria-hidden="true">5.</strong> Reference</a></li><li class="chapter-item expanded "><a href="../glossary.html"><strong aria-hidden="true">6.</strong> Appendix: Glossary</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="../index.html">Introduction</a></li><li class="chapter-item expanded "><a href="../starting.md/starting.html"><strong aria-hidden="true">1.</strong> Getting Started</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../starting/motivation.html"><strong aria-hidden="true">1.1.</strong> Motivation</a></li><li class="chapter-item expanded "><a href="../starting/installing.html"><strong aria-hidden="true">1.2.</strong> Installing</a></li></ol></li><li class="chapter-item expanded "><a href="../tutorials/tutorials.html"><strong aria-hidden="true">2.</strong> Tutorials</a></li><li class="chapter-item expanded "><a href="../user/user.html"><strong aria-hidden="true">3.</strong> User Guide</a></li><li class="chapter-item expanded "><a href="../topic/topic.html"><strong aria-hidden="true">4.</strong> Topic Guide</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../topic/overview.html"><strong aria-hidden="true">4.1.</strong> Overview</a></li><li class="chapter-item expanded "><a href="../topic/vectors.html" class="active"><strong aria-hidden="true">4.2.</strong> Test Vectors</a></li><li class="chapter-item expanded "><a href="../topic/coverage.html"><strong aria-hidden="true">4.3.</strong> Coverage</a></li><li class="chapter-item expanded "><a href="../topic/events.html"><strong aria-hidden="true">4.4.</strong> Events</a></li></ol></li><li class="chapter-item expanded "><a href="../reference/reference.html"><strong aria-hidden="true">5.</strong> Reference</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../reference/environment.html"><strong aria-hidden="true">5.1.</strong> Environment Variables</a></li></ol></li><li class="chapter-item expanded "><a href="../glossary.html"><strong aria-hidden="true">6.</strong> Appendix: Glossary</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle">
                 <div class="sidebar-resize-indicator"></div>
@@ -141,7 +141,7 @@
                         </button>
                     </div>
 
-                    <h1 class="menu-title">Verifying Hardware with Vertex</h1>
+                    <h1 class="menu-title">Verifying Hardware with Verb</h1>
 
                     <div class="right-buttons">
                         <a href="../print.html" title="Print this book" aria-label="Print this book">
@@ -174,7 +174,7 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="test-vectors"><a class="header" href="#test-vectors">Test Vectors</a></h1>
-<p>One of the key concepts in the Vertex framework is using <em>file I/O</em> to communicate data between the software model and the hardware design throughout the verification process. When running the hardware simulation, the testbench receives the information about the inputs and expected outputs by reading files called <em>vectors</em>.</p>
+<p>One of the key concepts in the Verb framework is using <em>file I/O</em> to communicate data between the software model and the hardware design throughout the verification process. When running the hardware simulation, the testbench receives the information about the inputs and expected outputs by reading files called <em>vectors</em>.</p>
 <p><em>Vectors</em> store the test vectors for the hardware design to use- that is, they contain the actual data to either drive as inputs or compare with their outputs.</p>
 <p>Typically, the set of input test vectors are written to a file called "inputs.txt", and the set of expected output test vectors are written to a file called "outputs.txt".</p>
 <h2 id="vectors-file-format"><a class="header" href="#vectors-file-format">Vectors file format</a></h2>
@@ -193,7 +193,7 @@
 <h2 id="details"><a class="header" href="#details">Details</a></h2>
 <p>It is the testbench's responsibility to determine <em>when</em> to actually supply each vector to the hardware design. This approach is taken to provide users with fine-grain control over the timing of the data-flow within the simulation environment.</p>
 <p>One of the consequences of having the vectors files have a very simple format allows for easier parsing in the hardware languages. It also means not a lot of additional information is known, such as what order the ports are arranged in each vector.</p>
-<p>To check the order of ports that Vertex writes to vectors, see the <code>vertex link</code> command. An option is available to print the list of ports in their vector order for inputs and outputs.</p>
+<p>To check the order of ports that Verb writes to vectors, see the <code>verb link</code> command. An option is available to print the list of ports in their vector order for inputs and outputs.</p>
 <p>A user can also find the port order by identifying the order in which the ports appear in the source code for the hardware design's port interface declarations.</p>
 
                     </main>

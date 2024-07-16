@@ -3,7 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>Installing - Verifying Hardware with Vertex</title>
+        <title>Installing - Verifying Hardware with Verb</title>
 
 
         <!-- Custom HTML head -->
@@ -88,7 +88,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded affix "><a href="../index.html">Introduction</a></li><li class="chapter-item expanded "><a href="../starting.md/starting.html"><strong aria-hidden="true">1.</strong> Getting Started</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../starting/motivation.html"><strong aria-hidden="true">1.1.</strong> Motivation</a></li><li class="chapter-item expanded "><a href="../starting/installing.html" class="active"><strong aria-hidden="true">1.2.</strong> Installing</a></li></ol></li><li class="chapter-item expanded "><a href="../tutorials/tutorials.html"><strong aria-hidden="true">2.</strong> Tutorials</a></li><li class="chapter-item expanded "><a href="../user/user.html"><strong aria-hidden="true">3.</strong> User Guide</a></li><li class="chapter-item expanded "><a href="../topic/topic.html"><strong aria-hidden="true">4.</strong> Topic Guide</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../topic/overview.html"><strong aria-hidden="true">4.1.</strong> Overview</a></li><li class="chapter-item expanded "><a href="../topic/vectors.html"><strong aria-hidden="true">4.2.</strong> Test Vectors</a></li><li class="chapter-item expanded "><a href="../topic/coverage.html"><strong aria-hidden="true">4.3.</strong> Coverage</a></li><li class="chapter-item expanded "><a href="../topic/events.html"><strong aria-hidden="true">4.4.</strong> Events</a></li></ol></li><li class="chapter-item expanded "><a href="../reference/reference.html"><strong aria-hidden="true">5.</strong> Reference</a></li><li class="chapter-item expanded "><a href="../glossary.html"><strong aria-hidden="true">6.</strong> Appendix: Glossary</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="../index.html">Introduction</a></li><li class="chapter-item expanded "><a href="../starting.md/starting.html"><strong aria-hidden="true">1.</strong> Getting Started</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../starting/motivation.html"><strong aria-hidden="true">1.1.</strong> Motivation</a></li><li class="chapter-item expanded "><a href="../starting/installing.html" class="active"><strong aria-hidden="true">1.2.</strong> Installing</a></li></ol></li><li class="chapter-item expanded "><a href="../tutorials/tutorials.html"><strong aria-hidden="true">2.</strong> Tutorials</a></li><li class="chapter-item expanded "><a href="../user/user.html"><strong aria-hidden="true">3.</strong> User Guide</a></li><li class="chapter-item expanded "><a href="../topic/topic.html"><strong aria-hidden="true">4.</strong> Topic Guide</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../topic/overview.html"><strong aria-hidden="true">4.1.</strong> Overview</a></li><li class="chapter-item expanded "><a href="../topic/vectors.html"><strong aria-hidden="true">4.2.</strong> Test Vectors</a></li><li class="chapter-item expanded "><a href="../topic/coverage.html"><strong aria-hidden="true">4.3.</strong> Coverage</a></li><li class="chapter-item expanded "><a href="../topic/events.html"><strong aria-hidden="true">4.4.</strong> Events</a></li></ol></li><li class="chapter-item expanded "><a href="../reference/reference.html"><strong aria-hidden="true">5.</strong> Reference</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../reference/environment.html"><strong aria-hidden="true">5.1.</strong> Environment Variables</a></li></ol></li><li class="chapter-item expanded "><a href="../glossary.html"><strong aria-hidden="true">6.</strong> Appendix: Glossary</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle">
                 <div class="sidebar-resize-indicator"></div>
@@ -141,7 +141,7 @@
                         </button>
                     </div>
 
-                    <h1 class="menu-title">Verifying Hardware with Vertex</h1>
+                    <h1 class="menu-title">Verifying Hardware with Verb</h1>
 
                     <div class="right-buttons">
                         <a href="../print.html" title="Print this book" aria-label="Print this book">
@@ -174,35 +174,35 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="installing"><a class="header" href="#installing">Installing</a></h1>
-<p>Vertex comes in three separate components: a library for software drivers, a library for hardware drivers, and a command-line application for development as well as running pre-simulation and post-simulation processes.</p>
+<p>Verb comes in three separate components: a library for software drivers, a library for hardware drivers, and a command-line application for development as well as running pre-simulation and post-simulation processes.</p>
 <p>Any of the components may have one or more implementations; install the component in the programming language or HDL you prefer.</p>
 <h2 id="software-library"><a class="header" href="#software-library">Software library</a></h2>
 <p>The software library provides the driver-level code for writing models.</p>
 <h3 id="python"><a class="header" href="#python">Python</a></h3>
 <p>Using Pip, run the following command:</p>
-<pre><code>pip install git+"https://github.com/cdotrus/vertex.git@trunk#egg=vertex"
+<pre><code>pip install git+"https://github.com/cdotrus/verb.git@trunk#egg=verb"
 </code></pre>
 <p>To check if it is properly installed, run:</p>
-<pre><code>echo "import vertex\nprint(vertex.__version__)" | python
+<pre><code>echo "import verb\nprint(verb.__version__)" | python
 </code></pre>
 <p>The version you installed should print to the console.</p>
 <h2 id="hardware-library"><a class="header" href="#hardware-library">Hardware library</a></h2>
 <p>The hardware library provides the driver-level code for creating testbenches.</p>
 <h3 id="vhdl"><a class="header" href="#vhdl">VHDL</a></h3>
 <p>Using Orbit, run the following command:</p>
-<pre><code>orbit install vertex --url "https://github.com/cdotrus/vertex/archive/refs/heads/trunk.zip"
+<pre><code>orbit install verb --url "https://github.com/cdotrus/verb/archive/refs/heads/trunk.zip"
 </code></pre>
 <p>To check if it is properly installed, run:</p>
-<pre><code>orbit show vertex --versions
+<pre><code>orbit show verb --versions
 </code></pre>
 <p>The version you installed should print to the console.</p>
 <h2 id="command-line-application"><a class="header" href="#command-line-application">Command-line application</a></h2>
 <p>The command-line application provides commands for faster development and running pre-simulation and post-simulation processes.</p>
 <p>Using Cargo, run the following command:</p>
-<pre><code>cargo install --git https://github.com/cdotrus/vertex.git
+<pre><code>cargo install --git https://github.com/cdotrus/verb.git
 </code></pre>
 <p>To check if it is properly installed, run:</p>
-<pre><code>vertex --version
+<pre><code>verb --version
 </code></pre>
 <p>The version you installed should print to the console.</p>
 
