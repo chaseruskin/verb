@@ -33,7 +33,9 @@ class Env:
 
     @staticmethod
     def write(key: str, value: str):
-        os.environ[key] = str(value)
+        if value != None:
+            os.environ[key] = str(value)
+        pass
 
 
     @staticmethod

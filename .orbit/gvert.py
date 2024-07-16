@@ -17,7 +17,7 @@ from typing import List
 
 from mod import Command, Status, Env, Generic, Blueprint, Hdl
 
-# [STEP]: Set up environment and constants
+# Set up environment and constants
 
 BENCH = Env.read("ORBIT_BENCH", missing_ok=True)
 
@@ -25,7 +25,7 @@ BENCH = Env.read("ORBIT_BENCH", missing_ok=True)
 GHDL_PATH: str = Env.read("ORBIT_ENV_GHDL_PATH", missing_ok=True)
 Env.add_path(GHDL_PATH)
 
-# [STEP]: Handle command-line arguments
+# Handle command-line arguments
 
 parser = argparse.ArgumentParser(prog='gvert', allow_abbrev=False)
 
@@ -60,7 +60,7 @@ GHDL_OPTS += ['--std='+STD_VHDL]
 if IS_RELAXED == True:
     GHDL_OPTS += ['-frelaxed']
 
-# [STEP]: Read blueprint
+# Read blueprint
 
 py_model: str = None
 rtl_order: List[Hdl] = []
@@ -76,10 +76,10 @@ for rule in Blueprint().parse():
 
 HAS_MODEL = py_model != None
 
-# [STEP]: Analyze VHDL source code
+# Analyze VHDL source code
 
 # analyze units
-print("info: analyzing HDL source code ...")
+print("info: analyzing hdl source code ...")
 item: Hdl
 for item in rtl_order:
     print('  ->', Env.quote_str(item.path))
@@ -102,47 +102,58 @@ if LINT_ONLY == True:
 
 if HAS_MODEL == True and SKIP_MODEL == False:
     import vertex
+    import json
 
-    ORBIT_BENCH = Env.read("ORBIT_BENCH", missing_ok=False)
-    ORBIT_TOP = Env.read("ORBIT_DUT", missing_ok=False)
+    ORBIT_TB = Env.read("ORBIT_BENCH", missing_ok=False)
+    ORBIT_DUT = Env.read("ORBIT_DUT", missing_ok=False)
 
     # export the interfaces using orbit to get the json data format
-    top_if = Command("orbit").arg("get").arg(ORBIT_TOP).arg("--json").output()[0]
-    bench_if = Command("orbit").arg("get").arg(ORBIT_BENCH).arg("--json").output()[0]
+    dut_data = Command("orbit").arg("get").arg(ORBIT_DUT).arg("--json").output()[0]
+    tb_data = Command("orbit").arg("get").arg(ORBIT_TB).arg("--json").output()[0]
 
-    vertex.context.Context() \
-        .coverage_report('coverage.txt') \
-        .event_log(EVENTS_LOG_FILE) \
-        .bench_interface(bench_if) \
-        .top_interface(top_if) \
-        .max_test_count(MAX_TESTS) \
-        .seed(SEED) \
-        .lock()
-    
-    # update all parameters that were set on the command-line
+    tb_json = json.loads(tb_data)
+    # modify the json data and set defaults
     for g in GENERICS:
-        vertex.context.Context.current().override_param(g.key, g.val)
+        for tb_gen in tb_json['generics']:
+            if tb_gen['identifier'].upper() == g.key.upper():
+                tb_gen['default'] = str(g.val)
+                pass
+            pass
         pass
+
+    tb_data = json.dumps(tb_json, separators=(',', ':'))
+
+    # send environment variables for vertex
+    Env.write("VERTEX_DUT", dut_data.strip())
+    Env.write("VERTEX_TB", tb_data.strip())
+
+    Env.write("VERTEX_EVENTS_LOG", EVENTS_LOG_FILE)
+    Env.write("VERTEX_COVERAGE_REPORT", 'coverage.txt')
+
+    Env.write("VERTEX_RANDOM_SEED", SEED)
+    Env.write("VERTEX_TEST_COUNT_LIMIT", MAX_TESTS)
+
+    # or set these on the command-line of the vertex tool
 
     import runpy, sys, os
     # Switch the sys.path[0] from this script's path to the model's path
     this_script_path = sys.path[0]
     sys.path[0] = os.path.dirname(py_model)
-    print("info: running Python software model ...")
+    print("info: running python software model ...")
     # run the python model script in its own namespace
     runpy.run_path(py_model, init_globals={})
     sys.path[0] = this_script_path
     pass
 
 
-# [STEP]: Run the VHDL simulation
+# Run the VHDL simulation
 
 if BENCH is None:
     exit('error: no testbench to simulate\n\nhint: use \"--lint\" to only analyze the HDL code')
 
 VCD_FILE = str(BENCH)+'.vcd'
 
-print("info: starting VHDL simulation for testbench", Env.quote_str(BENCH), "...")
+print("info: starting hdl simulation for testbench", Env.quote_str(BENCH), "...")
 status: Status = Command('ghdl') \
     .arg('-r') \
     .args(GHDL_OPTS) \
@@ -156,7 +167,7 @@ status.unwrap()
 print('info: simulation complete')
 print("info: vcd file saved at:", os.path.join(os.getcwd(), VCD_FILE))
 
-# [STEP]: Analyze results from runnning simulation
+# Analyze results from runnning simulation
 
 rc: int = 0
 

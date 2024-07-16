@@ -66,8 +66,8 @@ class Runner:
         if self._context._bench_if != None:
             self._parameters = json.loads(self._context._bench_if)['generics']
         # set the design's ports
-        if self._context._top_if != None:
-            self._ports = json.loads(self._context._top_if)['ports']
+        if self._context._dut_if != None:
+            self._ports = json.loads(self._context._dut_if)['ports']
         # set the randomness seed
         random.seed(context._seed)
         pass
@@ -173,16 +173,18 @@ class Context:
         
         self._built = False
 
-        self._max_test_count = -1
-        self._seed = None
-
         self._work_dir = _os.getcwd()
 
-        self._bench_if = None
-        self._top_if = None
+        self._max_test_count = int(_os.environ.get('VERTEX_TEST_COUNT_LIMIT', -1))
+        self._seed = _os.environ.get('VERTEX_RANDOM_SEED', None)
+        if self._seed != None:
+            self._seed = int(self._seed)
 
-        self._event_log = 'events.log'
-        self._coverage_report = 'coverage.txt'
+        # read from environment variables if they exist
+        self._bench_if = _os.environ.get('VERTEX_TB', None)
+        self._dut_if = _os.environ.get('VERTEX_DUT', None)
+        self._event_log = _os.environ.get('VERTEX_EVENT_LOG', 'events.log')
+        self._coverage_report = _os.environ.get('VERTEX_COVERAGE_REPORT', 'coverage.txt')
         pass
 
     def bench_interface(self, data: str):
@@ -193,13 +195,12 @@ class Context:
         self._bench_if = str(data)
         return self
 
-
     def top_interface(self, data: str):
         '''
         Sets the path to the design-under-test's interface json data.
         '''
         if self._built == True: return self
-        self._top_if = str(data)
+        self._dut_if = str(data)
         return self
     
     def max_test_count(self, limit: int):
@@ -252,6 +253,8 @@ class Context:
         '''
         Reference the current context being ran.
         '''
+        if Runner._current == None:
+            Context().build()
         return Runner._current
     
     pass

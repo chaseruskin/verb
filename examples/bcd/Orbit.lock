@@ -5,7 +5,7 @@ version = 1
 name = "amp"
 version = "1.0.0"
 uuid = "33bba0d9-1e0e-4b82-aa90-711d8e4baef7"
-checksum = "35ac55a3aebaf43acd2ea865007dd25bad024cf4e8b73317867fbc0dc13e8c08"
+checksum = "2550c9cc0c0d44a781705503e9adf12a107af8fcf65ecc3f1e2b607f4db0e23a"
 url = "https://github.com/hyperspace-labs/amp/archive/refs/tags/1.0.0.zip"
 dependencies = []
 

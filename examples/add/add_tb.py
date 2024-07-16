@@ -41,7 +41,6 @@ class Add:
         self.cout.data = temp[self.width]
         return self
     
-
     def force_carry_out(*p: Signal):
         in0 = random.randint(1, p[0].max())
         return (in0, p[1].max() + 1 - in0)
