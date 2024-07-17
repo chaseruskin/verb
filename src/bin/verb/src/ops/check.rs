@@ -4,6 +4,7 @@ use cliproc::{cli, proc, stage::Memory};
 use cliproc::{Arg, Cli, Help, Subcommand};
 
 use crate::error::Error;
+use crate::events::Events;
 
 pub struct Check {
     events: PathBuf,
@@ -22,22 +23,8 @@ impl Subcommand<()> for Check {
     }
 
     fn execute(self, _c: &()) -> proc::Result {
-        // load the events file
-        let data = std::fs::read_to_string(&self.events)?;
-        // parse the events
-        let mut okays = 0;
-        let mut total = 0;
-        let events = data.split_terminator('\n');
-        for e in events {
-            // split an event into its pieces
-            let mut items = e.split_whitespace();
-            let _timestamp = items.next().unwrap();
-            let level = items.next().unwrap();
-            if level == "INFO" || level == "TRACE" || level == "DEBUG" {
-                okays += 1;
-            }
-            total += 1;
-        }
+
+        let events = Events::load(&self.events)?;
 
         let mut total_points: Option<usize> = None;
         let mut points_covered: Option<usize> = None;
@@ -62,7 +49,7 @@ impl Subcommand<()> for Check {
         }
 
         if self.stats == true {
-            println!("info: simulation score: {}/{}", okays, total);
+            println!("info: simulation score: {}/{}", events.count_normal(), events.len());
         }
 
         // check coverage
@@ -78,9 +65,9 @@ impl Subcommand<()> for Check {
             }
         }
         // check events
-        match okays == total {
+        match events.check() {
             true => Ok(()),
-            false => Err(Error::FoundUnexpectedEvents(total - okays))?,
+            false => Err(Error::FoundWildEvents(events.count_wild()))?,
         }
     }
 }

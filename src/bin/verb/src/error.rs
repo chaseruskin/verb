@@ -1,7 +1,12 @@
+
+pub type AnyError = Box<dyn std::error::Error>;
+
 type LastError = String;
 
 #[derive(Debug, PartialEq, thiserror::Error)]
 pub enum Error {
+    #[error("{0}")]
+    Custom(LastError),
     #[error("{0}")]
     InvalidJson(LastError),
     #[error("expecting equal sign '=' character")]
@@ -13,9 +18,19 @@ pub enum Error {
     #[error("no generic found in testbench with matching name {0:?}")]
     GenericNotFound(String),
     #[error("simulation caught {0} wild events")]
-    FoundUnexpectedEvents(usize),
+    FoundWildEvents(usize),
     #[error("model failed to meet coverage by {0} points")]
     FailedCoverage(usize),
+    #[error("{0:?} is not a recognized type")]
+    UnknownSeverity(String),
+    #[error("missing time units")]
+    MissingTimeUnits,
+    #[error("expecting timestamp")]
+    ExpectingTimestamp,
+    #[error("expecting severity")]
+    ExpectingSeverity,
+    #[error("expecting topic")]
+    ExpectingTopic,
 }
 
 impl Error {
