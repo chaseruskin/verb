@@ -23,7 +23,6 @@ impl Subcommand<()> for Check {
     }
 
     fn execute(self, _c: &()) -> proc::Result {
-
         let events = Events::load(&self.events)?;
 
         let mut total_points: Option<usize> = None;
@@ -34,8 +33,8 @@ impl Subcommand<()> for Check {
             // find the coverage lines
             let stats = data.split_terminator('\n');
             for s in stats {
-                let is_total_points = s.starts_with("Total points:");
-                let is_points_covered = s.starts_with("Points covered:");
+                let is_total_points = s.starts_with("Points:");
+                let is_points_covered = s.starts_with("Count:");
                 if is_total_points == true || is_points_covered == true {
                     let (_name, value) = s.split_once(':').unwrap();
                     let value = value.trim();
@@ -49,7 +48,11 @@ impl Subcommand<()> for Check {
         }
 
         if self.stats == true {
-            println!("info: simulation score: {}/{}", events.count_normal(), events.len());
+            println!(
+                "info: simulation score: {}/{}",
+                events.count_normal(),
+                events.len()
+            );
         }
 
         // check coverage
@@ -59,7 +62,7 @@ impl Subcommand<()> for Check {
             if self.stats == true {
                 println!("info: coverage score: {}/{}", pc, tp);
             }
-            match tp == pc {
+            match pc >= tp {
                 true => (),
                 false => return Err(Error::FailedCoverage(tp - pc))?,
             }
@@ -73,15 +76,15 @@ impl Subcommand<()> for Check {
 }
 
 const HELP: &str = "\
-Analyze the simulation's results.
+Analyze the output of a hardware simulation.
 
 Usage:
     verb check [options] <events>
 
 Args:
-    <events>       file system path to the events log
+    <events>       path to locate the simulation's events log
     --stats        display summary statistics
 
 Options:
-    --coverage <file>  path to read coverage report
+    --coverage <file>  path to locate the model's coverage report
 ";

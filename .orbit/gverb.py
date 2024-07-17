@@ -133,7 +133,7 @@ if HAS_MODEL == True and SKIP_MODEL == False:
         .arg("--loop-limit="+str(MAX_TESTS) if MAX_TESTS != None else None) \
         .arg("--dut").arg(dut_data) \
         .arg("--tb").arg(tb_data) \
-        .args(['-g ' + item.to_str() for item in GENERICS]) \
+        .args(['-g=' + item.to_str() for item in GENERICS]) \
         .arg("python") \
         .arg("--") \
         .arg(py_model) \

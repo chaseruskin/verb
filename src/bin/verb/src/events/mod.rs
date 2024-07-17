@@ -1,16 +1,16 @@
 use std::{path::PathBuf, str::FromStr};
 
-use timestamp::Timestamp;
-use severity::Severity;
-use topic::Topic;
 use comment::Comment;
+use severity::Severity;
+use timestamp::Timestamp;
+use topic::Topic;
 
 use crate::error::{AnyError, Error};
 
-pub mod timestamp;
-pub mod severity;
-pub mod topic;
 pub mod comment;
+pub mod severity;
+pub mod timestamp;
+pub mod topic;
 
 #[derive(Debug, PartialEq)]
 pub struct Events {
@@ -52,9 +52,7 @@ impl FromStr for Events {
         while let Some(raw_e) = raw_events.next() {
             events.push(Event::from_str(raw_e)?);
         }
-        Ok(Self {
-            inner: events,
-        })
+        Ok(Self { inner: events })
     }
 }
 
@@ -108,7 +106,6 @@ impl FromStr for Event {
     }
 }
 
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -116,11 +113,14 @@ mod tests {
     #[test]
     fn from_str() {
         let ev = "180000000fs         INFO      ASSERT_EQ      sum receives 0110 and expects 0110";
-        assert_eq!(Event::from_str(ev).unwrap(), Event {
-            timestamp: Timestamp::with("180000000", "fs"),
-            severity: Severity::Info,
-            topic: Topic::from("ASSERT_EQ".to_string()),
-            comment: Comment::from("sum receives 0110 and expects 0110".to_string()),
-        })
+        assert_eq!(
+            Event::from_str(ev).unwrap(),
+            Event {
+                timestamp: Timestamp::with("180000000", "fs"),
+                severity: Severity::Info,
+                topic: Topic::from("ASSERT_EQ".to_string()),
+                comment: Comment::from("sum receives 0110 and expects 0110".to_string()),
+            }
+        )
     }
 }

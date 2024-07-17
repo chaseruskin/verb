@@ -30,9 +30,8 @@ impl FromStr for Timestamp {
                     time: time.to_string(),
                     units: unit.to_string(),
                 })
-            },
-            None => return Err(Error::MissingTimeUnits)
+            }
+            None => return Err(Error::MissingTimeUnits),
         }
     }
 }
-

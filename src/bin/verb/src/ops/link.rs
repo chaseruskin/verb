@@ -7,11 +7,10 @@ pub struct Link {
     bfm: bool,
     send: bool,
     comp: bool,
+    // use an 'exclude' list to ignore ports in the bfm
     exclude: Vec<String>,
     list: bool,
 }
-
-// use an 'exclude' list to ignore ports in the bfm
 
 impl Subcommand<()> for Link {
     fn interpret(cli: &mut Cli<Memory>) -> cli::Result<Self> {
@@ -91,18 +90,18 @@ impl Subcommand<()> for Link {
 }
 
 const HELP: &str = "\
-Generate code snippets for hw/sw synchronization.
+Generate code snippets for hw/sw coherency.
 
 Usage:
     verb link [options] <json>
 
 Args:
-    <json>      hw unit's interface encoded in json format
+    <json>          hw unit's interface encoded in json format
 
 Options:
-    --bfm           print the hw bus functional model interface
-    --send          print the hw function to send inputs to the dut
-    --comp          print the hw function to compare outputs from the dut
+    --bfm           display the hw bus functional model interface
+    --send          display the hw function to send inputs to the dut
+    --comp          display the hw function to compare outputs from the dut
     --exclude, -x   omit specific ports from the code snippets
     --list          list the port order and exit
 ";

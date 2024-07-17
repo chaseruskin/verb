@@ -12,14 +12,21 @@ class Status(_Enum):
     PASSED = 0
     SKIPPED = 1
     FAILED = 2
-    pass
 
+    def to_json(self):
+        if self == Status.PASSED:
+            return True
+        elif self == Status.FAILED:
+            return False
+        elif self == Status.SKIPPED:
+            return None
+    pass
 
 class Coverage:
     
     _total_coverages = 0
     _passed_coverages = 0
-    _goals_met = 0
+    _point_count = 0
     _total_points = 0
     _coverage_report = 'coverage.txt'
 
@@ -75,14 +82,14 @@ class Coverage:
         '''
         Coverage._total_coverages = 0
         Coverage._passed_coverages = 0
-        Coverage._goals_met = 0
+        Coverage._point_count = 0
         Coverage._total_points = 0
         net: CoverageNet
         for net in CoverageNet._group:
             if net.status() == Status.SKIPPED:
                 continue
             Coverage._total_coverages += 1
-            Coverage._goals_met += net.get_points_met()
+            Coverage._point_count += net.get_points_met()
             if type(net) == CoverPoint:
                 Coverage._total_points += 1
             else:
@@ -103,7 +110,7 @@ class Coverage:
         from 0.00 to 100.00 percent, with rounding to 2 decimal places.
         '''
         Coverage.tally_score()
-        passed = Coverage._goals_met
+        passed = Coverage._point_count
         total = Coverage._total_points
         return round((passed/total) * 100.0, 2) if total > 0 else None
 
@@ -117,12 +124,17 @@ class Coverage:
 
         path = Coverage._coverage_report
         Coverage.tally_score()
-        header = ''
+        # write to .json
+        Coverage.to_json()
+        # write to .txt
+        header = 'File: Coverage Report' + '\n'
         header += "Seed: " + str(context.Context.current()._context._seed) + '\n'
         header += "Iterations: " + str(Coverage.count()) + '\n'
-        header += "Points covered: " + str(Coverage._goals_met) + '\n'
-        header += "Total points: " + str(Coverage._total_points) + '\n'
-        header += "Coverage: "   + str(Coverage.percent()) + ' %\n'
+        header += "Score: "   + str(Coverage.percent()) + '\n'
+        header += "Met: " + ('None' if Coverage._total_points == 0 else str(Coverage._point_count >= Coverage._total_points)) + '\n'
+        header += "Count: " + str(Coverage._point_count) + '\n'
+        header += "Points: " + str(Coverage._total_points) + '\n'
+
         with open(path, 'w') as f:
             # header
             f.write(header)
@@ -136,6 +148,38 @@ class Coverage:
         return os.path.abspath(path)
     
     pass
+
+    @staticmethod
+    def get_overall_status() -> Status:
+        if Coverage._total_points == 0:
+            return Status.SKIPPED
+        elif Coverage._point_count >= Coverage._total_points:
+            return Status.PASSED
+        else:
+            return Status.FAILED
+
+    @staticmethod
+    def to_json() -> str:
+        '''
+        Writes the coverage report as a json encoded string.
+        '''
+        import json
+        from . import context
+
+        net: CoverageNet
+        report = {
+            'seed': context.Context.current()._context._seed,
+            'iterations': int(Coverage.count()),
+            'score': Coverage.percent(),
+            'met': Coverage.get_overall_status().to_json(),
+            'count': int(Coverage._point_count),
+            'points': int(Coverage._total_points),
+            'nets': [net.to_json() for net in CoverageNet._group]
+        }
+
+        with open('coverage.json', 'w') as f:
+            json.dump(report, f, indent=4)
+        pass
 
 
 def met(timeout: int=-1) -> bool:
@@ -184,7 +228,7 @@ def report_score() -> str:
     Formats the score as a `str`.
     '''
     Coverage.tally_score()
-    return (str(Coverage.percent()) + ' % ' if Coverage.percent() != None else 'N/A ') + '(' + str(Coverage._goals_met) + '/' + str(Coverage._total_points) + ' goals)'
+    return (str(Coverage.percent()) + ' % ' if Coverage.percent() != None else 'N/A ') + '(' + str(Coverage._point_count) + '/' + str(Coverage._total_points) + ' goals)'
 
 
 def check(threshold: float=1.0) -> bool:
@@ -195,7 +239,7 @@ def check(threshold: float=1.0) -> bool:
     - `threshold` expects a floating point value [0, 1.0]
     '''
     Coverage.tally_score()
-    passed = Coverage._goals_met
+    passed = Coverage._point_count
     total = Coverage._total_points
     if total <= 0:
         return True
@@ -212,6 +256,38 @@ class CoverageNet(_ABC):
 
     _group = []
     _counter = 0
+
+    def get_type(self) -> str:
+        if type(self) == CoverCross:
+            return 'cross'
+        elif type(self) == CoverGroup:
+            return 'group'
+        elif type(self) == CoverRange:
+            return 'range'
+        elif type(self) == CoverPoint:
+            return 'point'
+        else:
+            return 'net'
+
+    def to_json(self) -> dict:
+        '''
+        Formats the coverage net into json-friendly data structure.
+        '''
+        data = {
+            'name': self._name,
+            'type': self.get_type(),
+            'met': None if self._bypass == True else self.passed()
+        }
+        data.update(self.to_json_internal())
+        return data
+    
+    @_abstractmethod
+    def to_json_internal(self) -> dict:
+        '''
+        Returns the particular coverage net into json-friendly data structure with
+        specifics of that net.
+        '''
+        pass
 
     def bypass(self, bypass: bool):
         '''
@@ -245,7 +321,6 @@ class CoverageNet(_ABC):
             self._source = tuple(source)
         return self
     
-
     def sink(self, *sink: Signal):
         '''
         The signal(s) involved in advancing the net's coverage.
@@ -360,6 +435,20 @@ class CoverageNet(_ABC):
         pass
 
     @_abstractmethod
+    def get_total_goal_count(self) -> int:
+        '''
+        Returns the number of total goals that must be reached by this net.
+        '''
+        pass
+
+    @_abstractmethod
+    def get_total_points_met(self) -> int:
+        '''
+        Returns the number of total points collected by this net.
+        '''
+        pass
+
+    @_abstractmethod
     def is_in_sample_space(self, item) -> bool:
         '''
         Checks if the `item` is in the defined sample space.
@@ -464,6 +553,16 @@ class CoverPoint(CoverageNet):
     '''
     from .model import Signal
 
+    def to_json_internal(self) -> dict:
+        data = {
+            'count': int(self.get_total_points_met()),
+            'goal': int(self.get_total_goal_count()),
+        }
+        return data
+
+    def get_total_goal_count(self) -> int:
+        return self._goal
+
     def goal(self, goal: int):
         '''
         Sets the coverage goal for this net.
@@ -471,7 +570,6 @@ class CoverPoint(CoverageNet):
         self._goal = goal
         return self
     
-
     def def_advance(self, fn): 
         '''
         Set the function or lambda expression that provides vlues to write to the source to advance coverage for this particular goal.
@@ -479,14 +577,12 @@ class CoverPoint(CoverageNet):
         self._fn_advance = fn
         return self
     
-
     def def_cover(self, fn):
         '''
         Sets the function or lambda expression that provides a way to read values from the sink to check coverage.
         '''
         self._fn_cover = fn
         return self
-    
 
     def __init__(self, name: str):
         '''
@@ -502,7 +598,13 @@ class CoverPoint(CoverageNet):
         pass
 
     def _transform(self, item):
-        return item if self._fn_cover == None else self._fn_cover(item)
+        # unpack the list if one was given
+        if self._fn_cover == None:
+            return item
+        if isinstance(item, (list, tuple)) == True:
+            return self._fn_cover(*item)
+        else:
+            return self._fn_cover(item)
 
     def is_in_sample_space(self, item) -> bool:
         mapped_item = int(self._transform(item))
@@ -524,6 +626,9 @@ class CoverPoint(CoverageNet):
         Returns the number of points that have met their goal.
         '''
         return 1 if self._count >= self._goal else 0
+    
+    def get_total_points_met(self) -> int:
+        return self._count
 
     def cover(self, item):
         '''
@@ -553,6 +658,45 @@ class CoverGroup(CoverageNet):
     from typing import List as _List
     from .model import Signal
 
+    def to_json_internal(self) -> dict:
+        bins_reached = 0
+        # compute the number of bins that reached their goal
+        for c in self._macro_bins_count:
+            if c >= self._goal:
+                bins_reached += 1
+            pass
+        data = {
+            'count': self.get_points_met(),
+            'goal': len(self._macro_bins_count),
+        }
+
+        bins = []
+        for i, macro in enumerate(self._macro_bins):
+            cur_bin = {
+                'name': self._macro_to_string(i),
+                'met': None if self._bypass == True else int(self._macro_bins_count[i]) >= int(self._goal),
+                'count': int(self._macro_bins_count[i]),
+                'goal': int(self._goal),
+            }
+            hits = []
+            for hit in macro:
+                if hit in self._item_counts.keys():
+                    hit = {
+                        'value': str(hit),
+                        'count': int(self._item_counts[hit])
+                    }
+                    hits += [hit]
+                pass
+            cur_bin['hits'] = hits
+            bins += [cur_bin]
+            pass
+
+        data['bins'] = bins
+        return data
+
+    def get_total_goal_count(self) -> int:
+        return self._goal * len(self._macro_bins_count)
+
     def goal(self, goal: int):
         '''
         Sets the coverage goal for this net.
@@ -567,7 +711,6 @@ class CoverGroup(CoverageNet):
         self._fn_advance = fn
         return self
     
-
     def def_cover(self, fn):
         '''
         Sets the function or lambda expression that provides a way to read values from the sink to check coverage.
@@ -575,7 +718,6 @@ class CoverGroup(CoverageNet):
         self._fn_cover = fn
         return self
     
-
     def max_bins(self, limit: int):
         '''
         Sets the maximum number of bins.
@@ -625,6 +767,9 @@ class CoverGroup(CoverageNet):
         self._macro_bins_count = []
         # store a hash to the index in the set of bins list
         self._bins_lookup = dict()
+
+        # store the counts of individual items
+        self._item_counts = dict()
 
         # defining a bin range is more flexible for defining a large space
 
@@ -695,7 +840,18 @@ class CoverGroup(CoverageNet):
             # increment the count of this item being detected
             self._mapped_items[i_macro][mapped_item] += 1
             pass
+        # track individual count for this item
+        if mapped_item not in self._item_counts.keys():
+            self._item_counts[mapped_item] = 0
+        self._item_counts[mapped_item] += 1
+
         return is_progress
+    
+    def get_total_points_met(self) -> int:
+        points_met = 0
+        for count in self._macro_bins_count:
+            points_met += count
+        return points_met
     
     def get_points_met(self) -> int:
         points_met = 0
@@ -781,7 +937,7 @@ class CoverGroup(CoverageNet):
             longest_len = _find_longest_str_len([self._macro_to_string(i) for i, _ in enumerate(self._macro_bins)])
             is_first = True
             # print the coverage analysis
-            for i, group in enumerate(self._macro_bins):
+            for i, _ in enumerate(self._macro_bins):
                 if is_first == False:
                     result += '\n    '
                 phrase = str(self._macro_to_string(i))
@@ -793,12 +949,8 @@ class CoverGroup(CoverageNet):
                     sub_longest_len = _find_longest_str_len(self._mapped_items[i].keys())
                     seq = [(key, val) for key, val in self._mapped_items[i].items()]
                     seq.sort()
-                    LIMITER = 20
                     for j, (key, val) in enumerate(seq):
                         result += '\n        '
-                        if j > LIMITER:
-                            result += '...'
-                            break
                         result += str(key) + ': ' + (' ' * (sub_longest_len - len(str(key)))) + str(val)
 
                         pass
@@ -822,6 +974,54 @@ class CoverRange(CoverageNet):
     along the set of integers.
     '''
     from .model import Signal
+
+    def to_json_internal(self) -> dict:
+        data = {
+            'count': int(self.get_points_met()),
+            'goal': int(self.get_total_goal_count()),
+        }
+
+        bins = []
+
+        # print the coverage analysis
+        for i, _ in enumerate(self._table):
+            # collect a single bin
+            if self._step_size > 1:
+                step = str(i * self._step_size) + '..=' + str(((i+1) * self._step_size)-1)
+            else:
+                step = i
+                pass
+            count = int(self._table_counts[i])
+
+            cur_bin = {
+                'name': str(step),
+                'met': None if self._bypass == True else count >= self._goal,
+                'count': int(count),
+                'goal': int(self._goal),
+            }
+            # get each hit that helped toward the current bin's goal
+            hits = []
+            if self._step_size > 1 and i in self._mapped_items.keys():
+                seq = [(key, val) for key, val in self._mapped_items[i].items()]
+                seq.sort()
+                for (key, val) in seq:
+                    cur_hit = {
+                        'value': str(key),
+                        'count': int(val)
+                    }
+                    hits += [cur_hit]
+                    pass
+            # update the current bin's account for its hits
+            cur_bin['hits'] = hits
+            # add to the bin list
+            bins += [cur_bin]
+            pass
+
+        data['bins'] = bins
+        return data
+
+    def get_total_goal_count(self) -> int:
+        return self._goal * int(len(self._table_counts))
 
     def goal(self, goal: int):
         '''
@@ -914,6 +1114,12 @@ class CoverRange(CoverageNet):
             if entry >= self._goal:
                 points_met += 1
         return points_met
+
+    def get_total_points_met(self) -> int:
+        points_met = 0
+        for entry in self._table_counts:
+            points_met += entry
+        return points_met
     
     def passed(self) -> bool:
         '''
@@ -959,11 +1165,11 @@ class CoverRange(CoverageNet):
         # track original items that count toward their space of the domain
         if index not in self._mapped_items.keys():
             self._mapped_items[index] = dict()
-        if item not in self._mapped_items[index].keys():
+        # store the count of the integer value of the number for encounters tracking/stats
+        if mapped_item not in self._mapped_items[index].keys():
             self._mapped_items[index][mapped_item] = 0 
         # increment the count of this item being detected
         self._mapped_items[index][mapped_item] += 1
-            
         return is_progress
     
     def advance(self, rand: bool=False):
@@ -1013,7 +1219,7 @@ class CoverRange(CoverageNet):
                 longest_len = len(str(self._stop-1))
             is_first = True
             # print the coverage analysis
-            for i, _group in enumerate(self._table):
+            for i, _ in enumerate(self._table):
                 if is_first == False:
                     result += '\n    '
                 if self._step_size > 1:
@@ -1027,12 +1233,8 @@ class CoverRange(CoverageNet):
                     sub_longest_len = _find_longest_str_len(self._mapped_items[i].keys())
                     seq = [(key, val) for key, val in self._mapped_items[i].items()]
                     seq.sort()
-                    LIMITER = 20
                     for i, (key, val) in enumerate(seq):
                         result += '\n        '
-                        if i > LIMITER:
-                            result += '...'
-                            break
                         result += str(key) + ': ' + (' ' * (sub_longest_len - len(str(key)))) + str(val)
                         pass
                 is_first = False
@@ -1056,6 +1258,13 @@ class CoverCross(CoverageNet):
     the N-dimensional cross product across the different coverage nets.
     '''
     from typing import List as List
+
+    def to_json_internal(self) -> dict:
+        data = self._inner.to_json_internal()
+        return data
+
+    def get_total_goal_count(self) -> int:
+        return self._inner.get_total_goal_count()
 
     def nets(self, *net: CoverageNet):
         '''
@@ -1240,6 +1449,9 @@ class CoverCross(CoverageNet):
         Returns the number of points that have met their goal.
         '''
         return self._inner.get_points_met()
+    
+    def get_total_points_met(self) -> int:
+        return self._inner.get_total_points_met()
 
     def cover(self, item):
         if self.is_in_sample_space(item) == False:

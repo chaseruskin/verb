@@ -41,7 +41,7 @@ impl FromStr for Severity {
             "WARN" => Ok(Self::Warn),
             "ERROR" => Ok(Self::Error),
             "FATAL" => Ok(Self::Fatal),
-            _ => Err(Error::UnknownSeverity(s.to_string()))
+            _ => Err(Error::UnknownSeverity(s.to_string())),
         }
     }
 }

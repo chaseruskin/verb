@@ -5,8 +5,6 @@ pub struct Comment {
 
 impl From<String> for Comment {
     fn from(value: String) -> Self {
-        Self {
-            inner: value
-        }
+        Self { inner: value }
     }
 }

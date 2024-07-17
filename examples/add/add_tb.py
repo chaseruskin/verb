@@ -43,9 +43,9 @@ class Add:
         self.cout.data = temp[self.width]
         return self
     
-    def force_carry_out(*p: Signal):
-        in0 = random.randint(1, p[0].max())
-        return (in0, p[1].max() + 1 - in0)
+    def force_carry_out(in0: Signal, in1: Signal):
+        in0 = random.randint(1, in0.max())
+        return (in0, in1.max() + 1 - in0)
     
     pass
 
@@ -103,16 +103,16 @@ CoverGroup("in1 extremes") \
 CoverPoint("in0 and in1 equal 0") \
     .goal(1) \
     .target(add.in0, add.in1) \
-    .def_advance(lambda p: (p[0].min(), p[1].min())) \
-    .def_cover(lambda p: int(p[0]) == 0 and int(p[1]) == 0) \
+    .def_advance(lambda in0, in1: (in0.min(), in1.min())) \
+    .def_cover(lambda in0, in1: int(in0) == 0 and int(in1) == 0) \
     .apply()
 
 # Check to make sure both inputs are the maximum value at the same time at least once.
 CoverPoint("in0 and in1 equal max") \
     .goal(1) \
     .target(add.in0, add.in1) \
-    .def_advance(lambda p: (p[0].max(), p[1].max())) \
-    .def_cover(lambda p: int(p[0]) == p[0].max() and int(p[1]) == p[1].max()) \
+    .def_advance(lambda in0, in1: (in0.max(), in1.max())) \
+    .def_cover(lambda in0, in1: int(in0) == in0.max() and int(in1) == in1.max()) \
     .apply()
 
 # Cover the case that the carry out is generated at least 10 times.

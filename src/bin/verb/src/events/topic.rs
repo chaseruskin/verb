@@ -5,8 +5,6 @@ pub struct Topic {
 
 impl From<String> for Topic {
     fn from(value: String) -> Self {
-        Self {
-            inner: value
-        }
+        Self { inner: value }
     }
 }

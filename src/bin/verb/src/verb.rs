@@ -72,9 +72,9 @@ Usage:
 
 Commands:
     link        generate code snippets for hw/sw coherency 
-    model       run the software script for a design's model
-    check       analyze the output from a hardware simulation
-    
+    model       run a design's software model
+    check       analyze the output of a hardware simulation
+
 Options:
     --version    print the version information and exit
     --help, -h   print this help information and exit

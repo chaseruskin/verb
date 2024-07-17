@@ -23,16 +23,16 @@ impl Subcommand<()> for Model {
     fn interpret(cli: &mut Cli<Memory>) -> cli::Result<Self> {
         cli.help(Help::with(HELP))?;
         Ok(Self {
-            loop_limit: cli.get(Arg::option("loop-limit"))?,
-            rand_seed: cli.get(Arg::option("seed"))?,
-            coverage: cli.get(Arg::option("coverage"))?,
-            dir: cli.get(Arg::option("directory").switch('C'))?,
+            loop_limit: cli.get(Arg::option("loop-limit").value("num"))?,
+            rand_seed: cli.get(Arg::option("seed").value("num"))?,
+            coverage: cli.get(Arg::option("coverage").value("file"))?,
+            dir: cli.get(Arg::option("directory").switch('C').value("dir"))?,
             generics: cli
-                .get_all(Arg::option("generic").switch('g'))?
+                .get_all(Arg::option("generic").switch('g').value("key=value"))?
                 .unwrap_or_default(),
-            dut: cli.require(Arg::option("dut"))?,
-            tb: cli.require(Arg::option("tb"))?,
-            model: cli.require(Arg::positional("model"))?,
+            dut: cli.require(Arg::option("dut").value("json"))?,
+            tb: cli.require(Arg::option("tb").value("json"))?,
+            model: cli.require(Arg::positional("command"))?,
             model_args: cli.remainder()?,
         })
     }
@@ -103,21 +103,21 @@ impl Subcommand<()> for Model {
 }
 
 const HELP: &str = "\
-Run the software script for a design's model.
+Run a design's software model.
 
 Usage:
     verb model [options] --dut <json> --tb <json> <command> [--] [args]...
 
 Args:
-    <command>       file system path used to execute the model
-    --dut <json>    design-under-test's interface encoded in json format
-    --tb <json>     testbench's interface encoded in json format
+    <command>       the command to execute the model
+    --dut <json>    hw design-under-test's interface encoded in json format
+    --tb <json>     hw testbench's interface encoded in json format
 
 Options:
     --generic, -g <key=value>  override a testbench generic
-    --seed <num>       set the random number generator seed
-    --coverage <file>  path to write coverage report
-    --loop-limit <num> set the maximum number of iterations when using CDTG
-    --directory, -C    change the working directory where the model will run
-    args               arguments to pass to the model's command
+    --seed <num>               the randomness seed
+    --coverage <file>          destination for the coverage report
+    --loop-limit <num>         the max number of main loop iterations
+    --directory, -C <dir>      the directory where the model will run
+    args                       arguments to pass to the model's command
 ";

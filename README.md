@@ -25,7 +25,6 @@ Any of the components may have one or more implementations; install the componen
 If you are using Linux or macOS, you can install all the components (using `pip`, `orbit`, and `cargo`):
 ```
 curl --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/cdotrus/verb/trunk/install.sh | bash -s --
-
 ```
 
 ## Details
