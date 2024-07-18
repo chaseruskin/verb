@@ -59,14 +59,14 @@ agglo-vhdl:
 ovg-add:
     cd examples/add; mkdir -p target/gsim
     cd examples/add; verb model -C target/gsim --dut "$(orbit get add --json)" --tb "$(orbit get add_tb --json)" --coverage "coverage.txt" add_tb.py
-    cd examples/add; orbit t --target gsim --dut add --dirty
+    cd examples/add; orbit t --target gsim --dut add --no-clean
     cd examples/add; verb check ./target/gsim/events.log --coverage ./target/gsim/coverage.txt --stats
 
 # Run a simulation for "bcd" with Orbit and Verb running independent commands
 ovg-bcd:
     cd examples/bcd; mkdir -p target/gsim
     cd examples/bcd; verb model -C target/gsim --dut "$(orbit get bcd_enc --json)" --tb "$(orbit get bcd_enc_tb --json)" --coverage "coverage.txt" bcd_enc_tb.py
-    cd examples/bcd; orbit t --target gsim --dirty
+    cd examples/bcd; orbit t --target gsim --no-clean
     cd examples/bcd; verb check ./target/gsim/events.log --coverage ./target/msim/coverage.txt --stats
 
 
