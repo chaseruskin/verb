@@ -1,0 +1,9 @@
+[ip]
+name = "verb-example-timer"
+version = "0.0.0"
+
+[dependencies]
+amp = "1.0.0"
+
+[dev-dependencies]
+verb = { path = "../../src/lib/hdl", version = "0.1.0" }

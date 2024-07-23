@@ -208,6 +208,9 @@ class Signal:
         The `data` can either be a `str`, `int`, or `list`.
         '''
         from .primitives import digits as _digits
+        # put into big-endian format for storing
+        if (isinstance(data, str) or isinstance(data, list)) and self._is_big_endian == False:
+            data = data[::-1]
         # verify the data is within bounds
         temp_int = _digits(data, self._is_signed)
         if temp_int < self.min() or temp_int > self.max():
