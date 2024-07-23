@@ -82,7 +82,7 @@ CoverCross("in0 cross in1") \
 CoverPoint("cin asserted") \
     .goal(100) \
     .target(add.cin) \
-    .def_cover(lambda x: int(x) == 1) \
+    .checker(lambda x: int(x) == 1) \
     .apply()
 
 # Cover the extreme edge cases for in0 (min and max) at least 10 times.
@@ -103,25 +103,25 @@ CoverGroup("in1 extremes") \
 CoverPoint("in0 and in1 equal 0") \
     .goal(1) \
     .target(add.in0, add.in1) \
-    .def_advance(lambda in0, in1: (in0.min(), in1.min())) \
-    .def_cover(lambda in0, in1: int(in0) == 0 and int(in1) == 0) \
+    .advancer(lambda in0, in1: (in0.min(), in1.min())) \
+    .checker(lambda in0, in1: int(in0) == 0 and int(in1) == 0) \
     .apply()
 
 # Check to make sure both inputs are the maximum value at the same time at least once.
 CoverPoint("in0 and in1 equal max") \
     .goal(1) \
     .target(add.in0, add.in1) \
-    .def_advance(lambda in0, in1: (in0.max(), in1.max())) \
-    .def_cover(lambda in0, in1: int(in0) == in0.max() and int(in1) == in1.max()) \
+    .advancer(lambda in0, in1: (in0.max(), in1.max())) \
+    .checker(lambda in0, in1: int(in0) == in0.max() and int(in1) == in1.max()) \
     .apply()
 
 # Cover the case that the carry out is generated at least 10 times.
 CoverPoint("cout generated") \
     .goal(10) \
     .source(add.in0, add.in1) \
-    .def_advance(Add.force_carry_out) \
+    .advancer(Add.force_carry_out) \
     .sink(add.cout) \
-    .def_cover(lambda x: int(x) == 1) \
+    .checker(lambda x: int(x) == 1) \
     .apply()
 
 

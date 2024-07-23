@@ -89,7 +89,7 @@ CoverPoint("overflow enabled") \
     .goal(10) \
     .bypass(bcd_algo.bin.max() < (10**bcd_algo.num_digits)) \
     .target(bcd_algo.ovfl) \
-    .def_cover(lambda x: int(x) == 1) \
+    .checker(lambda x: int(x) == 1) \
     .apply()
 
 CoverGroup("overflow variants") \
@@ -110,7 +110,7 @@ cp_bin_while_active = CoverPoint("input changes while active") \
 cp_go_while_active = CoverPoint("go while active") \
     .goal(100) \
     .target(bcd_algo_dupe.go) \
-    .def_cover(lambda x: int(x) == 1) \
+    .checker(lambda x: int(x) == 1) \
     .apply()
 
 
@@ -126,7 +126,7 @@ with vectors('inputs.txt', 'i') as inputs, vectors('outputs.txt', 'o') as output
         # Alter the input while the computation is running
         for _ in range(1, outcome.fsm_delay):
             outcome_dupe: BcdEncoder = randomize(bcd_algo_dupe)
-            cp_bin_while_active.cover(int(bcd_algo_dupe.bin) != int(bcd_algo.bin))
+            cp_bin_while_active.check(int(bcd_algo_dupe.bin) != int(bcd_algo.bin))
             inputs.append(outcome_dupe)
 
         # Compute the output

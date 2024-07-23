@@ -121,7 +121,7 @@ class Vectors:
                     pass
                 # perform an observation if the signals are in this transaction
                 else:
-                    net.cover(net.get_sink())
+                    net.check(net.get_sink())
             pass
 
         DELIM = ' '

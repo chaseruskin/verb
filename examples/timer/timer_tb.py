@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 # Project: Verb
 # Script: timer_tb.py
 #   
@@ -16,11 +18,13 @@ class Timer:
         self.sub_delays = sub_delays
         self.base_delay = base_delay
 
-        self.sub_ticks = Signal(width=len(self.sub_delays), mode=Mode.OUT, endianness='little')
-        self.base_tick = Signal(1, mode=Mode.OUT)
+        bits = len(self.sub_delays)
+
+        self.sub_ticks = Signal(bits, endianness='little')
+        self.base_tick = Signal(1)
 
         self.base_count = 0
-        self.counts = [0] * len(self.sub_delays)
+        self.counts = [0] * bits
         pass
 
     def evaluate(self):
@@ -61,7 +65,7 @@ for i, tick in enumerate(SUB_DELAYS):
     CoverPoint('tick '+str(tick)+' targeted') \
         .goal(3) \
         .sink(model.sub_ticks) \
-        .def_cover(lambda x, i=i: int(x[i]) == 1) \
+        .checker(lambda x, i=i: int(x[i]) == 1) \
         .apply()
     pass
 

@@ -313,7 +313,8 @@ class CoverageNet(_ABC):
         '''
         The signal(s) involved in advancing the net's coverage.
 
-        The `source` acts as inputs and are only read for trying to advance coverage.
+        The `source` acts as inputs that can be written to when to when trying to advance coverage to a
+        scenario that would help approach its goal.
         '''
         if len(source) == 1:
             self._source = source[0]
@@ -323,9 +324,9 @@ class CoverageNet(_ABC):
     
     def sink(self, *sink: Signal):
         '''
-        The signal(s) involved in advancing the net's coverage.
+        The signal(s) involved in checking the net's coverage.
 
-        The `source` acts as inputs and are only read for trying to advance coverage.
+        The `sink` acts as the outputs that only read when checking if coverage is indeed covered.
         '''
         if len(sink) == 1:
             self._sink = sink[0]
@@ -465,7 +466,7 @@ class CoverageNet(_ABC):
         pass
 
     @_abstractmethod
-    def cover(self, item) -> bool:
+    def check(self, item) -> bool:
         '''
         This function accepts either a single object or an interable object that is
         required to read to see if coverage proceeds toward its goal.
@@ -480,7 +481,7 @@ class CoverageNet(_ABC):
         This function returns either a single object or an iterable object that is
         required to be written to make the coverage proceed toward its goal.
 
-        It can be thought of as the inverse function to `cover(...)`.
+        It can be thought of as the inverse function to `check(...)`.
         '''
         pass
 
@@ -570,14 +571,14 @@ class CoverPoint(CoverageNet):
         self._goal = goal
         return self
     
-    def def_advance(self, fn): 
+    def advancer(self, fn): 
         '''
         Set the function or lambda expression that provides vlues to write to the source to advance coverage for this particular goal.
         '''
         self._fn_advance = fn
         return self
     
-    def def_cover(self, fn):
+    def checker(self, fn):
         '''
         Sets the function or lambda expression that provides a way to read values from the sink to check coverage.
         '''
@@ -630,7 +631,7 @@ class CoverPoint(CoverageNet):
     def get_total_points_met(self) -> int:
         return self._count
 
-    def cover(self, item):
+    def check(self, item):
         '''
         Returns `True` if the `cond` was satisfied and updates the internal count
         as the coverpoint tries to met or exceed its goal.
@@ -710,14 +711,14 @@ class CoverGroup(CoverageNet):
         self._goal = goal
         return self
 
-    def def_advance(self, fn): 
+    def advancer(self, fn): 
         '''
         Set the function or lambda expression that provides values to write to the source to advance coverage for this particular goal.
         '''
         self._fn_advance = fn
         return self
     
-    def def_cover(self, fn):
+    def checker(self, fn):
         '''
         Sets the function or lambda expression that provides a way to read values from the sink to check coverage.
         '''
@@ -819,7 +820,7 @@ class CoverGroup(CoverageNet):
         '''
         return int(self._bins_lookup[item] / self._items_per_bin)
     
-    def cover(self, item):
+    def check(self, item):
         '''
         Return's true if it got the entire group closer to meeting coverage.
 
@@ -1036,14 +1037,14 @@ class CoverRange(CoverageNet):
         self._goal = goal
         return self
 
-    def def_advance(self, fn): 
+    def advancer(self, fn): 
         '''
         Set the function or lambda expression that provides vlues to write to the source to advance coverage for this particular goal.
         '''
         self._fn_advance = fn
         return self
     
-    def def_cover(self, fn):
+    def checker(self, fn):
         '''
         Sets the function or lambda expression that provides a way to read values from the sink to check coverage.
         '''
@@ -1150,7 +1151,7 @@ class CoverRange(CoverageNet):
             return None
         return self._transform(item)
 
-    def cover(self, item) -> bool:
+    def check(self, item) -> bool:
         '''
         Return's true if it got the entire group closer to meeting coverage.
 
@@ -1459,11 +1460,11 @@ class CoverCross(CoverageNet):
     def get_total_points_met(self) -> int:
         return self._inner.get_total_points_met()
 
-    def cover(self, item):
+    def check(self, item):
         if self.is_in_sample_space(item) == False:
             return None
         index = self._flatten(item)
-        return self._inner.cover(index)
+        return self._inner.check(index)
 
     def passed(self):
         return self._inner.passed()

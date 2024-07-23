@@ -19,7 +19,7 @@ test-sw-lib:
 
 # Test the hardware library
 test-hw-lib:
-    just agglo-vhdl
+    just compile
     cd src/lib/hdl; orbit test --dut basic --target gverb
 
 test-sw-bin:
@@ -28,7 +28,7 @@ test-sw-bin:
 # Perform an installation of the latest libraries using stable versions
 user-install:
     just version-ok 0.1.0
-    just agglo-vhdl
+    just compile
     pip install git+"https://github.com/cdotrus/verb.git@trunk#egg=verb"
     orbit install verb --url "https://github.com/cdotrus/verb/archive/refs/heads/trunk.zip"
     cargo install --git "https://github.com/cdotrus/verb.git"
@@ -36,14 +36,14 @@ user-install:
 # Perform an installation of the latest libraries using development versions
 dev-install:
     just version-ok 0.1.0
-    just agglo-vhdl
+    just compile
     pip install -e src/lib/python --force
     orbit install --path src/lib/hdl --force
     cargo install --path src/bin/verb --force
 
 dev-hw-install:
     just version-ok 0.1.0
-    just agglo-vhdl
+    just compile
     orbit install --path src/lib/hdl --force
 
 # Checks to make sure all locations where a version is specified has the correct
@@ -52,7 +52,7 @@ version-ok VERSION:
     python scripts/version-ok.py {{VERSION}}
 
 # Updates the agglomerated VHDL package
-agglo-vhdl:
+compile:
     python scripts/agglomerate.py
 
 # Run a simulation for "add" with Orbit and Verb running independent commands
@@ -69,6 +69,12 @@ ovg-bcd:
     cd examples/bcd; orbit t --target gsim --no-clean
     cd examples/bcd; verb check ./target/gsim/events.log --coverage ./target/gsim/coverage.txt --stats
 
+# Run a simulation for "timer" with Orbit and Verb running independent commands
+ovg-timer:
+    cd examples/timer; mkdir -p target/gsim
+    cd examples/timer; verb model -C target/gsim --dut "$(orbit get timer --json)" --tb "$(orbit get timer_tb --json)" --coverage "coverage.txt" timer_tb.py
+    cd examples/timer; orbit t --target gsim --no-clean
+    cd examples/timer; verb check ./target/gsim/events.log --coverage ./target/gsim/coverage.txt --stats
 
 # Download the latest relevant profile for Hyperspace Labs
 config:
