@@ -643,7 +643,13 @@ class CoverPoint(CoverageNet):
         return cond
     
     def advance(self, rand=False):
-        return int(True) if self._fn_advance == None else self._fn_advance(self._source)
+        if self._fn_advance == None:
+            return int(True)
+        else:
+            if isinstance(self._source, (list, tuple)) == True:
+                return self._fn_advance(*self._source)
+            else:
+                return self._fn_advance(self._source)
 
     def passed(self):
         return self._count >= self._goal

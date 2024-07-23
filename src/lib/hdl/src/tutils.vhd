@@ -8,9 +8,8 @@
 library ieee;
 use ieee.std_logic_1164.all;
 
-library amp;
-use amp.types.all;
-use amp.cast.all;
+library work;
+use work.adverb.all;
 
 library std;
 use std.textio.all;

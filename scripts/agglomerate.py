@@ -6,9 +6,9 @@
 
 import os
 
-PACKAGE_NAME = 'test'
+PACKAGE_NAME = 'verb'
 
-SRC_DIR = './src/lib/vhdl/src'
+SRC_DIR = './src/lib/hdl/src'
 
 FILE_ORDER = [
     ('events.vhd', True),
@@ -55,8 +55,8 @@ HEADER = '''\
 -- Project: Verb
 -- Package: ''' + PACKAGE_NAME + '''
 --
--- This package brings the separate VHDL packages under a single package
--- for more convenient importing. This package is auto-generated; DO NOT EDIT.
+-- Low-level functions and procedures for writing hardware aspects of a
+-- testbench.
 
 library ieee;
 use ieee.std_logic_1164.all;
@@ -64,9 +64,8 @@ use ieee.std_logic_1164.all;
 library std;
 use std.textio.all;
 
-library amp;
-use amp.types.all;
-use amp.cast.all;
+library work;
+use work.adverb.all;
 '''
 
 PACKAGE_DECL = 'package ' + PACKAGE_NAME + ' is'

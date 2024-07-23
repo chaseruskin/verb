@@ -7,8 +7,8 @@ use std.textio.all;
 library amp;
 use amp.prelude.all;
 
-library verb;
-use verb.test.all;
+library test;
+use test.verb.all;
 
 entity bcd_enc_tb is
     generic (

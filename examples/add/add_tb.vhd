@@ -8,8 +8,8 @@ use std.textio.all;
 library amp;
 use amp.types.all;
 
-library verb;
-use verb.test.all;
+library test;
+use test.verb.all;
 
 entity add_tb is
     generic(

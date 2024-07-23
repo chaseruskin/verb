@@ -1,11 +1,11 @@
 [ip]
 name = "verb"
+library = "test"
 version = "0.1.0"
 description = "Hardware drivers for simulating digital hardware"
 source = "https://github.com/cdotrus/verb/archive/refs/tags/{{orbit.ip.version}}.zip"
-public = ["/src"]
+public = ["/src/verb.vhd", "/src/events.vhd", "/src/tutils.vhd"]
 
 # See more keys and their definitions at https://cdotrus.github.io/orbit/reference/manifest.html
 
 [dependencies]
-amp = "1.0.0"

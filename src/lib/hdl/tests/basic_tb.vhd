@@ -1,8 +1,8 @@
 library ieee;
 use ieee.std_logic_1164.all;
 
-library amp;
-use amp.types.all;
+library work;
+use work.adverb.all;
 
 entity basic is 
     port(
@@ -27,9 +27,7 @@ use std.textio.all;
 library work;
 use work.events.all;
 use work.tutils.all;
-
-library amp;
-use amp.types.all;
+use work.adverb.all;
 
 entity basic_tb is
 end entity;
