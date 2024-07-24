@@ -29,9 +29,9 @@ test-sw-bin:
 user-install:
     just version-ok 0.1.0
     just compile
-    pip install git+"https://github.com/cdotrus/verb.git@trunk#egg=verb"
-    orbit install verb --url "https://github.com/cdotrus/verb/archive/refs/heads/trunk.zip"
-    cargo install --git "https://github.com/cdotrus/verb.git"
+    pip install git+"https://github.com/chaseruskin/verb.git@trunk#egg=verb"
+    orbit install verb --url "https://github.com/chaseruskin/verb/archive/refs/heads/trunk.zip"
+    cargo install --git "https://github.com/chaseruskin/verb.git"
 
 # Perform an installation of the latest libraries using development versions
 dev-install:
@@ -86,7 +86,7 @@ config:
 
 # Start a docker container
 harbor:
-    docker run -it -w $PWD --mount type=bind,src=$PWD,dst=$PWD --name fpga cdotrus/melodic-marimba:latest /bin/bash
+    docker run -it -w $PWD --mount type=bind,src=$PWD,dst=$PWD --name fpga chaseruskin/melodic-marimba:latest /bin/bash
 
 # Remove the existing docker container
 sail:

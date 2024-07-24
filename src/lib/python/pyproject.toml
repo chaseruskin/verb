@@ -6,7 +6,7 @@ description = "Software drivers for simulating hardware"
 requires-python = ">=3.8"
 
 [project.urls]
-Homepage = "https://github.com/cdotrus/verb"
+Homepage = "https://github.com/chaseruskin/verb"
 
 [build-system]
 requires = ["flit_core >=3.2,<4"]

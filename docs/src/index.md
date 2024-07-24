@@ -20,7 +20,7 @@ The following documentation will be mainly divided into 4 sections:
 4. [Reference](./reference/reference.md) - Technical information
 
 ## About the Project
-The project is open-source under the MIT license and is available on [GitHub](https://github.com/cdotrus/verb).
+The project is open-source under the MIT license and is available on [GitHub](https://github.com/chaseruskin/verb).
 
 ## About the Documentation
 Documentation system and methodology is inspired by [Divio](https://documentation.divio.com).

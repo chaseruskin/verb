@@ -12,7 +12,7 @@ The software library provides the driver-level code for writing models.
 
 Using Pip, run the following command:
 ```
-pip install git+"https://github.com/cdotrus/verb.git@trunk#egg=verb"
+pip install git+"https://github.com/chaseruskin/verb.git@trunk#egg=verb"
 ```
 
 To check if it is properly installed, run:
@@ -29,7 +29,7 @@ The hardware library provides the driver-level code for creating testbenches.
 
 Using Orbit, run the following command:
 ```
-orbit install verb --url "https://github.com/cdotrus/verb/archive/refs/heads/trunk.zip"
+orbit install verb --url "https://github.com/chaseruskin/verb/archive/refs/heads/trunk.zip"
 ```
 
 To check if it is properly installed, run:
@@ -44,7 +44,7 @@ The command-line application provides commands for faster development and runnin
 
 Using Cargo, run the following command:
 ```
-cargo install --git https://github.com/cdotrus/verb.git
+cargo install --git https://github.com/chaseruskin/verb.git
 ```
 
 To check if it is properly installed, run:

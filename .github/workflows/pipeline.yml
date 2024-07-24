@@ -6,6 +6,6 @@ on:
 
 jobs:
   build:
-    uses: cdotrus/verb/.github/workflows/build.yml@trunk
+    uses: chaseruskin/verb/.github/workflows/build.yml@trunk
   test:
-    uses: cdotrus/verb/.github/workflows/test.yml@trunk
+    uses: chaseruskin/verb/.github/workflows/test.yml@trunk

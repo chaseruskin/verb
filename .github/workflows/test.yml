@@ -19,7 +19,7 @@ jobs:
         uses: extractions/setup-just@v2
 
       - name: Setup orbit
-        uses: cdotrus/setup-orbit@v0
+        uses: chaseruskin/setup-orbit@v0
 
       - name: Setup ghdl
         uses: ghdl/setup-ghdl-ci@nightly

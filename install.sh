@@ -2,7 +2,7 @@
 
 set -e
 
-URL="https://github.com/cdotrus/verb"
+URL="https://github.com/chaseruskin/verb"
 
 pip install git+$URL.git@t"runk#egg=verb&subdirectory=src/lib/python"
 orbit install verb --url $URL/archive/refs/heads/trunk.zip

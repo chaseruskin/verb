@@ -1,6 +1,6 @@
 # _Verb_
 
-[![Pipeline](https://github.com/cdotrus/verb/actions/workflows/pipeline.yml/badge.svg?branch=trunk)](https://github.com/cdotrus/verb/actions/workflows/pipeline.yml) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Pipeline](https://github.com/chaseruskin/verb/actions/workflows/pipeline.yml/badge.svg?branch=trunk)](https://github.com/chaseruskin/verb/actions/workflows/pipeline.yml) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 Verb is a framework for simulating digital hardware designs. 
 
@@ -14,17 +14,17 @@ Simulating hardware with Verb is separated into 3 steps:
 
 3. Analyze the logged comparisons for any failures or errors
 
-Verb can be used for all types of simulation; from simple experimentation to advanced functional verification. Read [Hardware Simulation with Verb](https://cdotrus.github.io/verb/) to learn more about Verb and how to use it in your next hardware project.
+Verb can be used for all types of simulation; from simple experimentation to advanced functional verification. Read [Hardware Simulation with Verb](https://chaseruskin.github.io/verb/) to learn more about Verb and how to use it in your next hardware project.
 
 ## Installing
 
 Verb is available as 3 separate components: a library for software drivers, a library for hardware drivers, and a command-line application for assisting in development as well as running pre-simulation and post-simulation processes.
 
-Any of the components may have one or more implementations; install the component in the programming language or HDL you prefer. See [Installing](https://cdotrus.github.io/verb/starting/installing.html) for more details and available implementations.
+Any of the components may have one or more implementations; install the component in the programming language or HDL you prefer. See [Installing](https://chaseruskin.github.io/verb/starting/installing.html) for more details and available implementations.
 
 If you are using Linux or macOS, you can install all the components (using `pip`, `orbit`, and `cargo`):
 ```
-curl --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/cdotrus/verb/trunk/install.sh | bash -s --
+curl --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/chaseruskin/verb/trunk/install.sh | bash -s --
 ```
 
 ## Details
@@ -57,7 +57,7 @@ The Verb framework is divided into 3 main layers.
 
 This separation of functionality is important for modularity. If a model needs to be written in a different language (Python/C++/Rust), then only the software layer requires changes; the data layer and hardware layer are left unmodified. Having well-defined interfaces between these layers allows for the framework to easily expand to new software languages and HDLs.
 
-See [Overview](https://cdotrus.github.io/verb/topic/overview.html) for more information about how the framework works.
+See [Overview](https://chaseruskin.github.io/verb/topic/overview.html) for more information about how the framework works.
 
 ## Key Features
 
