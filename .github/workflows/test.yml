@@ -41,7 +41,7 @@ jobs:
         run: python -m unittest src/lib/python/tests/*.py
 
       - name: Test hardware library
-        working-directory: ./src/lib/vhdl
+        working-directory: ./src/lib/hdl
         run: orbit test
 
       - name: Test command-line application
