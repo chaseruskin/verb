@@ -44,6 +44,9 @@ class Add:
         return self
     
     def force_carry_out(in0: Signal, in1: Signal):
+        '''
+        Generate a test case when the carry out signal should be triggered.
+        '''
         in0 = random.randint(1, in0.max())
         return (in0, in1.max() + 1 - in0)
     

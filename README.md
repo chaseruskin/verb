@@ -2,11 +2,11 @@
 
 [![Pipeline](https://github.com/chaseruskin/verb/actions/workflows/pipeline.yml/badge.svg?branch=trunk)](https://github.com/chaseruskin/verb/actions/workflows/pipeline.yml) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-Verb is a framework for simulating digital hardware designs. 
+Verb is a framework for simulating digital hardware. 
 
-Verb leverages _file I/O_ and _software programming languages_ to simulate hardware designs in their native hardware description language (HDL).
+Verb leverages _file I/O_ and _software programming languages_ to simulate digital hardware in their native hardware description languages (HDL).
 
-Simulating hardware with Verb is separated into 3 steps:
+Simulating hardware with Verb is separated into 3 tasks:
 
 1. Write a design model in software to generate I/O vector files
 
@@ -14,13 +14,13 @@ Simulating hardware with Verb is separated into 3 steps:
 
 3. Analyze the logged comparisons for any failures or errors
 
-Verb can be used for all types of simulation; from simple experimentation to advanced functional verification. Read [Hardware Simulation with Verb](https://chaseruskin.github.io/verb/) to learn more about Verb and how to use it in your next hardware project.
+Verb focuses on functional verification techniques for hardware simulation. Read [Verifying Hardware with Verb](https://chaseruskin.github.io/verb/) to learn more about Verb and how to use it in your next hardware project.
 
 ## Installing
 
 Verb is available as 3 separate components: a library for software drivers, a library for hardware drivers, and a command-line application for assisting in development as well as running pre-simulation and post-simulation processes.
 
-Any of the components may have one or more implementations; install the component in the programming language or HDL you prefer. See [Installing](https://chaseruskin.github.io/verb/starting/installing.html) for more details and available implementations.
+Any of the components may have one or more implementations; install the components in the programming language or HDL you prefer. See [Installing](https://chaseruskin.github.io/verb/starting/installing.html) for more details and available implementations.
 
 If you are using Linux or macOS, you can install all the components (using `pip`, `orbit`, and `cargo`):
 ```
@@ -31,7 +31,7 @@ curl --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/chaserusk
 
 Verb defines a collection of low-level functions, also known as _drivers_, that allow a user to communicate between software models and hardware designs for simulation. The main form of communication Verb uses to pass data between hardware and software is _file I/O_. This method was chosen due to its simplicity and wide support in existing HDLs. Drivers are implemented in both the software programming languages and the HDLs to faciliate the interaction between the design and the model.
 
-By using the drivers available through Verb, for every new hardware design users must only focus on writing the model, not configuring the whole testbench.
+The drivers are implemented in software and hardware to manage the data transfer across these layers. By using the drivers available through Verb, for every new hardware design users must only focus on writing the model, not configuring the whole testbench.
 
 This framework attempts to decouple the functional and timing aspects of a hardware simulation. The functional model is written in software, while the exact timing of how to monitor and check the design under test is kept in HDL. This separation of layers allows each language to focus in how they are naturally used.
 
