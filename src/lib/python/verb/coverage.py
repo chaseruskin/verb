@@ -326,7 +326,7 @@ class CoverageNet(_ABC):
         '''
         The signal(s) involved in checking the net's coverage.
 
-        The `sink` acts as the outputs that only read when checking if coverage is indeed covered.
+        The `sink` acts as the outputs that are read when checking if this net covered.
         '''
         if len(sink) == 1:
             self._sink = sink[0]
@@ -573,14 +573,16 @@ class CoverPoint(CoverageNet):
     
     def advancer(self, fn): 
         '''
-        Set the function or lambda expression that provides vlues to write to the source to advance coverage for this particular goal.
+        Set the function or lambda expression that provides the implementation for how to write the values to the source
+        to advance this net's coverage closer to its goal.
         '''
         self._fn_advance = fn
         return self
     
     def checker(self, fn):
         '''
-        Sets the function or lambda expression that provides a way to read values from the sink to check coverage.
+        Sets the function or lambda expression that provides the implementation for how to read the values from the sink
+        to check this net's coverage.
         '''
         self._fn_cover = fn
         return self
@@ -713,14 +715,16 @@ class CoverGroup(CoverageNet):
 
     def advancer(self, fn): 
         '''
-        Set the function or lambda expression that provides values to write to the source to advance coverage for this particular goal.
+        Set the function or lambda expression that provides the implementation for how to write the values to the source
+        to advance this net's coverage closer to its goal.
         '''
         self._fn_advance = fn
         return self
     
     def checker(self, fn):
         '''
-        Sets the function or lambda expression that provides a way to read values from the sink to check coverage.
+        Sets the function or lambda expression that provides the implementation for how to read the values from the sink
+        to check this net's coverage.
         '''
         self._fn_cover = fn
         return self
@@ -1039,14 +1043,16 @@ class CoverRange(CoverageNet):
 
     def advancer(self, fn): 
         '''
-        Set the function or lambda expression that provides vlues to write to the source to advance coverage for this particular goal.
+        Set the function or lambda expression that provides the implementation for how to write the values to the source
+        to advance this net's coverage closer to its goal.
         '''
         self._fn_advance = fn
         return self
     
     def checker(self, fn):
         '''
-        Sets the function or lambda expression that provides a way to read values from the sink to check coverage.
+        Sets the function or lambda expression that provides the implementation for how to read the values from the sink
+        to check this net's coverage.
         '''
         self._fn_cover = fn
         return self

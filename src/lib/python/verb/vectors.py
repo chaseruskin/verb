@@ -3,22 +3,17 @@
 #
 # A Vectors contains the test vectors for a particular model.
 
-from . import context
-
 class Vectors:
     from .model import Mode
     from typing import List as _List
 
-    def __init__(self, path: str, mode: Mode, order: _List[str]=None):
+    def __init__(self, path: str, mode: Mode):
         '''
         Creates a trace file to write stimuli/results for a potential hardware simulation.
         
         ### Parameters
         - The `name` argument sets the file's path name
-        - The `mode` argument determines which directional ports to capture when writing to the file.
-        - The `order` argument is the list of port names to write. It must include all ports that match the direction
-        set by `mode`. This list determines the order in which to serialize the data when writing traces. If omitted,
-        the port order is determined by the order found in the HDL top-level port interface.
+        - The `mode` argument determines which directional ports to capture when writing to the file
         '''
         import os
         from .model import Mode
@@ -85,7 +80,7 @@ class Vectors:
         return self
 
 
-    def append(self, model):
+    def push(self, model):
         '''
         Writes the directional ports of the bus funcitonal model to the test vector file.
 

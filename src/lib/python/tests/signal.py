@@ -10,7 +10,7 @@ class Test(ut.TestCase):
 
     def test_signal_internal_data(self):
         d0 = Signal(4, signed=True)
-        d0.store(5)
+        d0.assign(5)
         self.assertEqual(d0._width, 4)
         self.assertEqual(d0.bits(), '0101')
         self.assertEqual(d0.digits(), 5)

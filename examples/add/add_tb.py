@@ -25,10 +25,10 @@ class Add:
         # inputs
         self.in0 = Signal(width, distribution=Distribution(space=[0, pow2m1(width), range(1, pow2m1(width))], weights=[0.1, 0.1, 0.8]))
         self.in1 = Signal(width, distribution=Distribution(space=[0, pow2m1(width), range(1, pow2m1(width))], weights=[0.1, 0.1, 0.8]))
-        self.cin = Signal(1)
+        self.cin = Signal()
         # outputs
         self.sum = Signal(width)
-        self.cout = Signal(1)
+        self.cout = Signal()
         pass
 
     def eval(self):
@@ -36,11 +36,11 @@ class Add:
         Model the functional behavior of the design unit.
         '''
         temp = Signal(self.width+1)
-        temp.data = int(self.in0) + int(self.in1) + int(self.cin)
+        temp.assign(int(self.in0) + int(self.in1) + int(self.cin))
         
         # update the output port values
-        self.sum.data = temp[self.width-1::-1]
-        self.cout.data = temp[self.width]
+        self.sum.assign(temp[self.width-1::-1])
+        self.cout.assign(temp[self.width])
         return self
     
     def force_carry_out(in0: Signal, in1: Signal):
@@ -129,9 +129,9 @@ CoverPoint("cout generated") \
 with vectors('inputs.txt', 'i') as inputs, vectors('outputs.txt', 'o') as outputs:
     while coverage.met(10_000) == False:
         outcome: Add = randomize(add)
-        inputs.append(outcome)
+        inputs.push(outcome)
 
         outcome.eval()
-        outputs.append(outcome)
+        outputs.push(outcome)
         pass
     pass

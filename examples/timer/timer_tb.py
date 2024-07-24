@@ -21,23 +21,23 @@ class Timer:
         bits = len(self.sub_delays)
 
         self.sub_ticks = Signal(bits, endianness='little')
-        self.base_tick = Signal(1)
+        self.base_tick = Signal()
 
         self.base_count = 0
         self.counts = [0] * bits
         pass
 
-    def evaluate(self):
+    def process(self):
         self.base_count += 1
 
         if self.base_count < self.base_delay:
-            self.base_tick.store(0)
-            self.sub_ticks.store(0)
+            self.base_tick.assign(0)
+            self.sub_ticks.assign(0)
             return self
         
         # base count has reached the number of expected delays
         self.base_count = 0
-        self.base_tick.store(1)
+        self.base_tick.assign(1)
 
         # check if any subtick counts have reached their delay times
         for i, delay in enumerate(self.sub_delays):
@@ -62,7 +62,7 @@ model = Timer(SUB_DELAYS, BASE_DELAY)
 
 # verify each tick is enabled at least 3 times
 for i, tick in enumerate(SUB_DELAYS):
-    CoverPoint('tick '+str(tick)+' targeted') \
+    CoverPoint('tick '+str(tick)) \
         .goal(3) \
         .sink(model.sub_ticks) \
         .checker(lambda x, i=i: int(x[i]) == 1) \
@@ -70,7 +70,7 @@ for i, tick in enumerate(SUB_DELAYS):
     pass
 
 # verify the common delay is enabled
-CoverPoint("base tick targeted") \
+CoverPoint("base tick") \
     .goal(3) \
     .sink(model.base_tick) \
     .apply()
@@ -79,10 +79,10 @@ CoverPoint("base tick targeted") \
 with vectors('inputs.txt', 'i') as inputs, vectors('outputs.txt', 'o') as outputs:
     while coverage.met(10_000) == False:
         # write each transaction to the input file
-        inputs.append(model)
+        inputs.push(model)
         # compute expected values to send to simulation
-        model.evaluate()
+        model.process()
         # write each expected output of the transaction to the output file
-        outputs.append(model)
+        outputs.push(model)
         pass
     pass

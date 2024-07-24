@@ -18,8 +18,8 @@ class Strategy(_Enum):
     pass
 
 
-def vectors(path: str, mode: Mode, order=None) -> Vectors:
-    return Vectors(path, mode, order)
+def vectors(path: str, mode: Mode) -> Vectors:
+    return Vectors(path, mode)
 
 
 def randomize(model, strategy: str='linear'):
@@ -67,7 +67,7 @@ def randomize(model, strategy: str='linear'):
                     if type(values) == int:
                         values = [values]
                     for i in range(len(sources)):
-                        sources[i].store(values[i])
+                        sources[i].assign(values[i])
                 # exit- we only want to ensure we progress toward one coverage
                 break
             pass
@@ -81,11 +81,11 @@ def __compile_ports(model):
     Compiles the list of ports into a mapping where the 'key' is the defined name
     and the 'value' is a tuple (Signal, Dict).
     '''
+    from .context import Context, Runner
+
     # save computations
     if hasattr(model, '__verb_cached_ports') == True:
         return model.__verb_cached_ports
-    
-    from .context import Context, Runner
 
     runner: Runner = Context.current()
     

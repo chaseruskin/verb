@@ -84,9 +84,9 @@ class Distribution:
 
 class Signal:
 
-    def __init__(self, width: int, data=0, mode=Mode.INFER, endianness: str='big', name: str=None, signed: bool=False, distribution: Distribution=None):
+    def __init__(self, width: int=1, value=0, mode=Mode.INFER, endianness: str='big', name: str=None, signed: bool=False, distribution: Distribution=None):
         '''
-        Creates a new Signal to carry data with a defined `width`.
+        Creates a new Signal to carry the data `value` with a defined `width`.
         '''
         # set the number of bits allowed for the signal
         if isinstance(width, int) == False:
@@ -95,9 +95,9 @@ class Signal:
             raise ValueError('expected width to be a positive number but got ' + str(width))
         self._width = int(width)
         # store internal raw value
-        self._raw_data = data
+        self._raw_data = value
 
-        self.data = None 
+        self.value = None 
 
         # set the signal's mode
         self._mode = mode if isinstance(mode, Mode) else Mode.from_str(str(mode))
@@ -194,35 +194,35 @@ class Signal:
 
         # provide uniform distribution when no distribution is defined for the signal
         if self._distro == None:
-            self.store(_random.randint(self.min(), self.max()))
+            self.assign(_random.randint(self.min(), self.max()))
         else:
-            self.store(self._distro.samples(k=1)[0])
+            self.assign(self._distro.samples(k=1)[0])
         # return the reference to self
         return self
 
 
-    def store(self, data):
+    def assign(self, value):
         '''
-        Sets the Signal's internal data.
+        Updates the Signal's internal data with `value`.
 
-        The `data` can either be a `str`, `int`, or `list`.
+        The `value` can either be a `str`, `int`, or `list`.
         '''
         from .primitives import digits as _digits
         # put into big-endian format for storing
-        if (isinstance(data, str) or isinstance(data, list)) and self._is_big_endian == False:
-            data = data[::-1]
+        if (isinstance(value, str) or isinstance(value, list)) and self._is_big_endian == False:
+            value = value[::-1]
         # verify the data is within bounds
-        temp_int = _digits(data, self._is_signed)
+        temp_int = _digits(value, self._is_signed)
         if temp_int < self.min() or temp_int > self.max():
             raise ValueError("value out of bounds " + str(temp_int) + " must be between " + str(self.min()) + " and " + str(self.max()))
-        self._raw_data = data
+        self._raw_data = value
         return self
     
 
     def __setattr__(self, name, value):
-        if name == "data":
+        if name == "value":
             if value != None:
-                self.store(value)
+                self.assign(value)
             if value == None:
                 self._raw_data = 0
         else:
@@ -270,7 +270,7 @@ class Signal:
         if self._is_big_endian == True:
             result = result[::-1]
         # update the raw data
-        self.store(result)
+        self.assign(result)
         pass
     
 

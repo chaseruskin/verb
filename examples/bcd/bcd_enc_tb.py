@@ -46,11 +46,11 @@ class BcdEncoder:
             word = int(word/10)
         digits.insert(0, word)
         
-        self.ovfl.store(0)
+        self.ovfl.assign(0)
         # check if an overflow exists on conversion given digit constraint
         diff = self.num_digits - len(digits)
         if(diff < 0):
-            self.ovfl.store(1)
+            self.ovfl.assign(1)
             # trim off left-most digits
             digits = digits[abs(diff):]
         # pad left-most digit positions with 0's
@@ -62,10 +62,10 @@ class BcdEncoder:
         # write each digit to output file
         bin_digits: str = ''
         for d in digits:
-            bin_digits += str(Signal(4).store(d))
+            bin_digits += str(Signal(4).assign(d))
 
-        self.bcd.store(bin_digits)
-        self.done.store(1)
+        self.bcd.assign(bin_digits)
+        self.done.assign(1)
         return self
 
     pass
@@ -117,26 +117,26 @@ cp_go_while_active = CoverPoint("go while active") \
 # Generate the test vectors (run the model!)
 with vectors('inputs.txt', 'i') as inputs, vectors('outputs.txt', 'o') as outputs:
     # initialize the values with defaults
-    inputs.append(bcd_algo)
+    inputs.push(bcd_algo)
     while coverage.met(10_000) == False:
         # Get a new set of inputs to process
         outcome: BcdEncoder = randomize(bcd_algo)
-        bcd_algo.go.store(1)
-        inputs.append(outcome)
+        bcd_algo.go.assign(1)
+        inputs.push(outcome)
         # Alter the input while the computation is running
         for _ in range(1, outcome.fsm_delay):
             outcome_dupe: BcdEncoder = randomize(bcd_algo_dupe)
             cp_bin_while_active.check(int(bcd_algo_dupe.bin) != int(bcd_algo.bin))
-            inputs.append(outcome_dupe)
+            inputs.push(outcome_dupe)
 
         # Compute the output
         bcd_algo.eval()
-        outputs.append(bcd_algo)
+        outputs.push(bcd_algo)
 
         # place some random 'idle' time after a finished computation
         for _ in range(0, random.randint(0, 10)):
             outcome_dupe: BcdEncoder = randomize(bcd_algo_dupe)
-            outcome_dupe.go.store(0)
-            inputs.append(outcome_dupe)
+            outcome_dupe.go.assign(0)
+            inputs.push(outcome_dupe)
         pass
     pass
