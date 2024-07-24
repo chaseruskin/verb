@@ -47,7 +47,7 @@ The following objectives drive the design choices behind building this framework
 
 ## Framework
 
-![](./docs/src/images/system.png)
+![](./docs/src/images/system.svg)
 
 The Verb framework is divided into 3 main layers.
 
