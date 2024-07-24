@@ -346,7 +346,10 @@ class CoverageNet(_ABC):
 
     def __init__(self, name: str):
         '''
-        Creates a CoverageNet object.
+        Create a new CoverageNet object.
+
+        To finish building this object and allow its coverage to be tracked, use
+        the `.apply()` function.
         '''
         self._name = name
         self._built = False
@@ -589,7 +592,10 @@ class CoverPoint(CoverageNet):
 
     def __init__(self, name: str):
         '''
-        Create a new CoverPoint unit.
+        Create a new CoverPoint object.
+
+        To finish building this object and allow its coverage to be tracked, use
+        the `.apply()` function.
         '''
         self._count = 0
         self._goal = 1
@@ -766,11 +772,10 @@ class CoverGroup(CoverageNet):
 
     def __init__(self, name: str):
         '''
-        Initialize a cover group object.
+        Create a new CoverGroup object.
 
-        ### Parameters
-        - `advance`: a function or lambda expression that provides values to write to the source to advance coverage
-        - `cover`: a function or lambda expression that provides a way to read values from a sink to check coverage
+        To finish building this object and allow its coverage to be tracked, use
+        the `.apply()` function.
         '''
         # stores the items per index for each bin group
         self._macro_bins = []
@@ -1095,7 +1100,10 @@ class CoverRange(CoverageNet):
 
     def __init__(self, name: str):
         '''
-        Creates a new CoverRange unit.
+        Create a new CoverRange object.
+
+        To finish building this object and allow its coverage to be tracked, use
+        the `.apply()` function.
         '''
 
         self._domain = None
@@ -1331,6 +1339,12 @@ class CoverCross(CoverageNet):
         return super().apply()
 
     def __init__(self, name: str):
+        '''
+        Create a new CoverCross object.
+
+        To finish building this object and allow its coverage to be tracked, use
+        the `.apply()` function.
+        '''
         self._nets = []
         self._goal = 1
         self._crosses = 0
