@@ -8,7 +8,7 @@ The Verb framework is divided into three main layers.
 
 This separation of functionality is important for modularity. If a model needs to be written in a different language (Python/C++/Rust), then only the software layer requires changes; the data layer and hardware layer are left unmodified. Having well-defined interfaces between these layers allows for the framework to easily expand to new software languages and HDLs.
 
-![](./../images/system.png)
+![](./../images/system.svg)
 
 ### Software Layer
 
