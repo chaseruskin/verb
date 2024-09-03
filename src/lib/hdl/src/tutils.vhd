@@ -48,9 +48,9 @@ package tutils is
   -- Read a logic bit value from the line `row` into the variable `x`.
   procedure load(variable row: inout line; variable x: out logic);
   
-  -- Sets `halt` to true and enters an infinite wait statement to signal 
-  -- that the simulation is complete.
-  procedure complete(signal halt: out bool);
+  -- Closes the file `fd` and sets `halt` to true and enters an infinite wait
+  -- statement to signal that the simulation is complete.
+  procedure complete(file fd: text; signal halt: out bool);
 
   -- Enters an infinite wait if the `halt` signal is set to true.
   procedure check(halt: in bool);
@@ -60,8 +60,9 @@ end package;
 
 package body tutils is
 
-  procedure complete(signal halt: out bool) is
+  procedure complete(file fd: text; signal halt: out bool) is
   begin
+    file_close(fd);
     halt <= true;
     wait;
   end procedure;

@@ -41,7 +41,7 @@ begin
             cout => bfm.cout
         );
 
-    --! generate a 50% duty cycle for 25 Mhz
+    -- generate a 50% duty cycle for 25 Mhz
     spin_clock(clk, 40 ns, halt);
 
     --! test reading a file filled with test vectors
@@ -95,7 +95,7 @@ begin
             compare(outputs);
         end loop;
         -- halt the simulation
-        complete(halt);
+        complete(events, halt);
     end process;
 
 end architecture;

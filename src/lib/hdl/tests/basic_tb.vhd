@@ -142,7 +142,7 @@ begin
         assert_ne(events, tx, '0', "txt");
 
         -- halt the simulation
-        complete(halt);
+        complete(events, halt);
     end process;
 
 end architecture;

@@ -7,6 +7,7 @@ import argparse
 # Handle command-line arguments
 parser = argparse.ArgumentParser(prog='vverb', allow_abbrev=False)
 
+parser.add_argument('--lint', action='store_true', default=False, help='run static analysis and exit')
 parser.add_argument('--generic', '-g', action='append', type=Generic.from_arg, default=[], metavar='KEY=VALUE', help='override top-level verilog parameters')
 
 parser.add_argument('--log', action='store', default='events.log', help='specify the log file path written during simulation')
@@ -19,6 +20,7 @@ args = parser.parse_args()
 MAX_TESTS = int(args.loop_limit)
 SKIP_MODEL = bool(args.skip_model)
 GENERICS = args.generic
+LINT_ONLY = bool(args.lint)
 SEED = args.seed
 EVENTS_LOG_FILE = str(args.log)
 
@@ -36,6 +38,27 @@ for rule in Blueprint().parse():
     elif rule.fileset == 'PYMDL':
         py_model = rule.path
     pass
+
+# format list of source files for verilator command-line
+src_files = [str(src.path) for src in rtl_order]
+
+# format generics for verilator command-line
+top_gens = ['-G'+str(g.key)+'='+str(g.val) for g in GENERICS]
+
+# only perform lint and exit
+if LINT_ONLY == True:
+    Command('verilator') \
+        .arg('--lint-only') \
+        .arg('--sv') \
+        .arg('--timing') \
+        .args(['-j', '0']) \
+        .args(top_gens) \
+        .args(['--Mdir', OUT_DIR]) \
+        .arg('-Wall') \
+        .args(src_files) \
+        .spawn() \
+        .unwrap()
+    exit(0)
 
 HAS_MODEL = py_model != None
 
@@ -62,14 +85,14 @@ if HAS_MODEL == True and SKIP_MODEL == False:
         .unwrap()
     pass
 
-src_files = [str(src.path) for src in rtl_order]
-
 # overwrite top level parameters using -G<name>=<value>
 # verilator --binary -j 0 -Wall our.v
 Command('verilator') \
     .arg('--binary') \
     .arg('--sv') \
+    .arg('--timing') \
     .args(['-j', '0']) \
+    .args(top_gens) \
     .args(['--Mdir', OUT_DIR]) \
     .args(['-o', BENCH_NAME]) \
     .args(src_files) \
