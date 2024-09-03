@@ -34,7 +34,7 @@ orbit install verb --url "https://github.com/chaseruskin/verb/archive/refs/heads
 
 To check if it is properly installed, run:
 ```
-orbit show verb --versions
+orbit view verb --versions
 ```
 The version you installed should print to the console.
 
