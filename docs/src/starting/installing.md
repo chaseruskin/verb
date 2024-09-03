@@ -25,7 +25,7 @@ The version you installed should print to the console.
 
 The hardware library provides the driver-level code for creating testbenches.
 
-### VHDL
+### VHDL, SystemVerilog
 
 Using Orbit, run the following command:
 ```
