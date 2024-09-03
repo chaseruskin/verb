@@ -30,6 +30,8 @@ pub enum Error {
     ExpectingSeverity,
     #[error("expecting topic")]
     ExpectingTopic,
+    #[error("unsupported language {0:?}")]
+    UnsupportedLang(String),
 }
 
 impl Error {

@@ -49,13 +49,79 @@ impl Net {
     }
 }
 
+#[derive(Serialize, Debug, PartialEq)]
+pub enum Language {
+    Vhdl,
+    Verilog,
+    SystemVerilog,
+}
+
+use serde::de::{self};
+use std::fmt;
+
+impl<'de> serde::Deserialize<'de> for Language {
+    fn deserialize<D>(deserializer: D) -> Result<Language, D::Error>
+    where
+        D: de::Deserializer<'de>,
+    {
+        struct LayerVisitor;
+
+        impl<'de> de::Visitor<'de> for LayerVisitor {
+            type Value = Language;
+
+            fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+                formatter.write_str("a language string")
+            }
+
+            fn visit_str<E>(self, v: &str) -> Result<Self::Value, E>
+            where
+                E: de::Error,
+            {
+                match Language::from_str(&v) {
+                    Ok(v) => Ok(v),
+                    Err(e) => Err(de::Error::custom(e)),
+                }
+            }
+        }
+
+        deserializer.deserialize_str(LayerVisitor)
+    }
+}
+
+impl FromStr for Language {
+    type Err = Error;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s.to_lowercase().as_ref() {
+            "vhdl" => Ok(Self::Vhdl),
+            "verilog" => Ok(Self::Verilog),
+            "systemverilog" => Ok(Self::SystemVerilog),
+            _ => Err(Error::UnsupportedLang(s.to_string())),
+        }
+    }
+}
+
+impl Display for Language {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{}",
+            match &self {
+                Self::Vhdl => "vhdl",
+                Self::SystemVerilog => "systemverilog",
+                Self::Verilog => "verilog",
+            }
+        )
+    }
+}
+
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Unit {
     identifier: String,
     generics: Vec<Net>,
     ports: Vec<Net>,
     architectures: Vec<String>,
-    language: String,
+    language: Language,
 }
 
 impl Unit {
@@ -75,7 +141,7 @@ impl Unit {
         &mut self.generics
     }
 
-    pub fn get_language(&self) -> &String {
+    pub fn get_language(&self) -> &Language {
         &self.language
     }
 }

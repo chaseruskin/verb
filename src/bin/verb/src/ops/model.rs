@@ -3,7 +3,7 @@ use std::path::PathBuf;
 
 use crate::error::Error;
 use crate::generic::Generic;
-use crate::unit::Unit;
+use crate::unit::{Language, Unit};
 use cliproc::{cli, proc, stage::Memory};
 use cliproc::{Arg, Cli, Help, Subcommand};
 
@@ -39,7 +39,8 @@ impl Subcommand<()> for Model {
 
     fn execute(mut self, _c: &()) -> proc::Result {
         // update the generics in the TB interface json data
-        let ignore_case = self.tb.get_language().to_ascii_uppercase() == "VHDL";
+        let ignore_case = self.tb.get_language() == &Language::Vhdl;
+
         for override_gen in self.generics {
             let mut detected_gen = false;
             for net in self.tb.get_generics_mut() {
