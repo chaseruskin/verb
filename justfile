@@ -11,7 +11,7 @@ _default:
 
 # A full end-to-end test from the /examples directory
 test MOD *FLAGS:
-    cd examples/{{MOD}}; orbit test --target gverb -- {{FLAGS}}
+    cd examples/{{MOD}}; orbit test -- {{FLAGS}}
 
 # Test the software library
 test-sw-lib:
