@@ -3,8 +3,15 @@
 version = 1
 
 [[ip]]
+name = "add"
+version = "0.0.0"
+uuid = "3q7ss1vebad7uq8aa9nh4lfyz"
+dependencies = ["verb+1pgjtja7i1rcf0i5ooubqjctt:0.1.0"]
+
+[[ip]]
 name = "verb"
 version = "0.1.0"
 uuid = "1pgjtja7i1rcf0i5ooubqjctt"
 url = "https://github.com/chaseruskin/verb/archive/refs/tags/{{orbit.ip.version}}.zip"
+path = "/Users/chase/Develop/hdl/verb/src/lib/hdl"
 dependencies = []

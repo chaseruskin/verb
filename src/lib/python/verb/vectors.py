@@ -50,7 +50,7 @@ class Vectors:
     
 
     def __exit__(self, exception_type, exception_value, exception_traceback):
-        # handle any exccpetions
+        # handle any exceptions
         self._file.close()
 
 

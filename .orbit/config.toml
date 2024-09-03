@@ -3,22 +3,14 @@ name   = "gverb"
 description = "Run simulations with ghdl and verb"
 command = "python"
 args    = ["gverb.py"]
-fileset.pymdl = "{{ orbit.bench }}.py"
-explanation = """
-Analyzes and simulates a testbench with GHDL. This target supports running
-a design model in Python to generate test vectors using the Verb simulation
-framework.
+fileset.pymdl = "{{orbit.tb.name}}.py"
 
-Help:
-    orbit build --target gverb --force -- --help
-
-Environment:
-    ORBIT_ENV_GHDL_PATH             Filesystem path specifying GHDL binary
-
-Dependencies:
-    GHDL (tested: 3.0.0-dev (2.0.0.r101.g791ff0c1) [Dunoon edition])
-    Python (tested: 3.8.6)
-"""
+[[target]]
+name = "vverb"
+description = "Run simulationrs with verilator and verb"
+command = "python"
+args = ["vverb.py"]
+fileset.pymdl = "{{orbit.dut.name}}_tb.py"
 
 [test]
 default-target = "gverb"

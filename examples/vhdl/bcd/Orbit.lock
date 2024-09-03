@@ -3,8 +3,7 @@
 version = 1
 
 [[ip]]
-name = "verb"
+name = "bcd"
 version = "0.1.0"
-uuid = "1pgjtja7i1rcf0i5ooubqjctt"
-url = "https://github.com/chaseruskin/verb/archive/refs/tags/{{orbit.ip.version}}.zip"
+uuid = "emra43gr0q6p6l27zkb277plt"
 dependencies = []

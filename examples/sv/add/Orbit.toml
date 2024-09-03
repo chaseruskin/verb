@@ -1,0 +1,11 @@
+[ip]
+name = "add"
+uuid = "3q7ss1vebad7uq8aa9nh4lfyz"
+version = "0.0.0"
+
+# See more keys and their definitions at https://chaseruskin.github.io/orbit/reference/manifest.html
+
+[dependencies]
+
+[dev-dependencies]
+verb = { path = "../../../src/lib/hdl", version = "0.1.0" }

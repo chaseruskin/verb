@@ -1,10 +1,16 @@
 [ip]
 name = "verb"
+uuid = "1pgjtja7i1rcf0i5ooubqjctt"
 library = "test"
 version = "0.1.0"
 description = "Hardware drivers for simulating digital hardware"
 source = "https://github.com/chaseruskin/verb/archive/refs/tags/{{orbit.ip.version}}.zip"
-public = ["/src/verb.vhd", "/src/events.vhd", "/src/tutils.vhd"]
+public = [
+    "/src/verb.vhd", 
+    "/src/events.vhd", 
+    "/src/tutils.vhd",
+    "/src/godan.sv",
+]
 
 # See more keys and their definitions at https://chaseruskin.github.io/orbit/reference/manifest.html
 

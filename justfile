@@ -38,7 +38,7 @@ dev-install:
     just version-ok 0.1.0
     just compile
     pip install -e src/lib/python --force
-    orbit install --path src/lib/hdl --force
+    orbit install --path src/lib/hdl --force --offline
     cargo install --path src/bin/verb --force
 
 dev-hw-install:
@@ -57,30 +57,30 @@ compile:
 
 # Run a simulation for "add" with Orbit and Verb running independent commands
 ovg-add:
-    cd examples/add; mkdir -p target/gsim
-    cd examples/add; verb model -C target/gsim --dut "$(orbit get add --json)" --tb "$(orbit get add_tb --json)" --coverage "coverage.txt" add_tb.py
-    cd examples/add; orbit t --target gsim --dut add --no-clean
-    cd examples/add; verb check ./target/gsim/events.log --coverage ./target/gsim/coverage.txt --stats
+    cd examples/vhdl/add; mkdir -p target/gsim
+    cd examples/vhdl/add; verb model -C target/gsim --dut "$(orbit get add --json)" --tb "$(orbit get add_tb --json)" --coverage "coverage.txt" add_tb.py
+    cd examples/vhdl/add; orbit t --target gsim --dut add --no-clean
+    cd examples/vhdl/add; verb check ./target/gsim/events.log --coverage ./target/gsim/coverage.txt --stats
 
 # Run a simulation for "bcd" with Orbit and Verb running independent commands
 ovg-bcd:
-    cd examples/bcd; mkdir -p target/gsim
-    cd examples/bcd; verb model -C target/gsim --dut "$(orbit get bcd_enc --json)" --tb "$(orbit get bcd_enc_tb --json)" --coverage "coverage.txt" bcd_enc_tb.py
-    cd examples/bcd; orbit t --target gsim --no-clean
-    cd examples/bcd; verb check ./target/gsim/events.log --coverage ./target/gsim/coverage.txt --stats
+    cd examples/vhdl/bcd; mkdir -p target/gsim
+    cd examples/vhdl/bcd; verb model -C target/gsim --dut "$(orbit get bcd_enc --json)" --tb "$(orbit get bcd_enc_tb --json)" --coverage "coverage.txt" bcd_enc_tb.py
+    cd examples/vhdl/bcd; orbit t --target gsim --no-clean
+    cd examples/vhdl/bcd; verb check ./target/gsim/events.log --coverage ./target/gsim/coverage.txt --stats
 
 # Run a simulation for "timer" with Orbit and Verb running independent commands
 ovg-timer:
-    cd examples/timer; mkdir -p target/gsim
-    cd examples/timer; verb model -C target/gsim --dut "$(orbit get timer --json)" --tb "$(orbit get timer_tb --json)" --coverage "coverage.txt" timer_tb.py
-    cd examples/timer; orbit t --target gsim --no-clean
-    cd examples/timer; verb check ./target/gsim/events.log --coverage ./target/gsim/coverage.txt --stats
+    cd examples/vhdl/timer; mkdir -p target/gsim
+    cd examples/vhdl/timer; verb model -C target/gsim --dut "$(orbit get timer --json)" --tb "$(orbit get timer_tb --json)" --coverage "coverage.txt" timer_tb.py
+    cd examples/vhdl/timer; orbit t --target gsim --no-clean
+    cd examples/vhdl/timer; verb check ./target/gsim/events.log --coverage ./target/gsim/coverage.txt --stats
 
 # Download the latest relevant profile for Hyperspace Labs
 config:
-    git clone https://github.com/hyperspace-labs/orbit-profile.git "$(orbit env ORBIT_HOME)/profiles/hyperspace-labs"
-    pip install -r "$(orbit env ORBIT_HOME)/profiles/hyperspace-labs/requirements.txt"
-    orbit config --append include="profiles/hyperspace-labs/config.toml"
+    git clone https://github.com/chaseruskin/orbit-targets.git "$(orbit env ORBIT_HOME)/targets/chaseruskin"
+    pip install -r "$(orbit env ORBIT_HOME)/targets/chaseruskin/requirements.txt"
+    orbit config --append include="targets/chaseruskin/config.toml"
     curl https://sh.rustup.rs -sSf | sh -s -- -y
     install.sh
 

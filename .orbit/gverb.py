@@ -19,7 +19,7 @@ from mod import Command, Status, Env, Generic, Blueprint, Hdl
 
 # Set up environment and constants
 
-BENCH = Env.read("ORBIT_BENCH", missing_ok=True)
+BENCH = Env.read("ORBIT_TB_NAME", missing_ok=True)
 
 # temporarily append ghdl path to PATH env variable
 GHDL_PATH: str = Env.read("ORBIT_ENV_GHDL_PATH", missing_ok=True)
@@ -101,8 +101,8 @@ if LINT_ONLY == True:
 # Run the design model to generate test vectors
 
 if HAS_MODEL == True and SKIP_MODEL == False:
-    ORBIT_TB = Env.read("ORBIT_BENCH", missing_ok=False)
-    ORBIT_DUT = Env.read("ORBIT_DUT", missing_ok=False)
+    ORBIT_TB = Env.read("ORBIT_TB_NAME", missing_ok=False)
+    ORBIT_DUT = Env.read("ORBIT_DUT_NAME", missing_ok=False)
 
     # export the interfaces using orbit to get the json data format
     dut_data = Command("orbit").arg("get").arg(ORBIT_DUT).arg("--json").output()[0].strip()

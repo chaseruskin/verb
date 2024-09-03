@@ -16,9 +16,9 @@ class Mode(_Enum):
     @staticmethod
     def from_str(s: str):
         s = s.lower()
-        if s == 'in' or s == 'i':
+        if s == 'in' or s == 'i' or s == 'input':
             return Mode.IN
-        elif s == 'out' or s == 'o':
+        elif s == 'out' or s == 'o' or s == 'output':
             return Mode.OUT
         elif s == 'inout' or s == 'io':
             return Mode.INOUT
