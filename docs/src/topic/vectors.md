@@ -29,6 +29,8 @@ Example: "inputs.txt"
 
 In this example, we are testing a hardware design that has 3 ports to be driven by the vector file (one port of 1-bit width and two ports of 4-bit width). For this simulation, there are 4 test vectors that will be sent as input to the design over the duration of the simulation.
 
+An empty newline character does not exist at the end of the file. The last line of the file contains the final test vector.
+
 ## Details
 
 It is the testbench's responsibility to determine _when_ to actually supply each vector to the hardware design. This approach is taken to provide users with fine-grain control over the timing of the data-flow within the simulation environment.

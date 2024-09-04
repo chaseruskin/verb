@@ -4,8 +4,8 @@ use ieee.std_logic_1164.all;
 library std;
 use std.textio.all;
 
-library amp;
-use amp.prelude.all;
+library nano;
+use nano.amp.all;
 
 library test;
 use test.verb.all;
@@ -75,12 +75,11 @@ begin
         -- initialize input signals      
         send(inputs);
         trigger_sync(clk, rst, '1', 3);
-        wait until rising_edge(clk);
         
         -- drive transactions
         while endfile(inputs) = false loop
             send(inputs);
-            wait until rising_edge(clk);
+            wait until falling_edge(clk);
         end loop;
 
         -- wait for all outputs to be checked
@@ -124,7 +123,7 @@ begin
         end loop;
 
         -- halt the simulation
-       complete(halt);
+       complete(events, halt);
     end process;
 
     -- concurrent captures of simulation

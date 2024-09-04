@@ -3,7 +3,26 @@
 version = 1
 
 [[ip]]
-name = "bcd"
-version = "0.1.0"
-uuid = "emra43gr0q6p6l27zkb277plt"
+name = "amp"
+version = "1.0.1"
+uuid = "aarl1e1yutudnxptr5b4g70p0"
+checksum = "cee20b3f6dc28c47e3cc281795d4109f75b50bdb8c5d3a2f3675fbd2155b23af"
+url = "https://github.com/hyperspace-labs/amp/archive/refs/tags/{{orbit.ip.version}}.zip"
 dependencies = []
+
+[[ip]]
+name = "verb"
+version = "0.1.0"
+uuid = "1pgjtja7i1rcf0i5ooubqjctt"
+url = "https://github.com/chaseruskin/verb/archive/refs/tags/{{orbit.ip.version}}.zip"
+path = "../../../src/lib/hdl"
+dependencies = []
+
+[[ip]]
+name = "verb-example-bcd"
+version = "0.0.0"
+uuid = "emra43gr0q6p6l27zkb277plt"
+dependencies = [
+    "amp+aarl1e1yutudnxptr5b4g70p0:1.0",
+    "verb+1pgjtja7i1rcf0i5ooubqjctt:0.1.0",
+]

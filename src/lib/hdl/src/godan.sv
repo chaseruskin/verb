@@ -26,6 +26,27 @@ package godan;
         end
     endtask
 
+    // Synchronously triggers the logic bit `datum` to its state `active` and then 
+    // asynchronously deactivates the bit to its initial value after `cycles`
+    // clock cycles elapse.
+    //
+    // The trigger will not be applied if `cycles` is set to 0. The signal will
+    // deactivate on the falling edge of the `cycles` count clock cycle.
+    task trigger_sync(ref logic clk, ref logic datum, input logic active, input int cycles);
+        automatic logic prev_datum;
+        prev_datum = datum;
+        if(cycles > 0) begin
+            @(posedge clk);
+            datum = active;
+            #0;
+            for(int i = 0; i < cycles; i++) begin
+                @(posedge clk);
+            end
+            @(negedge clk);
+            datum = prev_datum;
+        end
+    endtask
+
     // Return a string in binary format to drive a logic value from the line `row`.
     function string drive(inout string row);
         automatic string sect = "";
@@ -79,6 +100,36 @@ package godan;
         end
     endtask
 
+    // Checks the logic `datum` enters its active state `active` on the rising edge of `clk` before `cycles` clock cycles elapse.
+    task monitor(inout int fd, ref logic clk, ref logic datum, input logic active, input int cycles, input string subject);
+        automatic int cycle_count = 0;
+        automatic int cycle_limit = cycles + 1;
+        automatic string fmt_cycles, fmt_active;
+
+        if(cycle_limit < 0) begin
+            @(negedge clk, datum == active);
+            return;
+        end else begin
+            while(cycle_count < cycle_limit) begin
+                if(datum == active) begin
+                    $sformat(fmt_cycles, "%-d", cycle_count);
+                    $sformat(fmt_active, "%b", active);
+                    capture(fd, INFO, "MONITOR", subject, {"observes ", fmt_active, " after waiting ", fmt_cycles, " cycle(s)"});
+                    break;
+                end
+                cycle_count = cycle_count + 1;
+                if(cycle_count < cycle_limit) begin
+                    @(negedge(clk));
+                end
+            end
+        end
+        if(cycle_count >= cycle_limit) begin
+            $sformat(fmt_cycles, "%-d", cycles);
+            $sformat(fmt_active, "%b", active);
+            capture(fd, ERROR, "MONITOR", subject, {"fails to observe ", fmt_active, " after waiting ", fmt_cycles, " cycle(s)"});
+        end
+    endtask;
+
     // Captures an event during simulation and writes the outcome to the file `fd`.
     // The time when the task is called is recorded in the timestamp.
     task capture(inout int fd, input tone level, input string topic, input string subject, input string predicate = "");
@@ -128,7 +179,7 @@ package godan;
         end else if(level == FATAL) begin
             sect = "FATAL";
         end else begin
-            sect = "TRACE";
+            sect = "INFO";
         end
         result = {result, sect};
 

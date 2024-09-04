@@ -32,7 +32,8 @@ class Vectors:
                 os.makedirs(os.path.dirname(self._path), exist_ok=True)
             open(self._path, 'w').close()
             self._exists = True
-
+        
+        self._is_empty = True
         self._file = None
         pass
 
@@ -125,9 +126,13 @@ class Vectors:
         open_in_scope: bool = self._file == None
         fd = self._file if open_in_scope == False else open(self._path, 'a')
         
+        if self._is_empty == False:
+            fd.write(NEWLINE)
         for info in signals:
             fd.write(str(info) + DELIM)
-        fd.write(NEWLINE)
+
+        self._is_empty = False
+
         # close the file if it was opened in this current scope
         if open_in_scope == True:
             fd.close()

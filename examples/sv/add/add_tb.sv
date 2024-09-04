@@ -51,7 +51,7 @@ module add_tb #(
         int inputs = $fopen("inputs.txt", "r");
         while(!$feof(inputs)) begin
             send(inputs);
-            @(posedge clk);
+            @(negedge clk);
         end
         wait(0);
     end
@@ -72,7 +72,6 @@ module add_tb #(
         string row;
         if(!$feof(fdi)) begin
             $fgets(row, fdi);
-            if(row.len() == 0) return;
             $sscanf(drive(row), "%b", bfm.cin);
             $sscanf(drive(row), "%b", bfm.in0);
             $sscanf(drive(row), "%b", bfm.in1);
@@ -85,8 +84,7 @@ module add_tb #(
     string row, recv, expt;
     if(!$feof(o)) begin
         $fgets(row, o);
-        if(row.len() == 0) return;
-
+        
         $sformat(recv, "%b", bfm.sum);
         $sscanf(load(row), "%b", mdl.sum);
         $sformat(expt, "%b", mdl.sum);

@@ -1,10 +1,9 @@
 [ip]
 name = "verb-example-bcd"
-uuid = "emra43gr0q6p6l27zkb277plt"
+uuid = "3j713ghpcocu47be1u1eks91a"
 version = "0.0.0"
 
 [dependencies]
-amp = "1.0"
 
 [dev-dependencies]
 verb = { path = "../../../src/lib/hdl", version = "0.1.0" }

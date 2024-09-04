@@ -9,6 +9,7 @@ parser = argparse.ArgumentParser(prog='vverb', allow_abbrev=False)
 
 parser.add_argument('--lint', action='store_true', default=False, help='run static analysis and exit')
 parser.add_argument('--generic', '-g', action='append', type=Generic.from_arg, default=[], metavar='KEY=VALUE', help='override top-level verilog parameters')
+parser.add_argument('--vcd', action='store_true', default=False, help='enable saving vcd from testbench')
 
 parser.add_argument('--log', action='store', default='events.log', help='specify the log file path written during simulation')
 parser.add_argument('--skip-model', action='store_true', help='skip execution of a design model (if exists)')
@@ -21,6 +22,7 @@ MAX_TESTS = int(args.loop_limit)
 SKIP_MODEL = bool(args.skip_model)
 GENERICS = args.generic
 LINT_ONLY = bool(args.lint)
+USE_VCD = bool(args.vcd)
 SEED = args.seed
 EVENTS_LOG_FILE = str(args.log)
 
@@ -90,6 +92,7 @@ if HAS_MODEL == True and SKIP_MODEL == False:
 Command('verilator') \
     .arg('--binary') \
     .arg('--sv') \
+    .arg('--trace' if USE_VCD == True else '') \
     .arg('--timing') \
     .args(['-j', '0']) \
     .args(top_gens) \

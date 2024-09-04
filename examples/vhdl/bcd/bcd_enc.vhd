@@ -16,10 +16,10 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-library amp;
-use amp.prelude.all;
-use amp.math.all;
-use amp.dims.all;
+library nano;
+use nano.amp.all;
+use nano.math.all;
+use nano.dims.all;
 
 entity bcd_enc is
     generic (

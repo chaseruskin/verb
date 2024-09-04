@@ -308,7 +308,7 @@ impl Link {
     fn sv_to_string_send(ports: &Vec<&Net>, bfm_inst: &str) -> String {
         let input_fd = "i";
         let drive_fn = "drive";
-        let result = format!("{0}task automatic send(int {1});\n{2}string row;\n{2}if(!$feof({1})) begin\n{3}$fgets(row, {1});\n{3}if(row.len() == 0) return;\n", SV_HEAD_COMMENT, input_fd, Self::tab(1), Self::tab(2));
+        let result = format!("{0}task automatic send(int {1});\n{2}string row;\n{2}if(!$feof({1})) begin\n{3}$fgets(row, {1});\n", SV_HEAD_COMMENT, input_fd, Self::tab(1), Self::tab(2));
         let mut result = ports.iter().fold(result, |mut acc, n| {
             acc.push_str(&format!(
                 "{3}$sscanf({0}(row), \"%b\", {1}.{2});\n",
@@ -355,7 +355,7 @@ impl Link {
         let output_fd = "o";
         let load_fn = "load";
         let assert_fn = "assert_eq";
-        let result = format!("{0}task automatic compare(int {1}, int {4});\n{2}string row, recv, expt;\n{2}if(!$feof({4})) begin\n{3}$fgets(row, {4});\n{3}if(row.len() == 0) return;\n", SV_HEAD_COMMENT, event_fd, Self::tab(1), Self::tab(2), output_fd);
+        let result = format!("{0}task automatic compare(int {1}, int {4});\n{2}string row, recv, expt;\n{2}if(!$feof({4})) begin\n{3}$fgets(row, {4});\n", SV_HEAD_COMMENT, event_fd, Self::tab(1), Self::tab(2), output_fd);
         let mut result = ports.iter().fold(result, |mut acc, n| {
             acc.push_str(&format!(
                 "\n{2}$sformat(recv, \"%b\", {0}.{1});\n",
