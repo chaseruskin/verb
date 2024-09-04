@@ -33,8 +33,8 @@ package godan;
     // The trigger will not be applied if `cycles` is set to 0. The signal will
     // deactivate on the falling edge of the `cycles` count clock cycle.
     task trigger_sync(ref logic clk, ref logic datum, input logic active, input int cycles);
-        automatic logic prev_datum;
-        prev_datum = datum;
+        automatic logic prev_datum = datum;
+
         if(cycles > 0) begin
             @(posedge clk);
             datum = active;
@@ -248,5 +248,80 @@ package godan;
         
         $fwrite(fd, {result, "\n"});
     endtask
+
+    /* macros
+
+        A nicer way to use Verb that resembles much of the API style as its
+        VHDL counterpart.
+    */
+
+    `define stabilize(FD, CLK, DATA, FLAG, ACTIVE, SUBJECT) \
+        string \DATA\ ; \
+        always @(negedge clk) $sformat(\DATA\ , "%b", DATA); \
+        always stabilize(FD, CLK, \DATA\ , FLAG, ACTIVE, SUBJECT);
+
+    `define assert_eq(FD, RECV, EXPT, SUBJECT) \
+        begin \
+            automatic string \RECV\ ; \
+            automatic string \EXPT\ ; \
+            $sformat(\RECV\ , "%b", RECV); \
+            $sformat(\EXPT\ , "%b", EXPT); \
+            assert_eq(e, \RECV\ , \EXPT\ , SUBJECT); \
+        end 
+
+    `define assert_ne(FD, RECV, EXPT, SUBJECT) \
+        begin \
+            automatic string \RECV\ ; \
+            automatic string \EXPT\ ; \
+            $sformat(\RECV\ , "%b", RECV); \
+            $sformat(\EXPT\ , "%b", EXPT); \
+            assert_ne(e, \RECV\ , \EXPT\ , SUBJECT); \
+        end 
+
+    `define monitor(FD, CLK, DATA, ACTIVE, CYCLES, SUBJECT) \
+        begin \
+            automatic int cycle_count = 0; \
+            automatic int cycle_limit = CYCLES + 1; \
+            automatic string fmt_cycles, fmt_active; \
+            if(cycle_limit < 0) begin \
+                @(negedge CLK, DATA == ACTIVE); \
+            end else begin \
+                while(cycle_count < cycle_limit) begin \
+                    if(DATA == ACTIVE) begin \
+                        $sformat(fmt_cycles, "%-d", cycle_count); \
+                        $sformat(fmt_active, "%b", ACTIVE); \
+                        capture(FD, INFO, "MONITOR", SUBJECT, {"observes ", fmt_active, " after waiting ", fmt_cycles, " cycle(s)"}); \
+                        break; \
+                    end \
+                    cycle_count = cycle_count + 1; \
+                    if(cycle_count < cycle_limit) begin \
+                        @(negedge(CLK)); \
+                    end \
+                end \
+            end \
+            if(cycle_count >= cycle_limit) begin \
+                $sformat(fmt_cycles, "%-d", CYCLES); \
+                $sformat(fmt_active, "%b", ACTIVE); \
+                capture(FD, ERROR, "MONITOR", SUBJECT, {"fails to observe ", fmt_active, " after waiting ", fmt_cycles, " cycle(s)"}); \
+            end \
+        end
+
+    `define capture(FD, LEVEL, TOPIC, SUBJECT, PREDICATE) \
+        capture(FD, LEVEL, TOPIC, SUBJECT, PREDICATE);
+
+    `define drive(ROW, X) \
+        $sscanf(drive(ROW), "%b", X);
+
+    `define load(ROW, X) \
+        $sscanf(load(ROW), "%b", X);
+
+    `define spin_clock(CLK, PERIOD, HALT) \
+        always spin_clock(CLK, PERIOD, HALT);
+
+    `define complete(FD, HALT) \
+        complete(FD, HALT);
+
+    `define trigger_sync(CLK, DATA, ACTIVE, CYCLES) \
+        trigger_sync(CLK, DATA, ACTIVE, CYCLES);
 
 endpackage

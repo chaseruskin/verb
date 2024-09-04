@@ -17,7 +17,6 @@ module bcd_enc #(
 
     logic ovfl_r, ovfl_d;
     state state_r, state_d;
-    logic[LEN-1:0] bin_r;
 
     localparam int CTR_LEN = $clog2(LEN);
 
@@ -28,7 +27,6 @@ module bcd_enc #(
         if(rst == 1'b1) begin
             ovfl_r <= '0;
             dabble_r <= '0;
-            bin_r <= '0;
             ctr_r <= '0;
             state_r <= S_LOAD;
         end else begin
@@ -36,7 +34,6 @@ module bcd_enc #(
             ctr_r <= ctr_d;
             ovfl_r <= ovfl_d;
             dabble_r <= dabble_d;
-            bin_r <= bin;
         end
     end
 
