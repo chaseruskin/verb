@@ -130,6 +130,36 @@ package godan;
         end
     endtask;
 
+    typedef logic[127:0] logics;
+
+    // Checks the logic `data` does not change value when its indicator `flag` is in the active state `active`.
+    task stabilize(inout int fd, ref logic clk, ref string data, ref logic flag, input logic active, input string subject);
+        automatic logic is_okay = 1'b1;
+        automatic logic is_checked = 1'b0;
+        automatic string prev_data = "";
+        automatic int num_cycles = 0;
+        automatic string num_cycles_fmt = "";
+
+        @(posedge clk);
+
+        prev_data = data;
+        while(flag == active) begin
+            is_checked = 1'b1;
+            if(prev_data != data) begin
+                is_okay = 1'b0;
+                // capture
+                $sformat(num_cycles_fmt, "%-d", num_cycles);
+                capture(fd, ERROR, "STABILIZE", subject, {"loses stability of ", prev_data, " by changing to ", data, " after ", num_cycles_fmt, " cycle(s)"});
+            end
+            @(posedge clk);
+            num_cycles = num_cycles + 1;
+        end
+        if(is_checked == 1'b1 && is_okay == 1'b1) begin
+            $sformat(num_cycles_fmt, "%-d", num_cycles);
+            capture(fd, INFO, "STABILIZE", subject, {"keeps stability at ", prev_data, " for ", num_cycles_fmt, " cycle(s)"});
+        end
+    endtask
+
     // Captures an event during simulation and writes the outcome to the file `fd`.
     // The time when the task is called is recorded in the timestamp.
     task capture(inout int fd, input tone level, input string topic, input string subject, input string predicate = "");

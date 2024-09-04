@@ -42,7 +42,6 @@ module bcd_enc #(
 
     // simple pass through
     assign ovfl = ovfl_r;
-    assign bcd = dabble_r[LEN +: $bits(bcd)];
 
     // determine next state and output signals
     always_comb begin
@@ -53,6 +52,8 @@ module bcd_enc #(
         ovfl_d = ovfl_r;
         dabble_d = dabble_r;
         done = '0;
+
+        bcd = dabble_r[LEN +: $bits(bcd)];
 
         case(state_r)
             S_LOAD: begin
@@ -93,6 +94,8 @@ module bcd_enc #(
             end
             S_WAIT: begin
                 done = 1'b1;
+                // uncomment this line to see stability issues
+                // bcd = '0;
                 state_d = S_LOAD;
             end
             default: begin
