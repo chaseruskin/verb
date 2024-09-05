@@ -181,8 +181,8 @@ class Context:
             self._seed = int(self._seed)
 
         # read from environment variables if they exist
-        self._bench_if = _os.environ.get('VERB_TB', None)
-        self._dut_if = _os.environ.get('VERB_DUT', None)
+        self._bench_if = _os.environ.get('VERB_TB_JSON', None)
+        self._dut_if = _os.environ.get('VERB_DUT_JSON', None)
         self._event_log = _os.environ.get('VERB_EVENT_FILE', 'events.log')
         self._coverage_report = _os.environ.get('VERB_COVERAGE_FILE', 'coverage.txt')
         pass

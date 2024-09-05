@@ -57,8 +57,8 @@ impl Subcommand<()> for Model {
 
         // set environment variables for the software model
         let mut envs = HashMap::new();
-        envs.insert("VERB_DUT", self.dut.to_string());
-        envs.insert("VERB_TB", self.tb.to_string());
+        envs.insert("VERB_DUT_JSON", self.dut.to_string());
+        envs.insert("VERB_TB_JSON", self.tb.to_string());
         if let Some(ll) = &self.loop_limit {
             envs.insert("VERB_LOOP_LIMIT", ll.to_string());
         }
