@@ -1111,7 +1111,7 @@ class CoverRange(CoverageNet):
         # domain = range
         # determine the step size
         self._step_size = self._domain.step
-        num_steps_needed = (self._domain.stop - self._domain.start) / self._domain.step
+        num_steps_needed = int(abs(self._domain.stop - self._domain.start) / self._domain.step)
         self._step_size = self._domain.step
         # limit by computing a new step size
         # self._step_size = self._domain.step
