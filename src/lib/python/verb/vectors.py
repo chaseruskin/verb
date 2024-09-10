@@ -81,7 +81,7 @@ class Vectors:
         return self
 
 
-    def push(self, model):
+    def push(self, model, ignore_coverage: bool=False):
         '''
         Writes the directional ports of the bus funcitonal model to the test vector file.
 
@@ -106,18 +106,20 @@ class Vectors:
         # ignore the name when collecting the ports for the given mode
         signals = [p[1] for p in _extract_ports(model, mode=self._mode)]
         # check if there are coverages to automatically update
-        for net in Coverage.get_nets():
-            if net.has_sink() == True:
-                # verify the observation involves only signals being written for this transaction
-                sinks = net.get_sink_list()
-                for sink in sinks:
-                    # exit early if a signal being observed is not this transaction
-                    if sink not in signals:
-                        break
-                    pass
-                # perform an observation if the signals are in this transaction
-                else:
-                    net.check(net.get_sink())
+        if ignore_coverage == False:
+            for net in Coverage.get_nets():
+                if net.has_sink() == True:
+                    # verify the observation involves only signals being written for this transaction
+                    sinks = net.get_sink_list()
+                    for sink in sinks:
+                        # exit early if a signal being observed is not this transaction
+                        if sink not in signals:
+                            break
+                        pass
+                    # perform an observation if the signals are in this transaction
+                    else:
+                        net.check(net.get_sink())
+                pass
             pass
 
         DELIM = ' '

@@ -11,6 +11,3 @@ description = "Run simulationrs with verilator and verb"
 command = "python"
 args = ["vverb.py"]
 fileset.pymdl = "{{orbit.tb.name}}.py"
-
-[test]
-default-target = "gverb"

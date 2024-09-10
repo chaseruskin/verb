@@ -257,6 +257,20 @@ class CoverageNet(_ABC):
     _group = []
     _counter = 0
 
+    @_abstractmethod
+    def get_goal(self) -> int:
+        '''
+        Returns the goal count.
+        '''
+        pass
+
+    @_abstractmethod
+    def get_count(self) -> int:
+        '''
+        Returns the current count toward the goal.
+        '''
+        pass
+
     def get_type(self) -> str:
         if type(self) == CoverCross:
             return 'cross'
@@ -624,6 +638,12 @@ class CoverPoint(CoverageNet):
             return None
         return int(self._transform(item))
 
+    def get_goal(self) -> int:
+        return self._goal
+
+    def get_count(self) -> int:
+        return self._count
+
     def get_range(self) -> range:
         return range(0, 2, 1)
     
@@ -804,6 +824,16 @@ class CoverGroup(CoverageNet):
 
         super().__init__(name=name)
         pass
+
+    def get_goal(self) -> int:
+        return self._goal * len(self._macro_bins_count)
+
+    def get_count(self) -> int:
+        points_met = 0
+        for count in self._macro_bins_count:
+            if count >= self._goal:
+                points_met += 1
+        return points_met
 
     def _transform(self, item):
         return int(item if self._fn_cover == None else self._fn_cover(item))
@@ -1077,23 +1107,27 @@ class CoverRange(CoverageNet):
         return self
     
     def apply(self):
-        import math
+        import math, sys
         # domain = range
         # determine the step size
         self._step_size = self._domain.step
-        num_steps_needed = len(self._domain)
-        # limit by computing a new step size
+        num_steps_needed = (self._domain.stop - self._domain.start) / self._domain.step
         self._step_size = self._domain.step
+        # limit by computing a new step size
+        # self._step_size = self._domain.step
         self._num_of_steps = num_steps_needed
+
         if self._max_steps != None and num_steps_needed > self._max_steps:
             # update instance attributes
-            self._step_size = int(math.ceil(abs(self._domain.start - self._domain.stop) / self._max_steps))
+            self._step_size = int(math.ceil(abs(self._domain.stop - self._domain.start) / self._max_steps))
             self._num_of_steps = self._max_steps
             pass
 
         self._table = [[]] * self._num_of_steps
-        self._table_counts = [0] * self._num_of_steps
 
+        self._table_counts = [0] * self._num_of_steps
+        # print('len', len(self._table_counts))
+        # print(self._step_size)
         self._start = self._domain.start
         self._stop = self._domain.stop
         return super().apply()
@@ -1122,6 +1156,16 @@ class CoverRange(CoverageNet):
 
         super().__init__(name)
         pass
+
+    def get_goal(self) -> int:
+        return self._goal * len(self._table_counts)
+
+    def get_count(self) -> int:
+        points_met = 0
+        for entry in self._table_counts:
+            if entry >= self._goal:
+                points_met += 1
+        return points_met
 
     def get_range(self) -> range:
         return range(self._start, self._stop, self._step_size)
@@ -1171,12 +1215,20 @@ class CoverRange(CoverageNet):
 
         This means that the item covered is under the goal.
         '''
+        # print(item)
+        # print(self._stop)
         if self.is_in_sample_space(item) == False:
             return False
         # convert item to int
         mapped_item = self._transform(item)
+        # print('mapped', mapped_item)
+        # print(self._step_size)
         # transform into coverage domain
         index = int(mapped_item / self._step_size)
+        # print('index', index, mapped_item/self._step_size)
+        # caution: use this line when trying to handle very big ints that were mapped (fp inprecision?)
+        if index >= len(self._table_counts):
+            return False
         # check if it improves progessing by adding to a mapping that has not met the goal yet
         is_progress = self._table_counts[index] < self._goal
         # update the coverage for this value
@@ -1220,6 +1272,7 @@ class CoverRange(CoverageNet):
             pass
         if len(available) == 0:
             return None
+
         if rand == True:
             j = _random.choice(available)
             # transform back to the selection of the expanded domain space
@@ -1476,6 +1529,12 @@ class CoverCross(CoverageNet):
         Returns the number of points that have met their goal.
         '''
         return self._inner.get_points_met()
+
+    def get_goal(self) -> int:
+        return self._inner.get_goal()
+
+    def get_count(self) -> int:
+        return self._inner.get_count()
     
     def get_total_points_met(self) -> int:
         return self._inner.get_total_points_met()

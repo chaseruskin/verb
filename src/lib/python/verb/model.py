@@ -5,6 +5,8 @@ from enum import Enum as _Enum
 class Strategy(_Enum):
     NONE = 0,
     LINEAR = 1,
+    RANDOM = 2,
+    WEIGHTS = 3,
 
     @staticmethod
     def from_str(s: str):
@@ -13,6 +15,10 @@ class Strategy(_Enum):
             return Strategy.NONE
         elif s == 'linear':
             return Strategy.LINEAR
+        elif s == 'uniform':
+            return Strategy.RANDOM
+        elif s == 'weights':
+            return Strategy.WEIGHTS
         else:
             raise Exception('Failed to convert str '+s+' to type Strategy')
     pass
@@ -22,7 +28,7 @@ def vectors(path: str, mode: Mode) -> Vectors:
     return Vectors(path, mode)
 
 
-def randomize(model, strategy: str='linear'):
+def randomize(model, strategy: str='weights'):
     '''
     Generates random input values for each attribute for the BFM. This is
     a convenience function for individually setting each signal randomly.
@@ -32,6 +38,7 @@ def randomize(model, strategy: str='linear'):
     A strategy can be provided to provide coverage-driven input test vectors.
     '''
     from .coverage import CoverageNet, Coverage
+    import random
 
     net: CoverageNet
     port: Signal
@@ -71,6 +78,68 @@ def randomize(model, strategy: str='linear'):
                 # exit- we only want to ensure we progress toward one coverage
                 break
             pass
+        pass
+    # select a coverage net at random using uniform distribution for next value to help close coverage
+    elif strat == Strategy.RANDOM:
+        candidates = []
+        # collect the set of nets
+        failing_nets = Coverage.get_failing_nets()
+        # only work with coverage nets that deal with this model
+        for net in failing_nets:
+            # only work on coverage nets that are allowed to be auto-written
+            if net.has_source() == True:
+                sources = net.get_source_list()
+                # verify each writer exists in this current model
+                for source in sources:
+                    if source not in ports:
+                        break
+                else:
+                    candidates += [net]
+                pass
+            pass
+        # choose a failing net at random
+        sel = random.choice(candidates)
+        values = sel.advance(rand=True)
+        # force into an iterable type
+        if type(values) == int:
+            values = [values]
+        sources = net.get_source_list()
+        for i in range(len(sources)):
+            sources[i].assign(values[i])
+        pass
+    # select a coverage net according to a weighted distribution using its distance to its goal
+    elif strat == Strategy.WEIGHTS:
+        candidates = []
+        weights = []
+        # collect the set of nets
+        failing_nets = Coverage.get_failing_nets()
+        # only work with coverage nets that deal with this model
+        for net in failing_nets:
+            # only work on coverage nets that are allowed to be auto-written
+            if net.has_source() == True:
+                sources = net.get_source_list()
+                # verify each writer exists in this current model
+                for source in sources:
+                    if source not in ports:
+                        break
+                else:
+                    candidates += [net]
+                    weights += [net.get_goal() - net.get_count()]
+                pass
+            pass
+        # create the distribution weights for probability assignments
+        total_weight = 0
+        for i in weights: total_weight += i
+        weights = [w/total_weight for w in weights]
+        # choose a failing net at random
+        sel = random.choices(candidates, weights=weights)[0]
+        values = sel.advance(rand=True)
+        # force into an iterable type
+        if type(values) == int:
+            values = [values]
+        sources = net.get_source_list()
+        for i in range(len(sources)):
+            sources[i].assign(values[i])   
         pass
 
     return model
