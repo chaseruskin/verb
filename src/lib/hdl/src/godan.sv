@@ -266,7 +266,7 @@ package godan;
             automatic string \EXPT\ ; \
             $sformat(\RECV\ , "%b", RECV); \
             $sformat(\EXPT\ , "%b", EXPT); \
-            assert_eq(e, \RECV\ , \EXPT\ , SUBJECT); \
+            assert_eq(FD, \RECV\ , \EXPT\ , SUBJECT); \
         end 
 
     `define assert_ne(FD, RECV, EXPT, SUBJECT) \
@@ -275,7 +275,7 @@ package godan;
             automatic string \EXPT\ ; \
             $sformat(\RECV\ , "%b", RECV); \
             $sformat(\EXPT\ , "%b", EXPT); \
-            assert_ne(e, \RECV\ , \EXPT\ , SUBJECT); \
+            assert_ne(FD, \RECV\ , \EXPT\ , SUBJECT); \
         end 
 
     `define monitor(FD, CLK, DATA, ACTIVE, CYCLES, SUBJECT) \
