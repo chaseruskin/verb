@@ -42,7 +42,7 @@ jobs:
 
       - name: Test hardware library
         working-directory: ./src/lib/hdl
-        run: orbit test
+        run: orbit test --target gverb
 
       - name: Test command-line application
         working-directory: ./src/bin/verb

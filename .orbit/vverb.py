@@ -26,7 +26,6 @@ USE_VCD = bool(args.vcd)
 SEED = args.seed
 EVENTS_LOG_FILE = str(args.log)
 
-BENCH_NAME = Env.read('ORBIT_TB_NAME', missing_ok=False)
 OUT_DIR = 'build'
 
 py_model: str = None
@@ -62,6 +61,7 @@ if LINT_ONLY == True:
         .unwrap()
     exit(0)
 
+BENCH_NAME = Env.read('ORBIT_TB_NAME', missing_ok=False)
 HAS_MODEL = py_model != None
 
 if HAS_MODEL == True and SKIP_MODEL == False:
