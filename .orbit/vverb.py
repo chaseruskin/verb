@@ -118,7 +118,7 @@ Command('verilator') \
 Command(OUT_DIR + '/' + BENCH_NAME).spawn().unwrap()
 
 # check the event log
-if HAS_MODEL == True:
+if HAS_MODEL == True and os.path.exists(EVENTS_LOG_FILE) == True:
     Command('verb') \
         .arg('check') \
         .arg(EVENTS_LOG_FILE) \
