@@ -16,6 +16,8 @@ parser.add_argument('--skip-model', action='store_true', help='skip execution of
 parser.add_argument('--seed', action='store', type=int, nargs='?', default=None, const=random.randrange(sys.maxsize), metavar='NUM', help='set the randomness seed')
 parser.add_argument('--loop-limit', action='store', type=int, default=10_000, help='specify the limit of tests before timing out')
 
+parser.add_argument('--define', '-d', action='append', type=str, default=[], metavar='KEY[=VALUE]', help='set preprocessor defines')
+
 args = parser.parse_args()
 
 MAX_TESTS = int(args.loop_limit)
@@ -25,6 +27,7 @@ LINT_ONLY = bool(args.lint)
 USE_VCD = bool(args.vcd)
 SEED = args.seed
 EVENTS_LOG_FILE = str(args.log)
+MACROS = args.define
 
 OUT_DIR = 'build'
 
@@ -45,6 +48,9 @@ src_files = [str(src.path) for src in rtl_order]
 
 # format generics for verilator command-line
 top_gens = ['-G'+str(g.key)+'='+str(g.val) for g in GENERICS]
+top_macros = ['-D'+str(m) for m in MACROS]
+
+IP_PATH = Env.read("ORBIT_MANIFEST_DIR", missing_ok=False)
 
 # only perform lint and exit
 if LINT_ONLY == True:
@@ -56,13 +62,16 @@ if LINT_ONLY == True:
         .args(top_gens) \
         .args(['--Mdir', OUT_DIR]) \
         .arg('-Wall') \
+        .arg('-I'+str(IP_PATH)) \
+        .args(top_macros) \
         .args(src_files) \
         .spawn() \
         .unwrap()
     exit(0)
 
-BENCH_NAME = Env.read('ORBIT_TB_NAME', missing_ok=False)
 HAS_MODEL = py_model != None
+
+BENCH_NAME = Env.read('ORBIT_TB_NAME', missing_ok=False)
 
 if HAS_MODEL == True and SKIP_MODEL == False:
     ORBIT_TB = Env.read("ORBIT_TB_NAME", missing_ok=False)
@@ -96,7 +105,10 @@ Command('verilator') \
     .arg('--timing') \
     .args(['-j', '0']) \
     .args(top_gens) \
+    .arg('-I'+str(IP_PATH)) \
+    .args(top_macros) \
     .args(['--Mdir', OUT_DIR]) \
+    .arg('-Wno-fatal') \
     .args(['-o', BENCH_NAME]) \
     .args(src_files) \
     .spawn() \
