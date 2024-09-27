@@ -98,14 +98,16 @@ def randomize(model, strategy: str='weights'):
                 pass
             pass
         # choose a failing net at random
-        sel = random.choice(candidates)
-        values = sel.advance(rand=True)
-        # force into an iterable type
-        if type(values) == int:
-            values = [values]
-        sources = net.get_source_list()
-        for i in range(len(sources)):
-            sources[i].assign(values[i])
+        if len(candidates) > 0:
+            sel = random.choice(candidates)
+            values = sel.advance(rand=True)
+            # force into an iterable type
+            if type(values) == int:
+                values = [values]
+            sources = sel.get_source_list()
+            for i in range(len(sources)):
+                sources[i].assign(values[i])
+            pass
         pass
     # select a coverage net according to a weighted distribution using its distance to its goal
     elif strat == Strategy.WEIGHTS:
@@ -132,14 +134,16 @@ def randomize(model, strategy: str='weights'):
         for i in weights: total_weight += i
         weights = [w/total_weight for w in weights]
         # choose a failing net at random
-        sel = random.choices(candidates, weights=weights)[0]
-        values = sel.advance(rand=True)
-        # force into an iterable type
-        if type(values) == int:
-            values = [values]
-        sources = net.get_source_list()
-        for i in range(len(sources)):
-            sources[i].assign(values[i])   
+        if len(candidates) > 0:
+            sel = random.choices(candidates, weights=weights)[0]
+            values = sel.advance(rand=True)
+            # force into an iterable type
+            if type(values) == int:
+                values = [values]
+            sources = sel.get_source_list()
+            for i in range(len(sources)):
+                sources[i].assign(values[i])
+            pass   
         pass
 
     return model

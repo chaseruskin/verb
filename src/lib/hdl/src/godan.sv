@@ -130,8 +130,6 @@ package godan;
         end
     endtask;
 
-    typedef logic[127:0] logics;
-
     // Checks the logic `data` does not change value when its indicator `flag` is in the active state `active`.
     task stabilize(inout int fd, ref logic clk, ref string data, ref logic flag, input logic active, input string subject);
         automatic logic is_okay = 1'b1;
@@ -256,7 +254,10 @@ package godan;
     */
 
     `define stabilize(FD, CLK, DATA, FLAG, ACTIVE, SUBJECT) \
+        `ifndef \DATA\ \
+        `define \DATA\ \
         string \DATA\ ; \
+        `endif \
         always @(negedge clk) $sformat(\DATA\ , "%b", DATA); \
         always stabilize(FD, CLK, \DATA\ , FLAG, ACTIVE, SUBJECT);
 

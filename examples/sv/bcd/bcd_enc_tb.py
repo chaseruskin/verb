@@ -1,9 +1,6 @@
 #!/usr/bin/env python3
 
-# Project: Verb
-# Script: bcd_enc_tb.py
-#
-# This script generates the I/O test vector files to be used with the 
+# Generates the I/O test vector files to be used with the 
 # bcd_enc_tb.vhd testbench. It also produces a coverage report to indicate the 
 # robust of the tests.
 
@@ -12,10 +9,12 @@ from verb import context, coverage
 from verb.model import *
 from verb.coverage import *
 
-# Model the hardware
 class BcdEncoder:
 
     def __init__(self, width: int, digits: int):
+        '''
+        Create a new hardware model with the defined interface.
+        '''
         self.num_digits = digits
         self.width = width
 
@@ -31,7 +30,7 @@ class BcdEncoder:
         #  3  | 7  = 3 + 4 
         #  4  | 9  = 4 + 5
         #  5  | 11 = 5 + 6
-        self.fsm_delay = width+width+1+1
+        self.fsm_cycle_delay = width+width+1
         pass
 
     def eval(self):
@@ -71,72 +70,81 @@ class BcdEncoder:
     pass
 
 
-# collect parameters
-DIGITS = context.generic('DIGITS', type=int)
-LEN  = context.generic('LEN', type=int)
+def main():
+    # Setup - collect parameters and create models
 
-bcd_algo = BcdEncoder(width=LEN, digits=DIGITS)
-bcd_algo_dupe = BcdEncoder(width=LEN, digits=DIGITS)
+    DIGITS = context.generic('DIGITS', type=int)
+    LEN  = context.generic('LEN', type=int)
 
-# Coverage Goals - specify coverage areas
+    bcd_algo = BcdEncoder(width=LEN, digits=DIGITS)
+    bcd_algo_dupe = BcdEncoder(width=LEN, digits=DIGITS)
 
-CoverRange("input span") \
-    .span(bcd_algo.bin.span()) \
-    .target(bcd_algo.bin) \
-    .apply()
+    # Coverage Goals - specify coverage areas
 
-CoverPoint("overflow enabled") \
-    .goal(10) \
-    .bypass(bcd_algo.bin.max() < (10**bcd_algo.num_digits)) \
-    .target(bcd_algo.ovfl) \
-    .checker(lambda x: int(x) == 1) \
-    .apply()
+    CoverRange("input span") \
+        .span(bcd_algo.bin.span()) \
+        .target(bcd_algo.bin) \
+        .apply()
 
-CoverGroup("overflow variants") \
-    .bins([0, 1]) \
-    .bypass(bcd_algo.bin.max() < (10**bcd_algo.num_digits)) \
-    .target(bcd_algo.ovfl) \
-    .apply()
+    CoverPoint("overflow enabled") \
+        .goal(10) \
+        .bypass(bcd_algo.bin.max() < (10**bcd_algo.num_digits)) \
+        .target(bcd_algo.ovfl) \
+        .checker(lambda x: int(x) == 1) \
+        .apply()
 
-CoverGroup("extreme inputs") \
-    .bins([bcd_algo.bin.min(), bcd_algo.bin.max()]) \
-    .target(bcd_algo.bin) \
-    .apply()
+    CoverGroup("overflow variants") \
+        .bins([0, 1]) \
+        .bypass(bcd_algo.bin.max() < (10**bcd_algo.num_digits)) \
+        .target(bcd_algo.ovfl) \
+        .apply()
 
-cp_bin_while_active = CoverPoint("input changes while active") \
-    .goal(100) \
-    .apply()
+    CoverGroup("extreme inputs") \
+        .bins([bcd_algo.bin.min(), bcd_algo.bin.max()]) \
+        .target(bcd_algo.bin) \
+        .apply()
 
-cp_go_while_active = CoverPoint("go while active") \
-    .goal(100) \
-    .target(bcd_algo_dupe.go) \
-    .checker(lambda x: int(x) == 1) \
-    .apply()
+    cp_bin_while_active = CoverPoint("input changes while active") \
+        .goal(100) \
+        .apply()
 
+    cp_go_while_active = CoverPoint("go while active") \
+        .goal(100) \
+        .target(bcd_algo_dupe.go) \
+        .checker(lambda x: int(x) == 1) \
+        .apply()
 
-# Generate the test vectors (run the model!)
-with vectors('inputs.txt', 'i') as inputs, vectors('outputs.txt', 'o') as outputs:
-    # initialize the values with defaults
-    inputs.push(bcd_algo)
-    while coverage.met(10_000) == False:
-        # Get a new set of inputs to process
-        outcome: BcdEncoder = randomize(bcd_algo)
-        bcd_algo.go.assign(1)
-        inputs.push(outcome)
-        # Alter the input while the computation is running
-        for _ in range(1, outcome.fsm_delay):
-            outcome_dupe: BcdEncoder = randomize(bcd_algo_dupe)
-            cp_bin_while_active.check(int(bcd_algo_dupe.bin) != int(bcd_algo.bin))
-            inputs.push(outcome_dupe)
+    # Run - generate the test vectors from the model(s)
 
-        # Compute the output
-        bcd_algo.eval()
-        outputs.push(bcd_algo)
+    with vectors('inputs.txt', 'i') as inputs, vectors('outputs.txt', 'o') as outputs:
+        # initialize the values with defaults
+        inputs.push(bcd_algo)
+        while coverage.met(10_000) == False:
+            # get a new set of inputs to process
+            outcome: BcdEncoder = randomize(bcd_algo)
+            bcd_algo.go.assign(1)
+            inputs.push(outcome)
+            # alter the input while the computation is running
+            for _ in range(0, outcome.fsm_cycle_delay):
+                outcome_dupe: BcdEncoder = randomize(bcd_algo_dupe)
+                cp_bin_while_active.check(int(bcd_algo_dupe.bin) != int(bcd_algo.bin))
+                inputs.push(outcome_dupe)
 
-        # place some random 'idle' time after a finished computation
-        for _ in range(0, random.randint(0, 10)):
-            outcome_dupe: BcdEncoder = randomize(bcd_algo_dupe)
-            outcome_dupe.go.assign(0)
-            inputs.push(outcome_dupe)
+            # compute the output
+            bcd_algo.eval()
+            outputs.push(bcd_algo)
+
+            # place some random 'idle' time after a finished computation
+            for _ in range(0, random.randint(0, 10)):
+                outcome_dupe: BcdEncoder = randomize(bcd_algo_dupe)
+                outcome_dupe.go.assign(0)
+                inputs.push(outcome_dupe)
+            pass
         pass
+
+    pass
+
+
+if __name__ == '__main__':
+    main()
     pass
