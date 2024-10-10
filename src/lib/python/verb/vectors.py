@@ -113,7 +113,7 @@ class Vectors:
                     sinks = net.get_sink_list()
                     for sink in sinks:
                         # exit early if a signal being observed is not this transaction
-                        if sink not in signals:
+                        if type(sink) == Signal and sink not in signals:
                             break
                         pass
                     # perform an observation if the signals are in this transaction

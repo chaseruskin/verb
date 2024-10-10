@@ -106,7 +106,8 @@ def randomize(model, strategy: str='weights'):
                 values = [values]
             sources = sel.get_source_list()
             for i in range(len(sources)):
-                sources[i].assign(values[i])
+                if type(sources[i]) == Signal:
+                    sources[i].assign(values[i])
             pass
         pass
     # select a coverage net according to a weighted distribution using its distance to its goal
@@ -122,7 +123,7 @@ def randomize(model, strategy: str='weights'):
                 sources = net.get_source_list()
                 # verify each writer exists in this current model
                 for source in sources:
-                    if source not in ports:
+                    if type(source) == Signal and source not in ports:
                         break
                 else:
                     candidates += [net]
@@ -142,7 +143,8 @@ def randomize(model, strategy: str='weights'):
                 values = [values]
             sources = sel.get_source_list()
             for i in range(len(sources)):
-                sources[i].assign(values[i])
+                if type(sources[i]) == Signal:
+                    sources[i].assign(values[i])
             pass   
         pass
 
