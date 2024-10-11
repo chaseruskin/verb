@@ -122,20 +122,43 @@ class Signal:
             pass
         pass
 
-
     def width(self) -> int:
         '''
         Accesses the number of allocated for this Signal.
         '''
         return self._width
     
+    def set(self, value):
+        '''
+        Updates the Signal's internal data with `value`.
+
+        The `value` can either be a `str`, `int`, or `list`.
+        '''
+        self.assign(value)
+        pass
+
+    def get(self, dtype=None):
+        '''
+        Retrieve the Signal's internal data.
+
+        The `dtype` can either be `str`, `int`, or `list`.
+        '''
+        if dtype == int:
+            return self.digits()
+        elif dtype == str:
+            return self.bits()
+        elif dtype == list:
+            return [int(b) for b in self.bits()]
+        elif dtype == None:
+            return self._raw_data
+        else:
+            raise TypeError
 
     def mode(self) -> Mode:
         '''
         Returns the port type for this Signal.
         '''
         return self._mode if self._inferred_mode == None else self._inferred_mode
-
 
     def min(self) -> int:
         '''
@@ -145,7 +168,6 @@ class Signal:
         from .primitives import pow2
         return 0 if self._is_signed == False else -pow2(self._width)
     
-
     def max(self) -> int:
         '''
         Returns the maximum possible integer value stored in the allotted bits
