@@ -94,7 +94,7 @@ class Vectors:
         Each value is written with a ',' after the preceeding value in the 
         argument list. A newline is formed after all arguments
         '''
-        from .model import Signal, _extract_ports, Mode
+        from .model import Signal, _extract_ports, _extract_signals, Mode
         from .coverage import CoverageNet, Coverage
 
         if self._file == None:
@@ -104,16 +104,21 @@ class Vectors:
         net: CoverageNet
 
         # ignore the name when collecting the ports for the given mode
-        signals = [p[1] for p in _extract_ports(model, mode=self._mode)] + [p[1] for p in _extract_ports(model, mode=Mode.LOCAL)]
+        signals = [p[1] for p in _extract_ports(model, mode=self._mode)] + [p[1] for p in _extract_signals(model)]
         # check if there are coverages to automatically update
         if ignore_coverage == False:
             for net in Coverage.get_nets():
                 if net.has_sink() == True:
                     # verify the observation involves only signals being written for this transaction
                     sinks = net.get_sink_list()
+                    print(sinks)
                     for sink in sinks:
+                        print(net._name)
+                        print(sink._name, sink._mode)
+                        print(signals)
                         # exit early if a signal being observed is not this transaction
                         if type(sink) == Signal and sink not in signals:
+                            print('broken')
                             break
                         pass
                     # perform an observation if the signals are in this transaction

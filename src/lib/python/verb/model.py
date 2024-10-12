@@ -205,3 +205,53 @@ def _extract_ports(model, mode: Mode):
     results = [(x[1], x[2]) for x in results]
     # return the list of ports
     return results
+
+
+def __compile_signals(model):
+    '''
+    Compiles the list of internal signals into a mapping where the 'key' is the defined name
+    and the 'value' is a Signal.
+    '''
+    from .context import Context, Runner
+
+    # save computations
+    if hasattr(model, '__verb_cached_signals') == True:
+        return model.__verb_cached_signals
+
+    runner: Runner = Context.current()
+    
+    model.__verb_cached_signals = dict()
+    for (key, val) in vars(model).items():
+        # only python variables declared as signals can be a port
+        if isinstance(val, Signal) == False:
+            continue
+        # override variable name with explicit name provided
+        defined_name = key if val._name == None else val._name
+        # check if the name is in the port interface data
+        port = runner.port(defined_name)
+        if port == None:
+            # store the signal data
+            model.__verb_cached_signals[defined_name] = val
+        pass
+    return model.__verb_cached_signals
+
+
+def _extract_signals(model):
+    '''
+    Collects the attributes defined in the `model` into a list storing the tuples
+    of their (name, signal).
+    '''
+    results = []
+
+    key: str
+    info: Signal
+    port: dict
+    for (key, val) in __compile_signals(model).items():
+        results += [(key, val)]
+        pass
+
+    results.sort()
+    # store tuple with (name, signal)
+    results = [(x[0], x[1]) for x in results]
+    # return the list of signals
+    return results
