@@ -66,7 +66,7 @@ def randomize(model, strategy: str='weights'):
                 sources = net.get_source_list()
                 # verify each writer exists in this current model
                 for source in sources:
-                    if source not in ports:
+                    if type(source) == Signal and source not in ports:
                         break
                 else:
                     values = net.advance(rand=True)
@@ -74,7 +74,8 @@ def randomize(model, strategy: str='weights'):
                     if type(values) == int:
                         values = [values]
                     for i in range(len(sources)):
-                        sources[i].assign(values[i])
+                        if type(sources[i]) == Signal:
+                            sources[i].assign(values[i])
                 # exit- we only want to ensure we progress toward one coverage
                 break
             pass
@@ -91,7 +92,7 @@ def randomize(model, strategy: str='weights'):
                 sources = net.get_source_list()
                 # verify each writer exists in this current model
                 for source in sources:
-                    if source not in ports:
+                    if type(source) == Signal and source not in ports:
                         break
                 else:
                     candidates += [net]
