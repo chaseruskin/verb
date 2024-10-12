@@ -111,14 +111,9 @@ class Vectors:
                 if net.has_sink() == True:
                     # verify the observation involves only signals being written for this transaction
                     sinks = net.get_sink_list()
-                    print(sinks)
                     for sink in sinks:
-                        print(net._name)
-                        print(sink._name, sink._mode)
-                        print(signals)
                         # exit early if a signal being observed is not this transaction
                         if type(sink) == Signal and sink not in signals:
-                            print('broken')
                             break
                         pass
                     # perform an observation if the signals are in this transaction
