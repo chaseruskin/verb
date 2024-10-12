@@ -94,7 +94,7 @@ class Vectors:
         Each value is written with a ',' after the preceeding value in the 
         argument list. A newline is formed after all arguments
         '''
-        from .model import Signal, _extract_ports
+        from .model import Signal, _extract_ports, Mode
         from .coverage import CoverageNet, Coverage
 
         if self._file == None:
@@ -104,7 +104,7 @@ class Vectors:
         net: CoverageNet
 
         # ignore the name when collecting the ports for the given mode
-        signals = [p[1] for p in _extract_ports(model, mode=self._mode)]
+        signals = [p[1] for p in _extract_ports(model, mode=self._mode)] + [p[1] for p in _extract_ports(model, mode=Mode.LOCAL)]
         # check if there are coverages to automatically update
         if ignore_coverage == False:
             for net in Coverage.get_nets():
