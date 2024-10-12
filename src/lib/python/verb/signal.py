@@ -120,6 +120,8 @@ class Signal:
         if type(self._distro) == list:
             self._distro = Distribution(space=[*self.span()], weights=distribution, partition=True)
             pass
+
+        self.assign(value)
         pass
 
     def width(self) -> int:
