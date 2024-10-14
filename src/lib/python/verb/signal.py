@@ -89,15 +89,27 @@ class Signal:
         Creates a new Signal to carry the data `value` with a defined `width`.
         '''
         # set the number of bits allowed for the signal
+        self._dimensions = (width, )
+        if isinstance(width, list) == True or isinstance(width, tuple) == True:
+            total = 1
+            self._dimensions = tuple(width)
+            for d in width:
+                if isinstance(d, int) == False:
+                    raise TypeError('expected width to be an integer but received type ' + str(type(d)))
+                total = total * d
+            width = int(total)
+            pass
+        
         if isinstance(width, int) == False:
             raise TypeError('expected width to be an integer but received type ' + str(type(width)))
         if width < 0:
             raise ValueError('expected width to be a positive number but got ' + str(width))
+        
         self._width = int(width)
         # store internal raw value
         self._raw_data = value
 
-        self.value = None 
+        self.value = None
 
         # set the signal's mode
         self._mode = mode if isinstance(mode, Mode) else Mode.from_str(str(mode))
@@ -130,6 +142,12 @@ class Signal:
         '''
         return self._width
     
+    def dim(self) -> list:
+        '''
+        Returns the number of dimensions.
+        '''
+        return self._dimensions
+    
     def set(self, value):
         '''
         Updates the Signal's internal data with `value`.
@@ -138,6 +156,93 @@ class Signal:
         '''
         self.assign(value)
         pass
+
+    def splice(self, index, value):
+        '''
+        Updates the current Signal's internal data with `value` at the given
+        slice of its vector representation.
+        '''
+        from .primitives import bits as _bits
+
+        if type(index) == tuple:
+            index = [*index]
+        if type(index) != tuple and type(index) != list:
+            index = [index]
+        dims = [*self._dimensions]
+
+        cur_str = self.get(str)
+        starting_i = 0
+        next_w = self.width()
+        for (a, (i, dim)) in enumerate(zip(index, dims)):
+            if i < 0 or i >= dim:
+                raise IndexError("expected index 'i' to be between 0 and " + str(dim) + ", but got " + str(i))
+            next_w = 1 if a+1 >= len(dims) else dims[a+1]
+            starting_i += i*next_w
+            pass
+
+        # convert this value to a string
+        if type(value) == list or type(value) == int:
+            value = _bits(value, width=next_w, trunc=True, endianness=self.endianness(), signed=self._is_signed)
+
+        if len(value) > next_w:
+            return ValueError("expected value 'value' to be between 1 and " + str(next_w) + " bits, but got " + str(len(value)))
+        
+        # fix the reversed order
+        if self.endianness() == 'big':
+            cur_str = cur_str[::-1]
+            value = value[::-1]
+        # modify here!
+        new_val = cur_str[:starting_i] + value + cur_str[starting_i+next_w:]
+
+        # bring the reversed order back
+        if self.endianness() == 'big':
+            new_val = new_val[::-1]
+        # update the internal value
+        self.set(new_val)
+        pass
+
+    def slice(self, index):
+        '''
+        Returns a new `Signal` object from the sub-slice of the current vector.
+        '''
+        if type(index) == tuple:
+            index = [*index]
+        if type(index) != tuple and type(index) != list:
+            index = [index]
+        dims = [*self._dimensions]
+
+        sub = Signal(
+            width=self.width(), 
+            value=self.get(),
+            endianness=self.endianness(),
+            signed=self.signed(),
+        )
+
+        for (a, (i, dim)) in enumerate(zip(index, dims)):
+            if i < 0 or i >= dim:
+                raise IndexError("expected index 'i' to be between 0 and " + str(dim) + ", but got " + str(i))
+            next_w = 1 if a+1 >= len(dims) else dims[a+1]
+
+            sub_str = sub.get(str)
+            next_v = ''
+            # get away from the reversed order
+            if self.endianness() == 'big':
+                sub_str = sub_str[::-1]
+            for j in range(0, next_w):
+                next_v += sub_str[(i*next_w)+j]
+            # flip back to the endianness
+            if self.endianness() == 'big':
+                next_v = next_v[::-1]
+
+            sub = Signal(
+                width=next_w, 
+                value=next_v,
+                endianness=self.endianness(),
+                signed=self.signed(),
+            )
+            pass
+
+        return sub
 
     def get(self, dtype=None):
         '''
@@ -178,7 +283,6 @@ class Signal:
         from .primitives import pow2m1
         return pow2m1(self._width) if self._is_signed == False else pow2m1(self._width-1)
     
-
     def span(self) -> range:
         '''
         Returns the enumerated range of possible values for the Signal.
@@ -187,11 +291,9 @@ class Signal:
         '''
         return range(self.min(), self.max()+1)
     
-
     def endianness(self) -> str:
         return 'big' if self._is_big_endian == True else 'little'
     
-
     def signed(self) -> bool:
         '''
         Returns whether or not the Signal interprets its bits as signed or unsigned.
@@ -199,13 +301,11 @@ class Signal:
         '''
         return self._is_signed
     
-
     def raw_data(self):
         '''
         Accesses the Signal's internal data in its raw representation.
         '''
         return self._raw_data
-    
 
     def sample(self):
         '''

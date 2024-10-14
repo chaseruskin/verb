@@ -34,6 +34,40 @@ class Test(ut.TestCase):
         self.assertEqual(d.get(str), '1101')
         self.assertEqual(d.get(list), [1, 1, 0, 1])
         self.assertEqual(d.get(int), 13)
+        self.assertEqual(d.dim(), (4,))
+        self.assertEqual(d.dim()[0], 4)
+        pass
+
+
+    def test_2d_signal_get(self):
+        d = Signal((4, 2), value='11100100')
+        self.assertEqual(d.width(), 8)
+        self.assertEqual(d.dim(), (4, 2))
+        self.assertEqual(d.slice(1).get(str), '01')
+        self.assertEqual(d.slice(2).get(str), '10')
+        self.assertEqual(d.slice((2, 1)).get(str), '1')
+        self.assertEqual(d.slice((2, 0)).get(str), '0')
+        pass
+
+
+    def test_2d_signal_set(self):
+        d = Signal((4, 2), value='00000000')
+        self.assertEqual(d.width(), 8)
+        self.assertEqual(d.dim(), (4, 2))
+
+        d.splice(1, '01')
+        self.assertEqual(d.get(str), '00000100')
+        d.splice(2, '10')
+        self.assertEqual(d.get(str), '00100100')
+        d.splice(3, '11')
+        self.assertEqual(d.get(str), '11100100')
+        d.splice(0, '00')
+        self.assertEqual(d.get(str), '11100100')
+
+        d.splice((2, 1), '0')
+        self.assertEqual(d.get(str), '11000100')
+        d.splice((2, 0), 1)
+        self.assertEqual(d.get(str), '11010100')
         pass
 
     pass
