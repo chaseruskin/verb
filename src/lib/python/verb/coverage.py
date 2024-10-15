@@ -1351,6 +1351,13 @@ class CoverCross(CoverageNet):
         self._goal = goal
         return self
 
+    def max_steps(self, limit: int=64):
+        '''
+        Specify the maximum number of steps to cover the entire range.
+        '''
+        self._max_steps = limit
+        return self
+
     def apply(self):
         self._crosses = len(self._nets)
         
@@ -1363,7 +1370,7 @@ class CoverCross(CoverageNet):
             .span(range(combinations)) \
             .goal(self._goal) \
             .bypass(self._bypass) \
-            .max_steps(None) \
+            .max_steps(self._max_steps) \
             .apply()
 
         sink = []
@@ -1400,6 +1407,7 @@ class CoverCross(CoverageNet):
         '''
         self._nets = []
         self._goal = 1
+        self._max_steps = 64
         self._crosses = 0
         # overwrite the entry with this instance in the class-wide data structure
         super().__init__(name=name)
@@ -1431,17 +1439,24 @@ class CoverCross(CoverageNet):
         # convert the 1-dimensional value into its n-dimensional value
         item = self._pack(index)
         # print(index, '->', item)
+        # print('----', self._inner.get_partition_count())
 
-        i = self._flatten(item)
-        # print(item, '->', i)
+        j = self._flatten(item)
+        # print(item, '->', j)
 
+        n = self.get_cross_count()
+
+        final = []
         # expand to the entire parition space for each element
         for i, net in enumerate(self._nets):
-            item[i] *= net.get_range().step
+            # print(net.advance(rand))
+            # print(net, net.get_range().step)
+            # print(self._nets[n-i-1].get_range().step)
+            final += [item[i] * self._nets[n-i-1].get_range().step]
 
-        # print(index, '->', item)
+        # print(index, '-->', item, final)
         # exit('implement!')
-        return item
+        return final[::-1]
 
     def get_range(self) -> range:
         return self._inner.get_range()
@@ -1450,7 +1465,7 @@ class CoverCross(CoverageNet):
         return self._inner.get_partition_count()
 
     def is_in_sample_space(self, item) -> bool:
-        for i, x in enumerate(item[::-1]):
+        for i, x in enumerate(item):
             if self._nets[i].is_in_sample_space(x) == False:
                 return False
         return True
@@ -1465,19 +1480,20 @@ class CoverCross(CoverageNet):
         '''
         Packs a 1-dimensional index into a N-dimensional item.
         '''
+        # print('to3D!')
         # initialize the set of values to store in the item
         item = [0] * self.get_cross_count()
 
         subgroup_sizes = [1] * self.get_cross_count()
-
+        # print(subgroup_sizes)
         for i in range(self.get_cross_count()):
             subgroup_sizes[i] = self._nets[i].get_partition_count()
-            for j in range(i+1, self.get_cross_count()):
-                subgroup_sizes[i] *= self._nets[i].get_partition_count()
-            pass
-
+            # for j in range(i+1, self.get_cross_count()):
+            #     subgroup_sizes[i] *= self._nets[i].get_partition_count()
+        #     pass
+        # print(index)
         subgroup_sizes = subgroup_sizes[::-1]
-        # print(subgroup_sizes)
+        #  print('sub', subgroup_sizes)
         # perform counting sequence and perform propery overflow/handling of the carry
         for i in range(0, index):
             item[0] += 1
@@ -1500,25 +1516,25 @@ class CoverCross(CoverageNet):
 
     def _flatten(self, item):
         '''
-        Flattens a N-dimensional item into a 1-dimensional index.
+        Flattens an N-dimensional item into a 1-dimensional index.
 
         Reference: 
         - https://stackoverflow.com/questions/7367770/how-to-flatten-or-index-3d-array-in-1d-array
         '''
+        # print('to 1d!')
         if len(item) != self.get_cross_count():
             raise Exception("Expects "+str(self._crosses)+" values in pair")
         index = 0
+        #  print('3d:', item)
         # dimensions go: x, y, z... so reverse the tuple/list
-        for i, x in enumerate(item[::-1]):
-            # exit if an element was not a possible value
-            if self._nets[i].is_in_sample_space(x) == False:
-                return None
-            y = self._nets[i]._map_onto_range(x)
-            # collect all above partition sizes
-            acc_step_counts = 1
-            for j in range(i+1, self.get_cross_count()):
-                acc_step_counts *= self._nets[j].get_partition_count()
-            index += acc_step_counts * int(y / self._nets[i].get_range().step)
+        weights = [1]
+        n = self.get_cross_count()
+        for i, d in enumerate(item):
+            index += int(d) * weights[-1]
+            weights += [weights[-1] * self._nets[n-i-1].get_partition_count()]
+            pass
+        # print(weights)
+        # print('NOW:', index)
         return index
 
     def _map_onto_range(self, item):
@@ -1542,7 +1558,12 @@ class CoverCross(CoverageNet):
     def check(self, item):
         if self.is_in_sample_space(item) == False:
             return None
-        index = self._flatten(item)
+        rev = []
+        for i, it in enumerate(item):
+            rev += [int(int(it) / self._nets[i].get_range().step)]
+        rev = rev[::-1]
+        # divide by the steps
+        index = self._flatten(rev)
         return self._inner.check(index)
 
     def passed(self):

@@ -138,7 +138,12 @@ def randomize(model, strategy: str='weights'):
         # choose a failing net at random
         if len(candidates) > 0:
             sel = random.choices(candidates, weights=weights)[0]
+
             values = sel.advance(rand=True)
+            # print(values)
+
+            # if type(sel) == CoverCross:
+                # exit(101)
             # force into an iterable type
             if type(values) == int:
                 values = [values]

@@ -1,0 +1,8 @@
+[ip]
+name = "alu"
+uuid = "74oe8gna68l52hi9opzvn7w1u"
+version = "0.1.0"
+
+# See more keys and their definitions at https://chaseruskin.github.io/orbit/reference/manifest.html
+
+[dependencies]

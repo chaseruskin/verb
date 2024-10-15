@@ -17,6 +17,11 @@ test MOD *FLAGS:
 test-sw-lib:
     python -m unittest src/lib/python/tests/*.py
 
+# No more bug!
+bug:
+    cd examples/sv/alu; mkdir -p target/vsim
+    cd examples/sv/alu; verb model -C target/vsim --dut "$(orbit get alu --json)" --tb "$(orbit get alu_tb --json)" --coverage "coverage.txt" python -- ../../alu_tb.py
+
 # Test the hardware library
 test-hw-lib:
     just compile
