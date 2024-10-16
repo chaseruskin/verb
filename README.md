@@ -4,15 +4,26 @@
 
 Verb is a framework for simulating digital hardware. 
 
+![](./docs/src/images/system.svg)
+
 Verb leverages _file I/O_ and _software programming languages_ to simulate digital hardware in their native hardware description languages (HDL).
 
-Simulating hardware with Verb is separated into 3 tasks:
 
-1. Write a design model in software to generate I/O vector files
+The workflow for running Verb is separated into 3 processes:
 
-2. Simulate the hardware design by sending input vectors to the design under test, receiving output vectors from the design under test, and logging comparisons between simulated output vectors and expected output vectors
+1. A __model__ of the hardware that is written in a software programming language, such as Python or C++, generates inputs, produces outputs by evaluating those inputs under the context of the model's functional behavior, and then writes the set of tested inputs and the set of expected outputs to their respective files.
 
-3. Analyze the logged comparisons for any failures or errors
+2. A hardware __testbench__ that is written in a HDL, such as SystemVerilog or VHDL, instantiates the device-under-test (dut), drives the next set of inputs from the tested inputs file to the dut, compares the outputs from the dut with the next set of outputs from the expected outputs file, and records the series of simulation events to an event log.
+
+3. The event log produced from the hardware testbench undergoes __analysis__ by Verb through the command-line by parsing the event log and verifying there were no errors logged during simulation.
+
+Therefore to get a test working with Verb, a developer is concerned with 2 tasks:
+
+1. Write a design __model__ in software (Python, C++, ...) to generate I/O vector files
+
+2. Write a __testbench__ in HDL (Verilog, VHDL, ...) specifying when to send a set of inputs to the dut and specifying when to compare the set of simulation outputs with a set of expected outputs
+
+To help accomplish both of these tasks, Verb comes equipped with a collection of functions, known as __Verb drivers__, that are implemented at both the hardware and software levels. Users are encouraged to use the drivers to reduce the boilerplate code associated with the common structure across tests.
 
 Verb focuses on functional verification techniques for hardware simulation. Read [Verifying Hardware with Verb](https://chaseruskin.github.io/verb/) to learn more about Verb and how to use it in your next hardware project.
 
@@ -46,8 +57,6 @@ The following objectives drive the design choices behind building this framework
 - __increased productivity__: Using the framework should result in shorter times spent in the verification phase due to reusing highly modular components with insightful results
 
 ## Framework
-
-![](./docs/src/images/system.svg)
 
 The Verb framework is divided into 3 main layers.
 
@@ -90,3 +99,4 @@ Once the test files are generated at the data layer, the simulation can begin in
 ## Related Works
 
 - [cocotb](https://www.cocotb.org): coroutine based cosimulation testbench environment for verifying VHDL and SystemVerilog RTL using Python
+- [uvm](https://en.wikipedia.org/wiki/Universal_Verification_Methodology): universal verification methodology
