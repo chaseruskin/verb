@@ -3,7 +3,7 @@ name = "verb"
 version = "0.1.0"
 authors = [{ name="Chase Ruskin" }]
 description = "Software drivers for simulating hardware"
-requires-python = ">=3.8"
+requires-python = ">=3.6.8"
 
 [project.urls]
 Homepage = "https://github.com/chaseruskin/verb"
