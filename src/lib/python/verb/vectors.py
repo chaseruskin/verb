@@ -104,7 +104,9 @@ class Vectors:
         net: CoverageNet
 
         # ignore the name when collecting the ports for the given mode
-        signals = [p[1] for p in _extract_ports(model, mode=self._mode)] + [p[1] for p in _extract_signals(model)]
+        ext_signals = [p[1] for p in _extract_ports(model, mode=self._mode)]
+        local_signals = [p[1] for p in _extract_signals(model)]
+        all_signals = ext_signals + local_signals
         # check if there are coverages to automatically update
         if ignore_coverage == False:
             for net in Coverage.get_nets():
@@ -113,7 +115,7 @@ class Vectors:
                     sinks = net.get_sink_list()
                     for sink in sinks:
                         # exit early if a signal being observed is not this transaction
-                        if type(sink) == Signal and sink not in signals:
+                        if type(sink) == Signal and sink not in all_signals:
                             break
                         pass
                     # perform an observation if the signals are in this transaction
@@ -130,7 +132,7 @@ class Vectors:
         
         if self._is_empty == False:
             fd.write(NEWLINE)
-        for info in signals:
+        for info in ext_signals:
             fd.write(str(info) + DELIM)
 
         self._is_empty = False
