@@ -24,7 +24,26 @@ class Strategy(_Enum):
     pass
 
 
-def vectors(path: str, mode: Mode) -> Vectors:
+def vectors(path: str, mode: Mode=None) -> Vectors:
+    '''
+    Creates a trace file to write stimuli/results for a potential hardware simulation.
+
+    If `mode` is `None`, then the mode will be inferred from the path's file name (disregarding file extension). The name
+    "inputs" will set mode to `IN` and the name "outputs" will set mode to `OUT`.
+    
+    ### Parameters
+    - The `name` argument sets the file's path name
+    - The `mode` argument determines which directional ports to capture when writing to the file
+    '''
+    import os
+    if mode == None:
+        fname, _ = os.path.splitext(os.path.basename(path))
+        if fname == 'inputs':
+            mode = Mode.IN
+        elif fname == 'outputs':
+            mode = Mode.OUT
+        else:
+            raise Exception("cannot assume port mode for vectors file: " + str(path))
     return Vectors(path, mode)
 
 
