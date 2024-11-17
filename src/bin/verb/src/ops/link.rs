@@ -368,7 +368,7 @@ impl Link {
     }
 
     fn tab(n: usize) -> String {
-        let spacing = "  ";
+        let spacing = "    ";
         let mut result = String::new();
         for _ in 0..n {
             result.push_str(spacing);

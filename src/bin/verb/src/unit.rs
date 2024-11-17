@@ -5,13 +5,21 @@ use std::{fmt::Display, str::FromStr};
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Net {
     identifier: String,
-    #[serde(rename = "type")]
+    #[serde(rename = "type", deserialize_with="Net::parse_type")]
     dtype: String,
     mode: String,
     default: Option<String>,
 }
 
 impl Net {
+    
+    fn parse_type<'de, D>(d: D) -> Result<String, D::Error> where D: serde::de::Deserializer<'de> {
+        Deserialize::deserialize(d)
+            .map(|x: Option<_>| {
+                x.unwrap_or("wire".to_string())
+            })
+    }
+
     pub fn get_identifier(&self) -> &String {
         &self.identifier
     }
