@@ -272,7 +272,7 @@ impl Link {
     fn vhdl_to_string_send(ports: &Vec<&Net>, bfm_inst: &str) -> String {
         let input_fd = "i";
         let drive_fn = "drive";
-        let result = format!("{0}procedure send(file {1}: text) is\n{2}variable row: line;\nbegin\n{2}if endfile({1}) = false then\n{3}readline({0}, row);\n", VHDL_HEAD_COMMENT, input_fd, Self::tab(1), Self::tab(2));
+        let result = format!("{0}procedure send(file {1}: text) is\n{2}variable row: line;\nbegin\n{2}if endfile({1}) = false then\n{3}readline({1}, row);\n", VHDL_HEAD_COMMENT, input_fd, Self::tab(1), Self::tab(2));
         let mut result = ports.iter().fold(result, |mut acc, n| {
             acc.push_str(&format!(
                 "{3}{0}(row, {1}.{2});\n",
