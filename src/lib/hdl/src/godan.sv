@@ -17,7 +17,7 @@ package godan;
 
     // Generates a half duty cycle clock `clk` with a period of `period` that
     // is continuously driven until `halt` is set to true.
-    task spin_clock(output logic clk, input time period, input logic halt);
+    task spin_clock(inout logic clk, input time period, input logic halt);
         if(halt == 1'b1) begin
             wait(0);
         end else begin
@@ -32,7 +32,7 @@ package godan;
     //
     // The trigger will not be applied if `cycles` is set to 0. The signal will
     // deactivate on the falling edge of the `cycles` count clock cycle.
-    task trigger_sync(ref logic clk, ref logic datum, input logic active, input int cycles);
+    task automatic trigger_sync(ref logic clk, ref logic datum, input logic active, input int cycles);
         automatic logic prev_datum = datum;
 
         if(cycles > 0) begin
@@ -101,7 +101,7 @@ package godan;
     endtask
 
     // Checks the logic `datum` enters its active state `active` on the rising edge of `clk` before `cycles` clock cycles elapse.
-    task monitor(inout int fd, ref logic clk, ref logic datum, input logic active, input int cycles, input string subject);
+    task automatic monitor(inout int fd, ref logic clk, ref logic datum, input logic active, input int cycles, input string subject);
         automatic int cycle_count = 0;
         automatic int cycle_limit = cycles + 1;
         automatic string fmt_cycles, fmt_active;
@@ -119,7 +119,7 @@ package godan;
                 end
                 cycle_count = cycle_count + 1;
                 if(cycle_count < cycle_limit) begin
-                    @(negedge(clk));
+                    @(negedge clk);
                 end
             end
         end
@@ -131,7 +131,7 @@ package godan;
     endtask;
 
     // Checks the logic `data` does not change value when its indicator `flag` is in the active state `active`.
-    task stabilize(inout int fd, ref logic clk, ref string data, ref logic flag, input logic active, input string subject);
+    task automatic stabilize(inout int fd, ref logic clk, ref string data, ref logic flag, input logic active, input string subject);
         automatic logic is_okay = 1'b1;
         automatic logic is_checked = 1'b0;
         automatic string prev_data = "";
@@ -187,7 +187,7 @@ package godan;
         end
 
         // record the time
-        $sformat(result, "%-d%s", $time, time_units);
+        $sformat(result, "%0d%s", $time, time_units);
         for(int i = result.len(); i < TIMESTAMP_SHIFT-1; i++) begin
             result = {result, " "};
         end
@@ -253,6 +253,9 @@ package godan;
         VHDL counterpart.
     */
 
+`ifndef VERB
+`define VERB
+
     `define stabilize(FD, CLK, DATA, FLAG, ACTIVE, SUBJECT) \
         `ifndef \DATA\ \
         `define \DATA\ \
@@ -296,7 +299,7 @@ package godan;
                     end \
                     cycle_count = cycle_count + 1; \
                     if(cycle_count < cycle_limit) begin \
-                        @(negedge(CLK)); \
+                        @(negedge CLK); \
                     end \
                 end \
             end \
@@ -316,6 +319,25 @@ package godan;
     `define load(ROW, X) \
         $sscanf(load(ROW), "%b", X);
 
+    // if there is a error with how to read single bits into a logic[0:0] (@vcs)...
+    // then use these functions
+    
+    // `define drive(ROW, TEMP, X) \
+    //     TEMP = drive(ROW); \
+    //     if (TEMP.len() == 1) begin \
+    //         X = (TEMP[0] == "1") ? 1'b1 : 1'b0; \
+    //     end else begin \
+    //         $sscanf(TEMP, "%b", X); \
+    //     end
+
+    // `define load(ROW, TEMP, X) \
+    //     TEMP = load(ROW); \
+    //     if (TEMP.len() == 1) begin \
+    //         X = (TEMP[0] == "1") ? 1'b1 : 1'b0; \
+    //     end else begin \
+    //         $sscanf(TEMP, "%b", X); \
+    //     end
+
     `define spin_clock(CLK, PERIOD, HALT) \
         always spin_clock(CLK, PERIOD, HALT);
 
@@ -324,5 +346,7 @@ package godan;
 
     `define trigger_sync(CLK, DATA, ACTIVE, CYCLES) \
         trigger_sync(CLK, DATA, ACTIVE, CYCLES);
+
+`endif
 
 endpackage
