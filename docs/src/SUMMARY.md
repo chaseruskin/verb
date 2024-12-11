@@ -17,6 +17,9 @@
     - [Events](./topic/events.md)
 
 - [Reference](./reference/reference.md)
+    - [Python API](./reference/api-python.md)
+    - [SystemVerilog API](./reference/api-systemverilog.md)
+    - [VHDL API](./reference/api-vhdl.md)
     - [Environment Variables](./reference/environment.md)
     
 - [Appendix: Glossary](./glossary.md)
