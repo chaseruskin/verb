@@ -1,4 +1,4 @@
-package godan;
+package verb2;
 
     /* tutils
 
@@ -9,23 +9,21 @@ package godan;
 
     // Closes the file `fd` and sets `halt` to true and enters an infinite wait 
     // statement to signal that the simulation is complete.
-    task complete(input int fd);
+    task complete(input int fd, output logic halt);
         $fclose(fd);
+        halt = 1'b1;
         $finish;
     endtask
 
-    // Asynchronous asserts `datum` and synchronously de-asserts `datum` on the
-    // `cycles`'th clock edge.
-    task automatic async_on_sync_off(ref logic clk, ref logic datum, input logic active, input int cycles);
-        automatic logic inactive = ~active;
-        @(negedge clk);
-        datum = active;
-        #0;
-        for(int i = 0; i < cycles; i++) begin
-            @(posedge clk);
+    // Generates a half duty cycle clock `clk` with a period of `period` that
+    // is continuously driven until `halt` is set to true.
+    task spin_clock(inout logic clk, input time period, input logic halt);
+        if(halt == 1'b1) begin
+            wait(0);
+        end else begin
+            clk = ~clk;
+            #(period/2);
         end
-        datum = inactive;
-        #0;
     endtask
 
     // Synchronously triggers the logic bit `datum` to its state `active` and then 
@@ -34,8 +32,9 @@ package godan;
     //
     // The trigger will not be applied if `cycles` is set to 0. The signal will
     // deactivate on the falling edge of the `cycles` count clock cycle.
-    task automatic sync_on_async_off(ref logic clk, ref logic datum, input logic active, input int cycles);
+    task automatic trigger_sync(ref logic clk, ref logic datum, input logic active, input int cycles);
         automatic logic prev_datum = datum;
+
         if(cycles > 0) begin
             @(posedge clk);
             datum = active;
@@ -48,8 +47,21 @@ package godan;
         end
     endtask
 
+    // Return a string in binary format to drive a logic value from the line `row`.
+    function string drive(inout string row);
+        automatic string sect = "";
+        for(int i = 0; i < row.len(); i++) begin
+            if(row[i] == " " || row[i] == "\n") begin
+                row = row.substr(i+1, row.len()-1);
+                break;
+            end
+            sect = {sect, row[i]};
+        end
+        return sect;
+    endfunction
+
     // Return a string in binary format by reading a logic value from the line `row`.
-    function string read(inout string row);
+    function string load(inout string row);
         automatic string sect = "";
         for(int i = 0; i < row.len(); i++) begin
             if(row[i] == " " || row[i] == "\n") begin
@@ -70,7 +82,7 @@ package godan;
     // The log level type.
     typedef enum {TRACE, DEBUG, INFO, WARN, ERROR, FATAL} tone;
 
-    // Immediate assertion that checks if two logic words `received` and `expected` are equal to each other.
+    // Asserts that two logic words `received` and `expected` are equal to each other.
     task assert_eq(inout int fd, input string received, input string expected, input string subject);
         if(received == expected) begin
             capture(fd, INFO, "ASSERT_EQ", subject, {"receives ", received, " and expects ", expected});
@@ -79,7 +91,7 @@ package godan;
         end
     endtask
 
-    // Immediate assertion that checks if two logic words `received` and `expected` are not equal to each other.
+    // Asserts that two logic words `received` and `expected` are not equal to each other.
     task assert_ne(inout int fd, input string received, input string expected, input string subject);
         if(received != expected) begin
             capture(fd, INFO, "ASSERT_EQ", subject, {"receives ", received, " and does not expect ", expected});
@@ -118,8 +130,8 @@ package godan;
         end
     endtask;
 
-    // Concurrent assertion that checks the behavior of `data` is stable when the condition `flag` is `active`.
-    task automatic assert_stbl(inout int fd, ref logic clk, ref string data, ref logic flag, input logic active, input string subject);
+    // Checks the logic `data` does not change value when its indicator `flag` is in the active state `active`.
+    task automatic stabilize(inout int fd, ref logic clk, ref string data, ref logic flag, input logic active, input string subject);
         automatic logic is_okay = 1'b1;
         automatic logic is_checked = 1'b0;
         automatic string prev_data = "";
@@ -129,7 +141,7 @@ package godan;
         @(posedge clk);
 
         prev_data = data;
-        while(flag == 1'b1) begin
+        while(flag == active) begin
             is_checked = 1'b1;
             if(prev_data != data) begin
                 is_okay = 1'b0;
@@ -244,14 +256,13 @@ package godan;
 `ifndef VERB
 `define VERB
 
-    `define capture(FD, LEVEL, TOPIC, SUBJECT, PREDICATE) \
-        capture(FD, LEVEL, TOPIC, SUBJECT, PREDICATE);
-
-    `define sync_on_async_off(CLK, DATA, ACTIVE, CYCLES) \
-        sync_on_async_off(CLK, DATA, ACTIVE, CYCLES);
-
-    `define async_on_sync_off(CLK, DATA, ACTIVE, CYCLES) \
-        async_on_sync_off(CLK, DATA, ACTIVE, CYCLES);
+    `define stabilize(FD, CLK, DATA, FLAG, ACTIVE, SUBJECT) \
+        `ifndef \DATA\ \
+        `define \DATA\ \
+        string \DATA\ ; \
+        `endif \
+        always @(negedge clk) $sformat(\DATA\ , "%b", DATA); \
+        always stabilize(FD, CLK, \DATA\ , FLAG, ACTIVE, SUBJECT);
 
     `define assert_eq(FD, RECV, EXPT, SUBJECT) \
         begin \
@@ -270,17 +281,6 @@ package godan;
             $sformat(\EXPT\ , "%b", EXPT); \
             assert_ne(FD, \RECV\ , \EXPT\ , SUBJECT); \
         end 
-
-    `define assert_stbl(FD, CLK, DATA, FLAG, ACTIVE, SUBJECT) \
-        `ifndef \DATA\ \
-        `define \DATA\ \
-        string \DATA\ ; \
-        `endif \
-        always @(negedge clk) $sformat(\DATA\ , "%b", DATA); \
-        always assert_stbl(FD, CLK, \DATA\ , FLAG, ACTIVE, SUBJECT);
-
-    `define read(ROW, X) \
-        $sscanf(read(ROW), "%b", X);
 
     `define monitor(FD, CLK, DATA, ACTIVE, CYCLES, SUBJECT) \
         begin \
@@ -310,8 +310,33 @@ package godan;
             end \
         end
 
-    `define complete(FD) \
-        complete(FD);
+    `define capture(FD, LEVEL, TOPIC, SUBJECT, PREDICATE) \
+        capture(FD, LEVEL, TOPIC, SUBJECT, PREDICATE);
+
+    `define drive(ROW, TEMP, X) \
+        TEMP = drive(ROW); \
+        if (TEMP.len() == 1) begin \
+            X = (TEMP[0] == "1") ? 1'b1 : 1'b0; \
+        end else begin \
+            $sscanf(TEMP, "%b", X); \
+        end
+
+    `define load(ROW, TEMP, X) \
+        TEMP = load(ROW); \
+        if (TEMP.len() == 1) begin \
+            X = (TEMP[0] == "1") ? 1'b1 : 1'b0; \
+        end else begin \
+            $sscanf(TEMP, "%b", X); \
+        end
+
+    `define spin_clock(CLK, PERIOD, HALT) \
+        always spin_clock(CLK, PERIOD, HALT);
+
+    `define complete(FD, HALT) \
+        complete(FD, HALT);
+
+    `define trigger_sync(CLK, DATA, ACTIVE, CYCLES) \
+        trigger_sync(CLK, DATA, ACTIVE, CYCLES);
 
 `endif
 
