@@ -4,12 +4,12 @@
 
 Verb is a framework for simulating digital hardware. 
 
-![](./docs/src/images/system.svg)
+![](./docs/assets/system.dio.svg)
 
 Verb leverages _file I/O_ and _software programming languages_ to simulate digital hardware in their native hardware description languages (HDL).
 
 
-The workflow for running Verb is separated into 3 processes:
+The workflow for running Verb is separated into discrete 3 processes:
 
 1. A __model__ of the hardware that is written in a software programming language, such as Python or C++, generates inputs, produces outputs by evaluating those inputs under the context of the model's functional behavior, and then writes the set of tested inputs and the set of expected outputs to their respective files.
 
@@ -23,13 +23,13 @@ Therefore to get a test working with Verb, a developer is concerned with 2 tasks
 
 2. Write a __testbench__ in HDL (Verilog, VHDL, ...) specifying when to send a set of inputs to the dut and specifying when to compare the set of simulation outputs with a set of expected outputs
 
-To help accomplish both of these tasks, Verb comes equipped with a collection of functions, known as __Verb drivers__, that are implemented at both the hardware and software levels. Users are encouraged to use the drivers to reduce the boilerplate code associated with the common structure across tests.
+To help accomplish both of these tasks, Verb comes equipped with a collection of low-level driver functions, known as __Verb Conjugations__, that are implemented at both the hardware and software levels. By using the conjugations, much of the boilerplate associated with common testbench structures is reduced.
 
 Verb focuses on functional verification techniques for hardware simulation. Read [Verifying Hardware with Verb](https://chaseruskin.github.io/verb/) to learn more about Verb and how to use it in your next hardware project.
 
 ## Installing
 
-Verb is available as 3 separate components: a library for software drivers, a library for hardware drivers, and a command-line application for assisting in development as well as running pre-simulation and post-simulation processes.
+Verb is available as 3 separate components: a library for software conjugations (drivers), a library for hardware conjugations (drivers), and a command-line application for assisting in development as well as running pre-simulation and post-simulation processes.
 
 Any of the components may have one or more implementations; install the components in the programming language or HDL you prefer. See [Installing](https://chaseruskin.github.io/verb/starting/installing.html) for more details and available implementations.
 
@@ -40,9 +40,9 @@ curl --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/chaserusk
 
 ## Details
 
-Verb defines a collection of low-level functions, also known as _drivers_, that allow a user to communicate between software models and hardware designs for simulation. The main form of communication Verb uses to pass data between hardware and software is _file I/O_. This method was chosen due to its simplicity and wide support in existing HDLs. Drivers are implemented in both the software programming languages and the HDLs to faciliate the interaction between the design and the model.
+Verb defines a collection of low-level driver functions, also known as _conjugations_, that allow a user to communicate between software models and hardware designs for simulation. The main form of communication Verb uses to pass data between hardware and software is _file I/O_. This method was chosen due to its simplicity and wide support in existing HDLs. Conjugations are implemented in both the software programming languages and the HDLs to faciliate the interaction between the design and the model.
 
-The drivers are implemented in software and hardware to manage the data transfer across these layers. By using the drivers available through Verb, for every new hardware design users must only focus on writing the model, not configuring the whole testbench.
+Conjugations are implemented in software and hardware to manage the data transfer across these layers. By using the conjugations available through Verb, for every new hardware design users must only focus on writing the model, not structuring the whole testbench.
 
 This framework attempts to decouple the functional and timing aspects of a hardware simulation. The functional model is written in software, while the exact timing of how to monitor and check the design under test is kept in HDL. This separation of layers allows each language to focus in how they are naturally used.
 
@@ -99,4 +99,4 @@ Once the test files are generated at the data layer, the simulation can begin in
 ## Related Works
 
 - [cocotb](https://www.cocotb.org): coroutine based cosimulation testbench environment for verifying VHDL and SystemVerilog RTL using Python
-- [uvm](https://en.wikipedia.org/wiki/Universal_Verification_Methodology): universal verification methodology
+- [UVM](https://en.wikipedia.org/wiki/Universal_Verification_Methodology): universal verification methodology
