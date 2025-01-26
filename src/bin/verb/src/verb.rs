@@ -22,7 +22,7 @@ impl Command for Verb {
     // Process the struct's data to perform its task
     fn execute(self) -> proc::Result {
         if self.version == true {
-            println!("{}", VERSION);
+            println!("verb {}", VERSION);
             return Ok(());
         }
         match self.subcommand {
