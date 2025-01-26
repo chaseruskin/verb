@@ -90,6 +90,7 @@ module bcd_enc_tb
     // It is not intended for manual editing.
     task send(int fd);
         automatic string line;
+        // Read next set of input values from file
         if (!$feof(fd)) begin
             $fgets(line, fd);
             $sscanf(parse(line), "%b", bfm.go);
@@ -101,12 +102,14 @@ module bcd_enc_tb
     // It is not intended for manual editing.
     task recv(int fd);
         automatic string line;
+        // Read expected output values from file
         if (!$feof(fd)) begin
             $fgets(line, fd);
             $sscanf(parse(line), "%b", mdl.bcd);
             $sscanf(parse(line), "%b", mdl.done);
             $sscanf(parse(line), "%b", mdl.ovfl);
         end
+        // Compare received outputs with expected outputs
         assert_eq(bfm.bcd, mdl.bcd, "bcd");
         assert_eq(bfm.done, mdl.done, "done");
         assert_eq(bfm.ovfl, mdl.ovfl, "ovfl");

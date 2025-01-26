@@ -290,7 +290,7 @@ impl Link {
     fn sv_to_string_send(ports: &Vec<&Net>, bfm_inst: &str) -> String {
         let input_fd = "fd";
         let drive_fn = "$sscanf(parse";
-        let result = format!("{0}task send(int {1});\n{2}automatic string line;\n{2}if(!$feof({1})) begin\n{3}$fgets(line, {1});\n", SV_HEAD_COMMENT, input_fd, Self::tab(1), Self::tab(2));
+        let result = format!("{0}task send(int {1});\n{2}automatic string line;\n{2}// Read next set of input values from file\n{2}if(!$feof({1})) begin\n{3}$fgets(line, {1});\n", SV_HEAD_COMMENT, input_fd, Self::tab(1), Self::tab(2));
         let mut result = ports.iter().fold(result, |mut acc, n| {
             acc.push_str(&format!(
                 "{3}{0}(line), \"%b\", {1}.{2});\n",
@@ -336,7 +336,7 @@ impl Link {
         let output_fd = "fd";
         let load_fn = "$sscanf(parse";
         let assert_fn = "assert_eq";
-        let result = format!("{0}task recv(int {3});\n{1}automatic string line;\n{1}if(!$feof({3})) begin\n{2}$fgets(line, {3});\n", SV_HEAD_COMMENT, Self::tab(1), Self::tab(2), output_fd);
+        let result = format!("{0}task recv(int {3});\n{1}automatic string line;\n{1}// Read expected output values from file\n{1}if(!$feof({3})) begin\n{2}$fgets(line, {3});\n", SV_HEAD_COMMENT, Self::tab(1), Self::tab(2), output_fd);
         let mut result = ports.iter().fold(result, |mut acc, n| {
             acc.push_str(&format!(
                 "{3}{0}(line), \"%b\", {1}.{2});\n",
@@ -348,7 +348,8 @@ impl Link {
             acc
         });
         result.push_str(&format!("{0}end\n", Self::tab(1)));
-        let checks = ports.iter().fold(String::new(), |mut acc, n| {
+        let checks = format!("{0}// Compare received ouputs with expected outputs\n", Self::tab(1));
+        let checks = ports.iter().fold(checks, |mut acc, n| {
             acc.push_str(&format!(
                 "{1}{2}({3}.{0}, {4}.{0}, \"{0}\");\n",
                 n.get_identifier(),
