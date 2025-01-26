@@ -17,11 +17,11 @@ impl Subcommand<()> for Link {
     fn interpret(cli: &mut Cli<Memory>) -> cli::Result<Self> {
         cli.help(Help::with(HELP))?;
         Ok(Self {
-            bfm: cli.check(Arg::flag("bfm"))?,
+            bfm: cli.check(Arg::flag("if"))?,
             send: cli.check(Arg::flag("send"))?,
-            comp: cli.check(Arg::flag("comp"))?,
+            comp: cli.check(Arg::flag("recv"))?,
             list: cli.check(Arg::flag("list"))?,
-            bfm_inst: cli.get_all(Arg::option("bfm-inst").value("name"))?,
+            bfm_inst: cli.get_all(Arg::option("if-inst").value("name"))?,
             exclude: cli
                 .get_all(Arg::option("exclude").switch('x').value("port"))?
                 .unwrap_or(Vec::new()),
@@ -149,10 +149,10 @@ Args:
     <json>          hw unit's interface encoded in json format
 
 Options:
-    --bfm                 display the hw bus functional model interface
-    --bfm-inst <name>...  display an instance of the bus functional model
+    --if                  display the hw dut interface
+    --if-inst <name>...   display an instance of the hw dut interface
     --send                display the hw function to send inputs to the dut
-    --comp                display the hw function to compare outputs from the dut
+    --recv                display the hw function to check outputs from the dut
     --exclude, -x <port>... 
                           omit specific ports from the code snippets
     --list                list the port order and exit
@@ -167,7 +167,7 @@ const SV_HEAD_COMMENT_INTERFACE: &str = "// This interface is automatically @gen
 impl Link {
     fn vhdl_to_string_bfm(ports: &Vec<&Net>, unit: &str) -> String {
         let result = format!(
-            "{0}type {1}_bfm is record\n",
+            "{0}type {1}_if is record\n",
             VHDL_HEAD_COMMENT_RECORD, unit
         );
         let mut result = ports.iter().fold(result, |mut acc, n| {
@@ -184,7 +184,7 @@ impl Link {
     }
 
     fn vhdl_to_string_bfm_inst(unit: &str, bfm_inst: &str) -> String {
-        let result = format!("signal {}: {}_bfm;", bfm_inst, unit);
+        let result = format!("signal {}: {}_if;", bfm_inst, unit);
         result
     }
     /*
@@ -195,7 +195,7 @@ impl Link {
      */
     fn sv_to_string_bfm_inst(unit: &str, generics: &Vec<Net>, bfm_inst: &str) -> String {
         let result = format!(
-            "{0}_bfm{1} {2}();",
+            "{0}_if{1} {2}();",
             unit,
             Self::sv_generate_param_inst(generics),
             bfm_inst
@@ -251,7 +251,7 @@ impl Link {
 
     fn sv_to_string_bfm(ports: &Vec<&Net>, generics: &Vec<Net>, unit: &str) -> String {
         let result = format!(
-            "{0}interface {1}_bfm{2};\n",
+            "{0}interface {1}_if{2};\n",
             SV_HEAD_COMMENT_INTERFACE,
             unit,
             Self::sv_generate_param_decl(generics)
@@ -288,12 +288,12 @@ impl Link {
     }
 
     fn sv_to_string_send(ports: &Vec<&Net>, bfm_inst: &str) -> String {
-        let input_fd = "i";
-        let drive_fn = "drive";
-        let result = format!("{0}task send(int {1});\n{2}automatic string row;\n{2}if(!$feof({1})) begin\n{3}$fgets(row, {1});\n", SV_HEAD_COMMENT, input_fd, Self::tab(1), Self::tab(2));
+        let input_fd = "fd";
+        let drive_fn = "$sscanf(parse";
+        let result = format!("{0}task send(int {1});\n{2}automatic string line;\n{2}if(!$feof({1})) begin\n{3}$fgets(line, {1});\n", SV_HEAD_COMMENT, input_fd, Self::tab(1), Self::tab(2));
         let mut result = ports.iter().fold(result, |mut acc, n| {
             acc.push_str(&format!(
-                "{3}`{0}(row, {1}.{2});\n",
+                "{3}{0}(line), \"%b\", {1}.{2});\n",
                 drive_fn,
                 bfm_inst,
                 n.get_identifier(),
@@ -310,7 +310,7 @@ impl Link {
         let output_fd = "o";
         let load_fn = "load";
         let assert_fn = "assert_eq";
-        let result = format!("{0}procedure compare(file {1}: text; file {2}: text) is\n{4}variable row: line;\n{4}variable mdl: {3}_bfm;\nbegin\n{4}if endfile({2}) = false then\n{5}readline({2}, row);\n", VHDL_HEAD_COMMENT, event_fd, output_fd, unit, Self::tab(1), Self::tab(2));
+        let result = format!("{0}procedure recv(file {1}: text; file {2}: text) is\n{4}variable row: line;\n{4}variable mdl: {3}_bfm;\nbegin\n{4}if endfile({2}) = false then\n{5}readline({2}, row);\n", VHDL_HEAD_COMMENT, event_fd, output_fd, unit, Self::tab(1), Self::tab(2));
         let mut result = ports.iter().fold(result, |mut acc, n| {
             acc.push_str(&format!(
                 "{2}{0}(row, mdl.{1});\n",
@@ -333,31 +333,34 @@ impl Link {
     }
 
     fn sv_to_string_comp(ports: &Vec<&Net>, _unit: &str, bfm_inst: &str, mdl_inst: &str) -> String {
-        let event_fd = "e";
-        let output_fd = "o";
-        let load_fn = "load";
+        let output_fd = "fd";
+        let load_fn = "$sscanf(parse";
         let assert_fn = "assert_eq";
-        let result = format!("{0}task compare(int {1}, int {4});\n{2}automatic string row;\n{2}if(!$feof({4})) begin\n{3}$fgets(row, {4});\n", SV_HEAD_COMMENT, event_fd, Self::tab(1), Self::tab(2), output_fd);
+        let result = format!("{0}task recv(int {3});\n{1}automatic string line;\n{1}if(!$feof({3})) begin\n{2}$fgets(line, {3});\n", SV_HEAD_COMMENT, Self::tab(1), Self::tab(2), output_fd);
         let mut result = ports.iter().fold(result, |mut acc, n| {
             acc.push_str(&format!(
-                "{3}`{0}(row, {1}.{2});\n",
+                "{3}{0}(line), \"%b\", {1}.{2});\n",
                 load_fn,
                 mdl_inst,
                 n.get_identifier(),
                 Self::tab(2)
             ));
+            acc
+        });
+        result.push_str(&format!("{0}end\n", Self::tab(1)));
+        let checks = ports.iter().fold(String::new(), |mut acc, n| {
             acc.push_str(&format!(
-                "{1}`{3}({2}, {4}.{0}, {5}.{0}, \"{0}\");\n",
+                "{1}{2}({3}.{0}, {4}.{0}, \"{0}\");\n",
                 n.get_identifier(),
-                Self::tab(2),
-                event_fd,
+                Self::tab(1),
                 assert_fn,
                 bfm_inst,
                 mdl_inst,
             ));
             acc
         });
-        result.push_str(&format!("{0}end\nendtask", Self::tab(1)));
+        result.push_str(&checks);
+        result.push_str(&format!("{0}endtask", Self::tab(0)));
         result
     }
 

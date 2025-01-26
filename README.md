@@ -4,10 +4,9 @@
 
 Verb is a framework for simulating digital hardware. 
 
-![](./docs/assets/system.dio.svg)
+![](./docs/src/images/system.svg)
 
 Verb leverages _file I/O_ and _software programming languages_ to simulate digital hardware in their native hardware description languages (HDL).
-
 
 The workflow for running Verb is separated into discrete 3 processes:
 

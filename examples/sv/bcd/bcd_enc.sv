@@ -11,12 +11,13 @@ module bcd_enc #(
     output logic ovfl
 );
 
-    typedef enum {S_LOAD, S_SHIFT, S_ADD, S_COMPLETE, S_WAIT} state;
+    typedef enum {S_WAIT, S_SHIFT, S_ADD} state;
 
     logic[$bits(bcd)+$bits(bin)-1:0] dabble_r, dabble_d;
 
     logic ovfl_r, ovfl_d;
     state state_r, state_d;
+    logic done_r, done_d;
 
     localparam int CTR_LEN = $clog2(LEN);
 
@@ -28,10 +29,12 @@ module bcd_enc #(
             ovfl_r <= '0;
             dabble_r <= '0;
             ctr_r <= '0;
-            state_r <= S_LOAD;
+            done_r <= '0;
+            state_r <= S_WAIT;
         end else begin
             state_r <= state_d;
             ctr_r <= ctr_d;
+            done_r <= done_d;
             ovfl_r <= ovfl_d;
             dabble_r <= dabble_d;
         end
@@ -39,6 +42,8 @@ module bcd_enc #(
 
     // simple pass through
     assign ovfl = ovfl_r;
+    assign done = done_r;
+    assign bcd = dabble_r[LEN +: $bits(bcd)];
 
     // determine next state and output signals
     always_comb begin
@@ -48,19 +53,17 @@ module bcd_enc #(
         ctr_d = ctr_r;
         ovfl_d = ovfl_r;
         dabble_d = dabble_r;
-        done = '0;
-
-        bcd = dabble_r[LEN +: $bits(bcd)];
+        done_d = done_r;
 
         case(state_r)
-            S_LOAD: begin
-                dabble_d = '0;
-                dabble_d[$bits(bin)-1:0] = bin;
-                ctr_d = '0;
-                ovfl_d = '0;
-
+            S_WAIT: begin
                 if(go == 1'b1) begin
+                    dabble_d = '0;
+                    dabble_d[$bits(bin)-1:0] = bin;
+                    ctr_d = '0;
+                    ovfl_d = '0;
                     state_d = S_SHIFT;
+                    done_d = '0;
                 end
             end
             // perform the "double" (multiply by 2)
@@ -69,7 +72,8 @@ module bcd_enc #(
                 ovfl_d = ovfl_r | dabble_r[$bits(dabble_r)-1];
                 ctr_d = ctr_r + 1;
                 if(ctr_r == (CTR_LEN)'(LEN-1)) begin
-                    state_d = S_COMPLETE;
+                    state_d = S_WAIT;
+                    done_d = 1'b1;
                 end else begin
                     state_d = S_ADD;
                 end
@@ -84,19 +88,8 @@ module bcd_enc #(
                 end
                 state_d = S_SHIFT;
             end
-            S_COMPLETE: begin
-                done = 1'b1;
-                ovfl_d = ovfl_r;
-                state_d = S_WAIT;
-            end
-            S_WAIT: begin
-                done = 1'b1;
-                // uncomment this line to see stability issues
-                // bcd = '0;
-                state_d = S_LOAD;
-            end
             default: begin
-                state_d = S_LOAD;
+                state_d = S_WAIT;
             end
         endcase
     end

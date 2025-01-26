@@ -1,5 +1,7 @@
 package godan;
 
+    int FD_EVENTS = start("events.log");
+
     /* tutils
 
         Provides test utility functions for testbench simulation. This involves
@@ -7,49 +9,78 @@ package godan;
         simulation-specific tasks.
     */
 
+    // Creates the file with the given `name` to prepare for simulation logging.
+    function automatic int start(input string name);
+        int fd = $fopen(name, "w");
+        return fd;
+    endfunction
+
     // Closes the file `fd` and sets `halt` to true and enters an infinite wait 
     // statement to signal that the simulation is complete.
-    task complete(input int fd);
+    task complete(int fd);
         $fclose(fd);
         $finish;
     endtask
 
-    // Asynchronous asserts `datum` and synchronously de-asserts `datum` on the
+    // Asynchronous asserts `pin` and synchronously de-asserts `pin` on the
     // `cycles`'th clock edge.
-    task automatic async_on_sync_off(ref logic clk, ref logic datum, input logic active, input int cycles);
+    task automatic async_on_sync_off(ref logic clk, ref logic pin, input logic active, input int cycles);
         automatic logic inactive = ~active;
         @(negedge clk);
-        datum = active;
+        pin = active;
         #0;
         for(int i = 0; i < cycles; i++) begin
             @(posedge clk);
         end
-        datum = inactive;
+        pin = inactive;
         #0;
     endtask
 
-    // Synchronously triggers the logic bit `datum` to its state `active` and then 
+    // Synchronously triggers the logic bit `pin` to its state `active` and then 
     // asynchronously deactivates the bit to its initial value after `cycles`
     // clock cycles elapse.
     //
     // The trigger will not be applied if `cycles` is set to 0. The signal will
     // deactivate on the falling edge of the `cycles` count clock cycle.
-    task automatic sync_on_async_off(ref logic clk, ref logic datum, input logic active, input int cycles);
-        automatic logic prev_datum = datum;
+    task automatic sync_on_async_off(ref logic clk, ref logic pin, input logic active, input int cycles);
+        automatic logic inactive = ~active;
         if(cycles > 0) begin
             @(posedge clk);
-            datum = active;
+            pin = active;
             #0;
             for(int i = 0; i < cycles; i++) begin
                 @(posedge clk);
             end
             @(negedge clk);
-            datum = prev_datum;
+            pin = inactive;
+        end
+    endtask
+
+    task automatic sync_hi_async_lo(ref logic clk, ref logic pin, input int cycles);
+        sync_on_async_off(clk, pin, 1'b1, cycles);
+    endtask
+
+    // Synchronously triggers the logic bit `pin` to its state `active` and then 
+    // synchronously deactivates the bit to its initial value after `cycles`
+    // clock cycles elapse.
+    //
+    // The trigger will not be applied if `cycles` is set to 0. The signal will
+    // deactivate on the falling edge of the `cycles` count clock cycle.
+    task automatic sync_on_sync_off(ref logic clk, ref logic pin, input logic active, input int cycles);
+        automatic logic inactive = ~active;
+        if(cycles > 0) begin
+            @(posedge clk);
+            pin = active;
+            #0;
+            for(int i = 0; i < cycles; i++) begin
+                @(posedge clk);
+            end
+            pin = inactive;
         end
     endtask
 
     // Return a string in binary format by reading a logic value from the line `row`.
-    function string read(inout string row);
+    function string parse(inout string row);
         automatic string sect = "";
         for(int i = 0; i < row.len(); i++) begin
             if(row[i] == " " || row[i] == "\n") begin
@@ -71,7 +102,18 @@ package godan;
     typedef enum {TRACE, DEBUG, INFO, WARN, ERROR, FATAL} tone;
 
     // Immediate assertion that checks if two logic words `received` and `expected` are equal to each other.
-    task assert_eq(inout int fd, input string received, input string expected, input string subject);
+    //
+    // Note: https://stackoverflow.com/questions/67714329/systemverilog-string-variable-as-format-specifier-for-display-write
+    task assert_eq(input logic[4095:0] received, input logic[4095:0] expected, input string subject);
+        if(received == expected) begin
+            capture(FD_EVENTS, INFO, "ASSERT_EQ", subject, {"receives ", $sformatf("b'%0b", received), " and expects ", $sformatf("b'%0b", expected)});
+        end else begin
+            capture(FD_EVENTS, ERROR, "ASSERT_EQ", subject, {"receives ", $sformatf("b'%0b", received), " but expects ", $sformatf("b'%0b", expected)});
+        end
+    endtask
+
+    // Immediate assertion that checks if two logic words `received` and `expected` are equal to each other.
+    task assert_eq_old(inout int fd, input string received, input string expected, input string subject);
         if(received == expected) begin
             capture(fd, INFO, "ASSERT_EQ", subject, {"receives ", received, " and expects ", expected});
         end else begin
@@ -88,38 +130,67 @@ package godan;
         end
     endtask
 
-    // Checks the logic `datum` enters its active state `active` on the rising edge of `clk` before `cycles` clock cycles elapse.
-    task automatic monitor(inout int fd, ref logic clk, ref logic datum, input logic active, input int cycles, input string subject);
+    // Checks the logic `flag` is true (1'b1) on the rising edge of `clk` before `cycles` clock cycles elapse.
+    task static observe(ref logic clk, ref logic flag, input logic active, input int cycles, input string subject);
         automatic int cycle_count = 0;
-        automatic int cycle_limit = cycles + 1;
-        automatic string fmt_cycles, fmt_active;
+        automatic int cycle_limit = cycles;
 
-        if(cycle_limit < 0) begin
-            @(negedge clk, datum == active);
+        if (cycle_limit < 0) begin
+            @(negedge clk, flag == active);
             return;
         end else begin
-            while(cycle_count < cycle_limit) begin
-                if(datum == active) begin
-                    $sformat(fmt_cycles, "%-d", cycle_count);
-                    $sformat(fmt_active, "%b", active);
-                    capture(fd, INFO, "MONITOR", subject, {"observes ", fmt_active, " after waiting ", fmt_cycles, " cycle(s)"});
+            while (cycle_count < cycle_limit) begin
+                if (flag == active) begin
+                    capture(FD_EVENTS, INFO, "OBSERVE", subject, {"is true after waiting ", $sformatf("%-d", cycle_count), " cycle(s)"});
                     break;
                 end
                 cycle_count = cycle_count + 1;
-                if(cycle_count < cycle_limit) begin
+                if (cycle_count < cycle_limit) begin
                     @(negedge clk);
                 end
             end
         end
+
         if(cycle_count >= cycle_limit) begin
-            $sformat(fmt_cycles, "%-d", cycles);
-            $sformat(fmt_active, "%b", active);
-            capture(fd, ERROR, "MONITOR", subject, {"fails to observe ", fmt_active, " after waiting ", fmt_cycles, " cycle(s)"});
+            capture(FD_EVENTS, ERROR, "OBSERVE", subject, {"fails to be true after waiting ", $sformatf("%-d", cycle_count), " cycle(s)"});
         end
     endtask;
 
-    // Concurrent assertion that checks the behavior of `data` is stable when the condition `flag` is `active`.
-    task automatic assert_stbl(inout int fd, ref logic clk, ref string data, ref logic flag, input logic active, input string subject);
+    // Concurrent assertion that checks the behavior of `data` is stable when the condition `flag` is true (1'b1).
+    task automatic assert_stbl(ref logic clk, input logic flag, input logic active, input logic[4095:0] data, input string subject);
+        static logic[4095:0] last_data[string];
+        static logic last_flag[string];
+        static int cycles[string];
+        static logic is_stable[string];
+
+        // stay in tracking state
+        if (last_flag.exists(subject) == 1 && last_flag[subject] == active && flag == active) begin
+            // things must remain stable!
+            if (last_data[subject] != data) begin
+                is_stable[subject] = 1'b0;
+                capture(FD_EVENTS, ERROR, "ASSERT_STBL", subject, {"loses stability of ", $sformatf("b'%0b", last_data[subject]), " by changing to ", $sformatf("b'%0b", data), " after ", $sformatf("%-d", cycles[subject]), " cycle(s)"});
+            end
+            // survived another cycle
+            cycles[subject] = cycles[subject] + 1;
+        // successfully leave the tracking state
+        end else if (last_flag.exists(subject) == 1 && last_flag[subject] == active && flag == ~active) begin
+            if (is_stable[subject] == 1'b1) begin
+                capture(FD_EVENTS, INFO, "ASSERT_STBL", subject, {"keeps stability at ", $sformatf("b'%0b", last_data[subject]), " for ", $sformatf("%-d", cycles[subject]), " cycle(s)"});
+            end
+        // try to transition into tracking state
+        end else if (last_flag.exists(subject) == 1 && last_flag[subject] == ~active && flag == active) begin
+            cycles[subject] = 1;
+            is_stable[subject] = 1'b1;
+        end
+
+        @(negedge clk);
+
+        last_data[subject] = data;
+        last_flag[subject] = flag;
+    endtask
+
+    // Concurrent assertion that checks the behavior of `data` is stable when the condition `flag` is true (1'b1).
+    task automatic assert_stbl_old(inout int fd, ref logic clk, ref logic flag, ref string data, input string subject);
         automatic logic is_okay = 1'b1;
         automatic logic is_checked = 1'b0;
         automatic string prev_data = "";
@@ -135,20 +206,20 @@ package godan;
                 is_okay = 1'b0;
                 // capture
                 $sformat(num_cycles_fmt, "%-d", num_cycles);
-                capture(fd, ERROR, "STABILIZE", subject, {"loses stability of ", prev_data, " by changing to ", data, " after ", num_cycles_fmt, " cycle(s)"});
+                capture(fd, ERROR, "ASSERT_STBL", subject, {"loses stability of ", prev_data, " by changing to ", data, " after ", num_cycles_fmt, " cycle(s)"});
             end
             @(posedge clk);
             num_cycles = num_cycles + 1;
         end
         if(is_checked == 1'b1 && is_okay == 1'b1) begin
             $sformat(num_cycles_fmt, "%-d", num_cycles);
-            capture(fd, INFO, "STABILIZE", subject, {"keeps stability at ", prev_data, " for ", num_cycles_fmt, " cycle(s)"});
+            capture(fd, INFO, "ASSERT_STBL", subject, {"keeps stability at ", prev_data, " for ", num_cycles_fmt, " cycle(s)"});
         end
     endtask
 
     // Captures an event during simulation and writes the outcome to the file `fd`.
     // The time when the task is called is recorded in the timestamp.
-    task capture(inout int fd, input tone level, input string topic, input string subject, input string predicate = "");
+    task automatic capture(inout int fd, input tone level, input string topic, input string subject, input string predicate = "");
         automatic string result = "";
         automatic string sect = "";
         automatic string time_units = "";
@@ -241,78 +312,80 @@ package godan;
         VHDL counterpart.
     */
 
-`ifndef VERB
-`define VERB
+// `ifndef VERB
+// `define VERB
 
-    `define capture(FD, LEVEL, TOPIC, SUBJECT, PREDICATE) \
-        capture(FD, LEVEL, TOPIC, SUBJECT, PREDICATE);
+//     `define capture(LEVEL, TOPIC, SUBJECT, PREDICATE) \
+//         capture(FD_EVENTS, LEVEL, TOPIC, SUBJECT, PREDICATE);
 
-    `define sync_on_async_off(CLK, DATA, ACTIVE, CYCLES) \
-        sync_on_async_off(CLK, DATA, ACTIVE, CYCLES);
+//     `define sync_hi_async_lo(CLK, DATA, CYCLES) \
+//         sync_on_async_off(CLK, DATA, 1'b1, CYCLES);
 
-    `define async_on_sync_off(CLK, DATA, ACTIVE, CYCLES) \
-        async_on_sync_off(CLK, DATA, ACTIVE, CYCLES);
+//     `define async_hi_sync_lo(CLK, DATA, CYCLES) \
+//         async_on_sync_off(CLK, DATA, 1'b1, CYCLES);
 
-    `define assert_eq(FD, RECV, EXPT, SUBJECT) \
-        begin \
-            automatic string \RECV\ ; \
-            automatic string \EXPT\ ; \
-            $sformat(\RECV\ , "%b", RECV); \
-            $sformat(\EXPT\ , "%b", EXPT); \
-            assert_eq(FD, \RECV\ , \EXPT\ , SUBJECT); \
-        end 
+//     `define async_lo_sync_hi(CLK, DATA, CYCLES) \
+//         async_on_sync_off(CLK, DATA, 1'b0, CYCLES);
 
-    `define assert_ne(FD, RECV, EXPT, SUBJECT) \
-        begin \
-            automatic string \RECV\ ; \
-            automatic string \EXPT\ ; \
-            $sformat(\RECV\ , "%b", RECV); \
-            $sformat(\EXPT\ , "%b", EXPT); \
-            assert_ne(FD, \RECV\ , \EXPT\ , SUBJECT); \
-        end 
+//     `define assert_eq(RECV, EXPT, SUBJECT) \
+//         begin \
+//             automatic string \RECV\ ; \
+//             automatic string \EXPT\ ; \
+//             $sformat(\RECV\ , "%b", RECV); \
+//             $sformat(\EXPT\ , "%b", EXPT); \
+//             assert_eq_old(FD_EVENTS, \RECV\ , \EXPT\ , SUBJECT); \
+//         end 
 
-    `define assert_stbl(FD, CLK, DATA, FLAG, ACTIVE, SUBJECT) \
-        `ifndef \DATA\ \
-        `define \DATA\ \
-        string \DATA\ ; \
-        `endif \
-        always @(negedge clk) $sformat(\DATA\ , "%b", DATA); \
-        always assert_stbl(FD, CLK, \DATA\ , FLAG, ACTIVE, SUBJECT);
+//     `define assert_ne(RECV, EXPT, SUBJECT) \
+//         begin \
+//             automatic string \RECV\ ; \
+//             automatic string \EXPT\ ; \
+//             $sformat(\RECV\ , "%b", RECV); \
+//             $sformat(\EXPT\ , "%b", EXPT); \
+//             assert_ne(FD_EVENTS, \RECV\ , \EXPT\ , SUBJECT); \
+//         end 
 
-    `define read(ROW, X) \
-        $sscanf(read(ROW), "%b", X);
+//     `define assert_stbl(CLK, FLAG, DATA, SUBJECT) \
+//         `ifndef \DATA\ \
+//         `define \DATA\ \
+//         string \DATA\ ; \
+//         `endif \
+//         always @(negedge clk) $sformat(\DATA\ , "%b", DATA); \
+//         always assert_stbl_old(FD_EVENTS, CLK, FLAG, \DATA\ , SUBJECT);
 
-    `define monitor(FD, CLK, DATA, ACTIVE, CYCLES, SUBJECT) \
-        begin \
-            automatic int cycle_count = 0; \
-            automatic int cycle_limit = CYCLES + 1; \
-            automatic string fmt_cycles, fmt_active; \
-            if(cycle_limit < 0) begin \
-                @(negedge CLK, DATA == ACTIVE); \
-            end else begin \
-                while(cycle_count < cycle_limit) begin \
-                    if(DATA == ACTIVE) begin \
-                        $sformat(fmt_cycles, "%-d", cycle_count); \
-                        $sformat(fmt_active, "%b", ACTIVE); \
-                        capture(FD, INFO, "MONITOR", SUBJECT, {"observes ", fmt_active, " after waiting ", fmt_cycles, " cycle(s)"}); \
-                        break; \
-                    end \
-                    cycle_count = cycle_count + 1; \
-                    if(cycle_count < cycle_limit) begin \
-                        @(negedge CLK); \
-                    end \
-                end \
-            end \
-            if(cycle_count >= cycle_limit) begin \
-                $sformat(fmt_cycles, "%-d", CYCLES); \
-                $sformat(fmt_active, "%b", ACTIVE); \
-                capture(FD, ERROR, "MONITOR", SUBJECT, {"fails to observe ", fmt_active, " after waiting ", fmt_cycles, " cycle(s)"}); \
-            end \
-        end
+//     // Analyzes the next part of the LINE into the logic value for X.
+//     `define parse(LINE, X) \
+//         $sscanf(parse(LINE), "%b", X);
 
-    `define complete(FD) \
-        complete(FD);
+//     `define observe(CLK, FLAG, CYCLES, SUBJECT) \
+//         begin \
+//             automatic int cycle_count = 0; \
+//             automatic int cycle_limit = CYCLES + 1; \
+//             automatic string fmt_cycles; \
+//             if(cycle_limit < 0) begin \
+//                 @(negedge CLK, FLAG == 1'b1); \
+//             end else begin \
+//                 while(cycle_count < cycle_limit) begin \
+//                     if(FLAG == 1'b1) begin \
+//                         $sformat(fmt_cycles, "%-d", cycle_count); \
+//                         capture(FD_EVENTS, INFO, "OBSERVE", SUBJECT, {"is true after waiting ", fmt_cycles, " cycle(s)"}); \
+//                         break; \
+//                     end \
+//                     cycle_count = cycle_count + 1; \
+//                     if(cycle_count < cycle_limit) begin \
+//                         @(negedge CLK); \
+//                     end \
+//                 end \
+//             end \
+//             if(cycle_count >= cycle_limit) begin \
+//                 $sformat(fmt_cycles, "%-d", CYCLES); \
+//                 capture(FD_EVENTS, ERROR, "OBSERVE", SUBJECT, {"fails to be true after waiting ", fmt_cycles, " cycle(s)"}); \
+//             end \
+//         end
 
-`endif
+//     `define complete() \
+//         complete(FD_EVENTS);
+
+// `endif
 
 endpackage

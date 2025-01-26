@@ -27,10 +27,10 @@ class BcdEncoder:
 
         # LEN | CYCLES
         # --- | ----------
-        #  3  | 7  = 3 + 4 
-        #  4  | 9  = 4 + 5
-        #  5  | 11 = 5 + 6
-        self.fsm_cycle_delay = width+width+1
+        #  4  | 7  = 4 + 4 - 1 
+        #  5  | 9  = 5 + 5 - 1
+        #  6  | 11 = 6 + 6 - 1 
+        self.fsm_cycle_delay = width+width-1
         pass
 
     def eval(self):
@@ -70,38 +70,31 @@ class BcdEncoder:
     pass
 
 
-def main():
-    # Setup - collect parameters and create models
-
-    DIGITS = context.generic('DIGITS', type=int)
-    LEN  = context.generic('LEN', type=int)
-
-    bcd_algo = BcdEncoder(width=LEN, digits=DIGITS)
-    bcd_algo_dupe = BcdEncoder(width=LEN, digits=DIGITS)
-
-    # Coverage Goals - specify coverage areas
-
+def cover(real_mdl, fake_mdl):
+    """
+    Specify coverage areas.
+    """
     CoverRange("input span") \
-        .span(bcd_algo.bin.span()) \
-        .target(bcd_algo.bin) \
-        .apply()
+            .span(real_mdl.bin.span()) \
+            .target(real_mdl.bin) \
+            .apply()
 
     CoverPoint("overflow enabled") \
         .goal(10) \
-        .bypass(bcd_algo.bin.max() < (10**bcd_algo.num_digits)) \
-        .target(bcd_algo.ovfl) \
+        .bypass(real_mdl.bin.max() < (10**real_mdl.num_digits)) \
+        .target(real_mdl.ovfl) \
         .checker(lambda x: int(x) == 1) \
         .apply()
 
     CoverGroup("overflow variants") \
         .bins([0, 1]) \
-        .bypass(bcd_algo.bin.max() < (10**bcd_algo.num_digits)) \
-        .target(bcd_algo.ovfl) \
+        .bypass(real_mdl.bin.max() < (10**real_mdl.num_digits)) \
+        .target(real_mdl.ovfl) \
         .apply()
 
     CoverGroup("extreme inputs") \
-        .bins([bcd_algo.bin.min(), bcd_algo.bin.max()]) \
-        .target(bcd_algo.bin) \
+        .bins([real_mdl.bin.min(), real_mdl.bin.max()]) \
+        .target(real_mdl.bin) \
         .apply()
 
     cp_bin_while_active = CoverPoint("input changes while active") \
@@ -110,35 +103,49 @@ def main():
 
     cp_go_while_active = CoverPoint("go while active") \
         .goal(100) \
-        .target(bcd_algo_dupe.go) \
+        .target(fake_mdl.go) \
         .checker(lambda x: int(x) == 1) \
         .apply()
+    
+    return cp_bin_while_active
+
+
+def main():
+    # Setup - collect parameters and create models
+
+    DIGITS = context.generic('DIGITS', type=int)
+    LEN  = context.generic('LEN', type=int)
+
+    real_mdl = BcdEncoder(width=LEN, digits=DIGITS)
+    fake_mdl = BcdEncoder(width=LEN, digits=DIGITS)
+
+    # Coverage Goals - specify coverage areas
+    cp_bin_while_active = cover(real_mdl, fake_mdl)
 
     # Run - generate the test vectors from the model(s)
-
     with vectors('inputs.txt', 'i') as inputs, vectors('outputs.txt', 'o') as outputs:
         # initialize the values with defaults
-        inputs.push(bcd_algo)
-        while coverage.met(10_000) == False:
+        while coverage.met(1_000) == False:
             # get a new set of inputs to process
-            outcome: BcdEncoder = randomize(bcd_algo)
-            bcd_algo.go.assign(1)
-            inputs.push(outcome)
+            randomize(real_mdl)
+            real_mdl.go.assign(1)
+            inputs.push(real_mdl)
+
             # alter the input while the computation is running
-            for _ in range(0, outcome.fsm_cycle_delay):
-                outcome_dupe: BcdEncoder = randomize(bcd_algo_dupe)
-                cp_bin_while_active.check(int(bcd_algo_dupe.bin) != int(bcd_algo.bin))
-                inputs.push(outcome_dupe)
+            for _ in range(0, real_mdl.fsm_cycle_delay):
+                randomize(fake_mdl)
+                cp_bin_while_active.check(int(fake_mdl.bin) != int(real_mdl.bin))
+                inputs.push(fake_mdl)
 
             # compute the output
-            bcd_algo.eval()
-            outputs.push(bcd_algo)
+            real_mdl.eval()
+            outputs.push(real_mdl)
 
             # place some random 'idle' time after a finished computation
             for _ in range(0, random.randint(0, 10)):
-                outcome_dupe: BcdEncoder = randomize(bcd_algo_dupe)
-                outcome_dupe.go.assign(0)
-                inputs.push(outcome_dupe)
+                randomize(fake_mdl)
+                fake_mdl.go.assign(0)
+                inputs.push(fake_mdl)
             pass
         pass
 
