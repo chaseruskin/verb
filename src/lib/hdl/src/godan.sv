@@ -131,7 +131,7 @@ package godan;
     endtask
 
     // Checks the logic `flag` is true (1'b1) on the rising edge of `clk` before `cycles` clock cycles elapse.
-    task static observe(ref logic clk, ref logic flag, input logic active, input int cycles, input string subject);
+    task automatic observe(ref logic clk, ref logic flag, input logic active, input int cycles, input string subject);
         automatic int cycle_count = 0;
         automatic int cycle_limit = cycles;
 
@@ -159,34 +159,36 @@ package godan;
     // Concurrent assertion that checks the behavior of `data` is stable when the condition `flag` is true (1'b1).
     task automatic assert_stbl(ref logic clk, input logic flag, input logic active, input logic[4095:0] data, input string subject);
         static logic[4095:0] last_data[string];
-        static logic last_flag[string];
+        static int last_flag[string];
         static int cycles[string];
-        static logic is_stable[string];
+        static int is_stable[string];
 
         // stay in tracking state
-        if (last_flag.exists(subject) == 1 && last_flag[subject] == active && flag == active) begin
+        if (last_flag.exists(subject) == 1 && last_flag[subject] == 1 && flag == active) begin
             // things must remain stable!
-            if (last_data[subject] != data) begin
-                is_stable[subject] = 1'b0;
+            if (last_data[subject] != data && is_stable[subject] == 1) begin
+                is_stable[subject] = 0;
                 capture(FD_EVENTS, ERROR, "ASSERT_STBL", subject, {"loses stability of ", $sformatf("b'%0b", last_data[subject]), " by changing to ", $sformatf("b'%0b", data), " after ", $sformatf("%-d", cycles[subject]), " cycle(s)"});
             end
             // survived another cycle
             cycles[subject] = cycles[subject] + 1;
         // successfully leave the tracking state
-        end else if (last_flag.exists(subject) == 1 && last_flag[subject] == active && flag == ~active) begin
-            if (is_stable[subject] == 1'b1) begin
+        end else if (last_flag.exists(subject) == 1 && last_flag[subject] == 1 && flag == ~active) begin
+            if (is_stable.exists(subject) == 1 && is_stable[subject] == 1) begin
                 capture(FD_EVENTS, INFO, "ASSERT_STBL", subject, {"keeps stability at ", $sformatf("b'%0b", last_data[subject]), " for ", $sformatf("%-d", cycles[subject]), " cycle(s)"});
             end
         // try to transition into tracking state
-        end else if (last_flag.exists(subject) == 1 && last_flag[subject] == ~active && flag == active) begin
+        end else if (last_flag.exists(subject) == 1 && last_flag[subject] == 0 && flag == active) begin
+            // $display("*** %s", subject);
             cycles[subject] = 1;
-            is_stable[subject] = 1'b1;
+            is_stable[subject] = 1;
         end
 
-        @(negedge clk);
-
         last_data[subject] = data;
-        last_flag[subject] = flag;
+        last_flag[subject] = (flag == active) ? 1 : 0;
+        
+        @(negedge clk);
+        #0;
     endtask
 
     // Concurrent assertion that checks the behavior of `data` is stable when the condition `flag` is true (1'b1).

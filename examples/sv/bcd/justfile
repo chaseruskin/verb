@@ -1,0 +1,17 @@
+_default:
+    just --list
+
+MODELSIM := "chaseruskin/melodic-marimba:latest"
+QUARTUS := "chaseruskin/quiet-quartet:latest"
+
+# Start a docker container using the modelsim image
+boot-modelsim PWD:
+    docker run -it -w {{PWD}} --mount type=bind,src={{PWD}},dst={{PWD}} --name modelsim {{MODELSIM}} /bin/bash
+
+# Start a docker container using the quartus image
+boot-quartus PWD:
+    docker run -it -w {{PWD}} --mount type=bind,src={{PWD}},dst={{PWD}} --name quartus {{QUARTUS}} /bin/bash
+
+# Remove a docker container
+kill CONTAINER:
+    docker container rm {{CONTAINER}}
