@@ -15,11 +15,10 @@ package godan;
         return fd;
     endfunction
 
-    // Closes the file `fd` and sets `halt` to true and enters an infinite wait 
-    // statement to signal that the simulation is complete.
-    task complete(int fd);
-        $fclose(fd);
-        $finish;
+    // Closes the event log file and ends the simulation completely.
+    task finish(int n=0);
+        $fclose(FD_EVENTS);
+        $finish(n);
     endtask
 
     // Asynchronous asserts `pin` and synchronously de-asserts `pin` on the
