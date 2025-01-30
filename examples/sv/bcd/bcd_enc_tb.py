@@ -3,8 +3,17 @@
 # Generates the I/O test vector files to be used with the 
 # bcd_enc_tb.vhd testbench. It also produces a coverage report to indicate the 
 # robust of the tests.
+#
+# The following table highlights the relationship between the length of the
+# input binary word and the number of cycles it takes to reach a result:
+#       LEN | CYCLES
+#       --- | ----------
+#        4  | 7  = 4 + 4 - 1 
+#        5  | 9  = 5 + 5 - 1
+#        6  | 11 = 6 + 6 - 1 
 
 import random
+import verb
 from verb import context, coverage
 from verb.model import *
 from verb.coverage import *
@@ -12,9 +21,9 @@ from verb.coverage import *
 class BcdEncoder:
 
     def __init__(self, width: int, digits: int):
-        '''
+        """
         Create a new hardware model with the defined interface.
-        '''
+        """
         self.num_digits = digits
         self.width = width
 
@@ -25,18 +34,22 @@ class BcdEncoder:
         self.ovfl = Signal(1, mode=Mode.OUT)
         self.done = Signal(1, mode=Mode.OUT)
 
-        # LEN | CYCLES
-        # --- | ----------
-        #  4  | 7  = 4 + 4 - 1 
-        #  5  | 9  = 5 + 5 - 1
-        #  6  | 11 = 6 + 6 - 1 
+        # Store the number of cycles it takes to compute a result
         self.fsm_cycle_delay = width+width-1
         pass
 
-    def eval(self):
-        '''
+    def setup(self, explicit_go_val: int=None):
+        """
+        Assign a new set of inputs for the model to compute.
+        """
+        randomize(self)
+        if explicit_go_val != None:
+            self.go.assign(explicit_go_val)
+
+    def exec(self):
+        """
         Model the functional behavior of the design unit.
-        '''
+        """
         # separate each digit
         digits = []
         word = int(self.bin)
@@ -123,28 +136,26 @@ def main():
     cp_bin_while_active = cover(real_mdl, fake_mdl)
 
     # Run - generate the test vectors from the model(s)
-    with vectors('inputs.txt', 'i') as inputs, vectors('outputs.txt', 'o') as outputs:
+    with vectors('inputs.txt') as inputs, vectors('outputs.txt') as outputs:
         # initialize the values with defaults
-        while coverage.met(1_000) == False:
+        while verb.running(1_000, True):
             # get a new set of inputs to process
-            randomize(real_mdl)
-            real_mdl.go.assign(1)
+            real_mdl.setup(1)
             inputs.push(real_mdl)
 
-            # alter the input while the computation is running
+            # alter the input with random data while the computation is running
             for _ in range(0, real_mdl.fsm_cycle_delay):
-                randomize(fake_mdl)
+                fake_mdl.setup()
                 cp_bin_while_active.check(int(fake_mdl.bin) != int(real_mdl.bin))
                 inputs.push(fake_mdl)
 
             # compute the output
-            real_mdl.eval()
+            real_mdl.exec()
             outputs.push(real_mdl)
 
             # place some random 'idle' time after a finished computation
             for _ in range(0, random.randint(0, 10)):
-                randomize(fake_mdl)
-                fake_mdl.go.assign(0)
+                fake_mdl.setup(0)
                 inputs.push(fake_mdl)
             pass
         pass

@@ -14,18 +14,18 @@ parser.add_argument('--vcd', action='store_true', default=False, help='enable sa
 parser.add_argument('--log', action='store', default='events.log', help='specify the log file path written during simulation')
 parser.add_argument('--skip-model', action='store_true', help='skip execution of a design model (if exists)')
 parser.add_argument('--seed', action='store', type=int, nargs='?', default=None, const=random.randrange(sys.maxsize), metavar='NUM', help='set the randomness seed')
-parser.add_argument('--loop-limit', action='store', type=int, default=10_000, help='specify the limit of tests before timing out')
+parser.add_argument('--loop-limit', action='store', type=int, default=None, help='specify the limit of tests before timing out')
 
 parser.add_argument('--define', '-d', action='append', type=str, default=[], metavar='KEY[=VALUE]', help='set preprocessor defines')
 
 args = parser.parse_args()
 
-MAX_TESTS = int(args.loop_limit)
+SEED = args.seed
+MAX_TESTS = args.loop_limit
 SKIP_MODEL = bool(args.skip_model)
 GENERICS = args.generic
 LINT_ONLY = bool(args.lint)
 USE_VCD = bool(args.vcd)
-SEED = args.seed
 EVENTS_LOG_FILE = str(args.log)
 MACROS = args.define
 
@@ -81,11 +81,14 @@ if HAS_MODEL == True and SKIP_MODEL == False:
     dut_data = Command("orbit").arg("get").arg(ORBIT_DUT).arg("--json").output()[0].strip()
     tb_data = Command("orbit").arg("get").arg(ORBIT_TB).arg("--json").output()[0].strip()
 
+    seed_arg = '' if SEED == None else '--seed='+str(SEED)
+    loop_limit_arg = '' if MAX_TESTS == None else '--loop-limit='+str(MAX_TESTS)
+
     Command("verb") \
         .arg("model") \
         .arg("--coverage").arg('coverage.txt') \
-        .arg("--seed="+str(SEED) if SEED != None else None) \
-        .arg("--loop-limit="+str(MAX_TESTS) if MAX_TESTS != None else None) \
+        .arg(seed_arg) \
+        .arg(loop_limit_arg) \
         .arg("--dut").arg(dut_data) \
         .arg("--tb").arg(tb_data) \
         .args(['-g=' + item.to_str() for item in GENERICS]) \

@@ -4,6 +4,14 @@
 from typing import List as _List
 
 
+def from_sysv_bool(s: str) -> bool:
+    '''
+    Interprets a string `s` encoded as a SystemVerilog bool datatype and casts is
+    to a Python `bool`.
+    '''
+    return s.lower() == 'true'
+
+
 def from_vhdl_bool(s: str) -> bool:
     '''
     Interprets a string `s` encoded as a vhdl boolean datatype and casts it

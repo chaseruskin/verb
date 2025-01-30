@@ -117,29 +117,29 @@ module bcd_enc_tb
 
 
     // Concurrent assertion for done holding until next go is set 
-    always begin: ca_done_stays_active_until_go
+    always @(negedge clk) begin: ca_done_stays_active_until_go
         logic done_stay;
         if (done_stay == 1'b1 && bfm.go == 1'b1) begin
             done_stay = 1'b0;
         end else if (bfm.go == 1'b0 && bfm.done == 1'b1) begin
             done_stay = 1'b1;
         end
-        assert_stbl(clk, done_stay, 1'b1, bfm.done, "done stays high until next go");
+        assert_stbl(done_stay, bfm.done, "done stays high until next go");
     end
 
     // Concurrent assertion for BCD output maintaining answer
-    always begin: ca_bcd_is_const_while_done
-        assert_stbl(clk, bfm.done, 1'b1, bfm.bcd, "done's dependency bcd");
+    always @(negedge clk) begin: ca_bcd_is_const_while_done
+        assert_stbl(bfm.done, bfm.bcd, "done's dependency bcd");
     end
 
     // Concurrent assertion for OVERFLOW output maintaining answer
-    always begin: ca_ovfl_is_const_while_done
-        assert_stbl(clk, bfm.done, 1'b1, bfm.ovfl, "done's dependency ovfl");
+    always @(negedge clk) begin: ca_ovfl_is_const_while_done
+        assert_stbl(bfm.done, bfm.ovfl, "done's dependency ovfl");
     end
 
     // Concurrent assertion for starting new processing on cycle after go
-    always @(negedge clk) begin: ca_go_after_done
-        #0 if (bfm.done == 1'b1 && bfm.go == 1'b1) begin
+    always @(posedge clk) begin: ca_go_after_done
+        if (bfm.done == 1'b1 && bfm.go == 1'b1) begin
             @(negedge clk);
             assert_eq(bfm.done, 1'b0, "done after go");
         end

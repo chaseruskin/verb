@@ -104,6 +104,7 @@ package godan;
     //
     // Note: https://stackoverflow.com/questions/67714329/systemverilog-string-variable-as-format-specifier-for-display-write
     task assert_eq(input logic[4095:0] received, input logic[4095:0] expected, input string subject);
+        // #0;
         if(received == expected) begin
             capture(FD_EVENTS, INFO, "ASSERT_EQ", subject, {"receives ", $sformatf("b'%0b", received), " and expects ", $sformatf("b'%0b", expected)});
         end else begin
@@ -156,14 +157,15 @@ package godan;
     endtask;
 
     // Concurrent assertion that checks the behavior of `data` is stable when the condition `flag` is true (1'b1).
-    task automatic assert_stbl(ref logic clk, input logic flag, input logic active, input logic[4095:0] data, input string subject);
+    task automatic assert_stbl(input bit flag, input logic[4095:0] data, input string subject);
         static logic[4095:0] last_data[string];
         static int last_flag[string];
         static int cycles[string];
         static int is_stable[string];
 
+        #0;
         // stay in tracking state
-        if (last_flag.exists(subject) == 1 && last_flag[subject] == 1 && flag == active) begin
+        if (last_flag.exists(subject) == 1 && last_flag[subject] == 1 && flag == 1'b1) begin
             // things must remain stable!
             if (last_data[subject] != data && is_stable[subject] == 1) begin
                 is_stable[subject] = 0;
@@ -172,22 +174,19 @@ package godan;
             // survived another cycle
             cycles[subject] = cycles[subject] + 1;
         // successfully leave the tracking state
-        end else if (last_flag.exists(subject) == 1 && last_flag[subject] == 1 && flag == ~active) begin
+        end else if (last_flag.exists(subject) == 1 && last_flag[subject] == 1 && flag == 1'b0) begin
             if (is_stable.exists(subject) == 1 && is_stable[subject] == 1) begin
                 capture(FD_EVENTS, INFO, "ASSERT_STBL", subject, {"keeps stability at ", $sformatf("b'%0b", last_data[subject]), " for ", $sformatf("%-d", cycles[subject]), " cycle(s)"});
             end
         // try to transition into tracking state
-        end else if (last_flag.exists(subject) == 1 && last_flag[subject] == 0 && flag == active) begin
+        end else if (last_flag.exists(subject) == 1 && last_flag[subject] == 0 && flag == 1'b1) begin
             // $display("*** %s", subject);
             cycles[subject] = 1;
             is_stable[subject] = 1;
         end
 
         last_data[subject] = data;
-        last_flag[subject] = (flag == active) ? 1 : 0;
-        
-        @(negedge clk);
-        #0;
+        last_flag[subject] = (flag == 1'b1) ? 1 : 0;
     endtask
 
     // Concurrent assertion that checks the behavior of `data` is stable when the condition `flag` is true (1'b1).

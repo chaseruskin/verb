@@ -56,6 +56,7 @@ module bcd_enc #(
         done_d = done_r;
 
         case(state_r)
+            // Wait to capture inputs on the start of a request
             S_WAIT: begin
                 if(go == 1'b1) begin
                     dabble_d = '0;
