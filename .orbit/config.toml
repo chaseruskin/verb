@@ -6,8 +6,8 @@ args    = ["gverb.py"]
 fileset.pymdl = "{{orbit.tb.name}}.py"
 
 [[target]]
-name = "vverb"
-description = "Run simulationrs with verilator and verb"
+name = "vsim"
+description = "Run simulations using verilator"
 command = "python"
-args = ["vverb.py"]
+args = ["vsim.py"]
 fileset.pymdl = "{{orbit.tb.name}}.py"
