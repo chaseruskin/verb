@@ -7,3 +7,4 @@ title = "Verifying Hardware with Verb"
 
 [preprocessor.inline-highlighting]
 after = ["links"]
+default-language = "javascript"
