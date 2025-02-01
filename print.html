@@ -398,10 +398,15 @@
 <p>Closes the event log file and ends the simulation completely.</p>
 <br>
 <p><code class="hljs language-Verilog">task automatic async_on_sync_off(ref logic clk, ref logic pin, input logic active, input int cycles)</code></p>
-<p>Asynchronous asserts <code class="hljs language-javascript">pin</code> and synchronously de-asserts <code class="hljs language-javascript">pin</code> on the<code class="hljs language-javascript">cycles</code>'th clock edge.</p>
+<p>Asynchronous asserts <code class="hljs language-javascript">pin</code> and synchronously de-asserts <code class="hljs language-javascript">pin</code> on the
+<code class="hljs language-javascript">cycles</code>'th clock edge.</p>
 <br>
 <p><code class="hljs language-Verilog">task automatic sync_on_async_off(ref logic clk, ref logic pin, input logic active, input int cycles)</code></p>
-<p>Synchronously triggers the logic bit <code class="hljs language-javascript">pin</code> to its state <code class="hljs language-javascript">active</code> and thenasynchronously deactivates the bit to its initial value after <code class="hljs language-javascript">cycles</code>clock cycles elapse.The trigger will not be applied if <code class="hljs language-javascript">cycles</code> is set to 0. The signal willdeactivate on the falling edge of the <code class="hljs language-javascript">cycles</code> count clock cycle.</p>
+<p>Synchronously triggers the logic bit <code class="hljs language-javascript">pin</code> to its state <code class="hljs language-javascript">active</code> and then
+asynchronously deactivates the bit to its initial value after <code class="hljs language-javascript">cycles</code>
+clock cycles elapse.</p>
+<p>The trigger will not be applied if <code class="hljs language-javascript">cycles</code> is set to 0. The signal will
+deactivate on the falling edge of the <code class="hljs language-javascript">cycles</code> count clock cycle.</p>
 <br>
 <p><code class="hljs language-Verilog">task automatic sync_hi_async_lo(ref logic clk, ref logic pin, input int cycles)</code></p>
 <p>Synchronously set <code class="hljs language-javascript">pin</code> high, then asynchronously set <code class="hljs language-javascript">pin</code> low.</p>
@@ -416,10 +421,12 @@
 <p>Asynchronously set <code class="hljs language-javascript">pin</code> low, then synchronously set <code class="hljs language-javascript">pin</code> high.</p>
 <br>
 <p><code class="hljs language-Verilog">task automatic capture(inout int fd, input tone level, input string topic, input string subject, input string predicate = "")</code></p>
-<p>Captures an event during simulation and writes the outcome to the file <code class="hljs language-javascript">fd</code>.The time when the task is called is recorded in the timestamp.</p>
+<p>Captures an event during simulation and writes the outcome to the file <code class="hljs language-javascript">fd</code>.</p>
+<p>The time when the task is called is recorded in the timestamp.</p>
 <br>
 <p><code class="hljs language-Verilog">task assert_eq(input logic[4095:0] received, input logic[4095:0] expected, input string subject)</code></p>
-<p>Assertion that checks if two logic words <code class="hljs language-javascript">received</code> and <code class="hljs language-javascript">expected</code> are equal to each other.Note: https://stackoverflow.com/questions/67714329/systemverilog-string-variable-as-format-specifier-for-display-write</p>
+<p>Assertion that checks if two logic words <code class="hljs language-javascript">received</code> and <code class="hljs language-javascript">expected</code> are equal to each other.</p>
+<p>Note: https://stackoverflow.com/questions/67714329/systemverilog-string-variable-as-format-specifier-for-display-write</p>
 <br>
 <p><code class="hljs language-Verilog">task assert_ne(input logic[4095:0] received, input logic[4095:0] expected, input string subject)</code></p>
 <p>Assertion that checks if two logic words <code class="hljs language-javascript">received</code> and <code class="hljs language-javascript">expected</code> are not equal to each other.</p>
