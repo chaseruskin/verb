@@ -154,7 +154,7 @@
                     <main>
                         <h1 id="events"><a class="header" href="#events">Events</a></h1>
 <p>An <em>event</em> is a thing of importance that takes place during hardware simulation. Events are <em>captured</em> during hardware simulation by being written to a log file, typically called "events.log".</p>
-<p>There are functions available in the HW libraries for event logging; see the <code>events</code> package for event logging functions such as <code>capture(...)</code>, <code>assert_eq(...)</code>, <code>monitor(...)</code>, and <code>stabilize(...)</code>.</p>
+<p>There are functions available in the HW libraries for event logging; see the <code class="hljs language-javascript">events</code> package for event logging functions such as <code class="hljs language-javascript">capture(...)</code>, <code class="hljs language-javascript">assert_eq(...)</code>, <code class="hljs language-javascript">monitor(...)</code>, and <code class="hljs language-javascript">stabilize(...)</code>.</p>
 <h2 id="event-log-file-format"><a class="header" href="#event-log-file-format">Event log file format</a></h2>
 <p>Each event captured during simulation is placed on a new line in the log file.</p>
 <p>Each captured event uses the following pattern:</p>
@@ -188,7 +188,7 @@
 <pre><code>sum receives 0110 and expects 0110
 </code></pre>
 <h2 id="writing-custom-events"><a class="header" href="#writing-custom-events">Writing custom events</a></h2>
-<p>You can easily write custom events by calling the <code>capture(...)</code> function or by wrapping <code>capture(...)</code> in another function. It is recommended to write in the present tense when providing values for comments.</p>
+<p>You can easily write custom events by calling the <code class="hljs language-javascript">capture(...)</code> function or by wrapping <code class="hljs language-javascript">capture(...)</code> in another function. It is recommended to write in the present tense when providing values for comments.</p>
 
                     </main>
 

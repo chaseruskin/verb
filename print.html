@@ -291,7 +291,7 @@
 <h2 id="details"><a class="header" href="#details">Details</a></h2>
 <p>It is the testbench's responsibility to determine <em>when</em> to actually supply each vector to the hardware design. This approach is taken to provide users with fine-grain control over the timing of the data-flow within the simulation environment.</p>
 <p>One of the consequences of having the vectors files have a very simple format allows for easier parsing in the hardware languages. It also means not a lot of additional information is known, such as what order the ports are arranged in each vector.</p>
-<p>To check the order of ports that Verb writes to vectors, see the <code>verb link</code> command. An option is available to print the list of ports in their vector order for inputs and outputs.</p>
+<p>To check the order of ports that Verb writes to vectors, see the <code class="hljs language-javascript">verb link</code> command. An option is available to print the list of ports in their vector order for inputs and outputs.</p>
 <p>A user can also find the port order by identifying the order in which the ports appear in the source code for the hardware design's port interface declarations.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="coverage"><a class="header" href="#coverage">Coverage</a></h1>
 <p>When verifying hardware, not only is checking <em>what</em> the design generated as outputs important, but also checking <em>how</em> the design generated those outputs is just as important. This tracking of knowledge in <em>how</em> the design reached a set of outputs is known as <em>coverage</em>.</p>
@@ -304,19 +304,19 @@
 <p><em>Coverage nets</em> allow the user to specify the coverage scenarios in software by determining how the design can reach a particular scenario and what the design's state should be when that scenario occurs.</p>
 <p>The following coverage nets are available in Verb:</p>
 <ul>
-<li><code>CoverPoint</code>: Scenarios involving a single state</li>
+<li><code class="hljs language-javascript">CoverPoint</code>: Scenarios involving a single state</li>
 </ul>
 <p>Example scenario: Overflow bit being asserted.</p>
 <ul>
-<li><code>CoverRange</code>: Scenarios involving an interval of continuous states</li>
+<li><code class="hljs language-javascript">CoverRange</code>: Scenarios involving an interval of continuous states</li>
 </ul>
 <p>Example scenario: All the possible values for a 8-bit input (0-255).</p>
 <ul>
-<li><code>CoverGroup</code>: Scenarios involving multiple states</li>
+<li><code class="hljs language-javascript">CoverGroup</code>: Scenarios involving multiple states</li>
 </ul>
 <p>Example scenario: The minimum and maximum possible values for a 4-bit input (0 and 15).</p>
 <ul>
-<li><code>CoverCross</code>: Scenarios involving the cross product between two or more coverage nets</li>
+<li><code class="hljs language-javascript">CoverCross</code>: Scenarios involving the cross product between two or more coverage nets</li>
 </ul>
 <p>Example scenario: All possible combinations of values for two 8-bit inputs (0-255 x 0-255).</p>
 <h2 id="coverage-driven-test-generation-cdtg"><a class="header" href="#coverage-driven-test-generation-cdtg">Coverage-driven test generation (CDTG)</a></h2>
@@ -340,7 +340,7 @@
 <p>Once all coverage goals are met, it is sufficient to say there are no more inputs required to be tested and testing can conclude. At this point, if all tests generated their correct expected values, then the design is successfully verified. Woo-hoo! Time to return home and tell everyone in your town about functional coverage.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="events"><a class="header" href="#events">Events</a></h1>
 <p>An <em>event</em> is a thing of importance that takes place during hardware simulation. Events are <em>captured</em> during hardware simulation by being written to a log file, typically called "events.log".</p>
-<p>There are functions available in the HW libraries for event logging; see the <code>events</code> package for event logging functions such as <code>capture(...)</code>, <code>assert_eq(...)</code>, <code>monitor(...)</code>, and <code>stabilize(...)</code>.</p>
+<p>There are functions available in the HW libraries for event logging; see the <code class="hljs language-javascript">events</code> package for event logging functions such as <code class="hljs language-javascript">capture(...)</code>, <code class="hljs language-javascript">assert_eq(...)</code>, <code class="hljs language-javascript">monitor(...)</code>, and <code class="hljs language-javascript">stabilize(...)</code>.</p>
 <h2 id="event-log-file-format"><a class="header" href="#event-log-file-format">Event log file format</a></h2>
 <p>Each event captured during simulation is placed on a new line in the log file.</p>
 <p>Each captured event uses the following pattern:</p>
@@ -374,61 +374,61 @@
 <pre><code>sum receives 0110 and expects 0110
 </code></pre>
 <h2 id="writing-custom-events"><a class="header" href="#writing-custom-events">Writing custom events</a></h2>
-<p>You can easily write custom events by calling the <code>capture(...)</code> function or by wrapping <code>capture(...)</code> in another function. It is recommended to write in the present tense when providing values for comments.</p>
+<p>You can easily write custom events by calling the <code class="hljs language-javascript">capture(...)</code> function or by wrapping <code class="hljs language-javascript">capture(...)</code> in another function. It is recommended to write in the present tense when providing values for comments.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="reference"><a class="header" href="#reference">Reference</a></h1>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="python-api"><a class="header" href="#python-api">Python API</a></h1>
 <p>The (hopefully complete) list of available functions for the Python programming language. These functions are thought of as the <em>Verb drivers</em> in the framework's software layer.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="systemverilog-api"><a class="header" href="#systemverilog-api">SystemVerilog API</a></h1>
 <p>Reference documentation for the Verb conjugations in SystemVerilog.</p>
-<h2 id="package-godan"><a class="header" href="#package-godan">Package <code>godan</code></a></h2>
+<h2 id="package-godan"><a class="header" href="#package-godan">Package <code class="hljs language-javascript">godan</code></a></h2>
 <p><a href="https://github.com/chaseruskin/verb/blob/trunk/src/lib/hdl/src/godan.sv">source</a></p>
 <h3 id="typedefs"><a class="header" href="#typedefs">Typedefs</a></h3>
-<p><code class="hljs language-verilog">typedef enum {TRACE, DEBUG, INFO, WARN, ERROR, FATAL} tone</code></p>
+<p><code class="hljs language-Verilog">typedef enum {TRACE, DEBUG, INFO, WARN, ERROR, FATAL} tone</code></p>
 <p>The log level type.</p>
 <br>
 <h3 id="functions"><a class="header" href="#functions">Functions</a></h3>
-<p><code class="hljs language-verilog">function automatic int start(input string name)</code></p>
-<p>Creates the file with the given <code>name</code> to prepare for simulation logging.</p>
+<p><code class="hljs language-Verilog">function automatic int start(input string name)</code></p>
+<p>Creates the file with the given <code class="hljs language-javascript">name</code> to prepare for simulation logging.</p>
 <br>
-<p><code class="hljs language-verilog">function string parse(inout string row)</code></p>
-<p>Return a string in binary format by reading a logic value from the line <code>row</code>.</p>
+<p><code class="hljs language-Verilog">function string parse(inout string row)</code></p>
+<p>Return a string in binary format by reading a logic value from the line <code class="hljs language-javascript">row</code>.</p>
 <br>
 <h3 id="tasks"><a class="header" href="#tasks">Tasks</a></h3>
-<p><code class="hljs language-verilog">task finish(int n=0)</code></p>
+<p><code class="hljs language-Verilog">task finish(int n=0)</code></p>
 <p>Closes the event log file and ends the simulation completely.</p>
 <br>
-<p><code class="hljs language-verilog">task automatic async_on_sync_off(ref logic clk, ref logic pin, input logic active, input int cycles)</code></p>
-<p>Asynchronous asserts <code>pin</code> and synchronously de-asserts <code>pin</code> on the<code>cycles</code>'th clock edge.</p>
+<p><code class="hljs language-Verilog">task automatic async_on_sync_off(ref logic clk, ref logic pin, input logic active, input int cycles)</code></p>
+<p>Asynchronous asserts <code class="hljs language-javascript">pin</code> and synchronously de-asserts <code class="hljs language-javascript">pin</code> on the<code class="hljs language-javascript">cycles</code>'th clock edge.</p>
 <br>
-<p><code class="hljs language-verilog">task automatic sync_on_async_off(ref logic clk, ref logic pin, input logic active, input int cycles)</code></p>
-<p>Synchronously triggers the logic bit <code>pin</code> to its state <code>active</code> and thenasynchronously deactivates the bit to its initial value after <code>cycles</code>clock cycles elapse.The trigger will not be applied if <code>cycles</code> is set to 0. The signal willdeactivate on the falling edge of the <code>cycles</code> count clock cycle.</p>
+<p><code class="hljs language-Verilog">task automatic sync_on_async_off(ref logic clk, ref logic pin, input logic active, input int cycles)</code></p>
+<p>Synchronously triggers the logic bit <code class="hljs language-javascript">pin</code> to its state <code class="hljs language-javascript">active</code> and thenasynchronously deactivates the bit to its initial value after <code class="hljs language-javascript">cycles</code>clock cycles elapse.The trigger will not be applied if <code class="hljs language-javascript">cycles</code> is set to 0. The signal willdeactivate on the falling edge of the <code class="hljs language-javascript">cycles</code> count clock cycle.</p>
 <br>
-<p><code class="hljs language-verilog">task automatic sync_hi_async_lo(ref logic clk, ref logic pin, input int cycles)</code></p>
-<p>Synchronously set <code>pin</code> high, then asynchronously set <code>pin</code> low.</p>
+<p><code class="hljs language-Verilog">task automatic sync_hi_async_lo(ref logic clk, ref logic pin, input int cycles)</code></p>
+<p>Synchronously set <code class="hljs language-javascript">pin</code> high, then asynchronously set <code class="hljs language-javascript">pin</code> low.</p>
 <br>
-<p><code class="hljs language-verilog">task automatic sync_lo_async_hi(ref logic clk, ref logic pin, input int cycles)</code></p>
-<p>Synchronously set <code>pin</code> low, then asynchronously set <code>pin</code> high.</p>
+<p><code class="hljs language-Verilog">task automatic sync_lo_async_hi(ref logic clk, ref logic pin, input int cycles)</code></p>
+<p>Synchronously set <code class="hljs language-javascript">pin</code> low, then asynchronously set <code class="hljs language-javascript">pin</code> high.</p>
 <br>
-<p><code class="hljs language-verilog">task automatic async_hi_sync_lo(ref logic clk, ref logic pin, input int cycles)</code></p>
-<p>Asynchronously set <code>pin</code> high, then synchronously set <code>pin</code> low.</p>
+<p><code class="hljs language-Verilog">task automatic async_hi_sync_lo(ref logic clk, ref logic pin, input int cycles)</code></p>
+<p>Asynchronously set <code class="hljs language-javascript">pin</code> high, then synchronously set <code class="hljs language-javascript">pin</code> low.</p>
 <br>
-<p><code class="hljs language-verilog">task automatic async_lo_sync_hi(ref logic clk, ref logic pin, input int cycles)</code></p>
-<p>Asynchronously set <code>pin</code> low, then synchronously set <code>pin</code> high.</p>
+<p><code class="hljs language-Verilog">task automatic async_lo_sync_hi(ref logic clk, ref logic pin, input int cycles)</code></p>
+<p>Asynchronously set <code class="hljs language-javascript">pin</code> low, then synchronously set <code class="hljs language-javascript">pin</code> high.</p>
 <br>
-<p><code class="hljs language-verilog">task automatic capture(inout int fd, input tone level, input string topic, input string subject, input string predicate = "")</code></p>
-<p>Captures an event during simulation and writes the outcome to the file <code>fd</code>.The time when the task is called is recorded in the timestamp.</p>
+<p><code class="hljs language-Verilog">task automatic capture(inout int fd, input tone level, input string topic, input string subject, input string predicate = "")</code></p>
+<p>Captures an event during simulation and writes the outcome to the file <code class="hljs language-javascript">fd</code>.The time when the task is called is recorded in the timestamp.</p>
 <br>
-<p><code class="hljs language-verilog">task assert_eq(input logic[4095:0] received, input logic[4095:0] expected, input string subject)</code></p>
-<p>Assertion that checks if two logic words <code>received</code> and <code>expected</code> are equal to each other.Note: https://stackoverflow.com/questions/67714329/systemverilog-string-variable-as-format-specifier-for-display-write</p>
+<p><code class="hljs language-Verilog">task assert_eq(input logic[4095:0] received, input logic[4095:0] expected, input string subject)</code></p>
+<p>Assertion that checks if two logic words <code class="hljs language-javascript">received</code> and <code class="hljs language-javascript">expected</code> are equal to each other.Note: https://stackoverflow.com/questions/67714329/systemverilog-string-variable-as-format-specifier-for-display-write</p>
 <br>
-<p><code class="hljs language-verilog">task assert_ne(input logic[4095:0] received, input logic[4095:0] expected, input string subject)</code></p>
-<p>Assertion that checks if two logic words <code>received</code> and <code>expected</code> are not equal to each other.</p>
+<p><code class="hljs language-Verilog">task assert_ne(input logic[4095:0] received, input logic[4095:0] expected, input string subject)</code></p>
+<p>Assertion that checks if two logic words <code class="hljs language-javascript">received</code> and <code class="hljs language-javascript">expected</code> are not equal to each other.</p>
 <br>
-<p><code class="hljs language-verilog">task automatic assert_stbl(input bit flag, input logic[4095:0] data, input string subject)</code></p>
-<p>Assertion that checks that the behavior of <code>data</code> is stable while the condition <code>flag</code> is true (1'b1).</p>
+<p><code class="hljs language-Verilog">task automatic assert_stbl(input bit flag, input logic[4095:0] data, input string subject)</code></p>
+<p>Assertion that checks that the behavior of <code class="hljs language-javascript">data</code> is stable while the condition <code class="hljs language-javascript">flag</code> is true (1'b1).</p>
 <br>
-<p><code class="hljs language-verilog">task automatic observe(ref logic clk, ref logic flag, input logic active, input int cycles, input string subject)</code></p>
-<p>Checks the logic <code>flag</code> is true (1'b1) on the rising edge of <code>clk</code> before <code>cycles</code> clock cycles elapse.</p>
+<p><code class="hljs language-Verilog">task automatic observe(ref logic clk, ref logic flag, input logic active, input int cycles, input string subject)</code></p>
+<p>Checks the logic <code class="hljs language-javascript">flag</code> is true (1'b1) on the rising edge of <code class="hljs language-javascript">clk</code> before <code class="hljs language-javascript">cycles</code> clock cycles elapse.</p>
 <br>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="vhdl-api"><a class="header" href="#vhdl-api">VHDL API</a></h1>
 <p>The (hopefully complete) list of available functions for the VHDL hardware description language. These functions are thought of as the <em>Verb drivers</em> in the framework's hardware layer.</p>
@@ -436,12 +436,12 @@
 <p>A design model written in software may require data from external sources, such as the testbench's interface or the randomness seed. To communicate these values to any design model in any programming language, Verb uses environment variables.</p>
 <p>The following environment variables are supported:</p>
 <ul>
-<li><code>VERB_TB_JSON</code> — The targeted testbench's interface in JSON.</li>
-<li><code>VERB_DUT_JSON</code> - The targeted device-under-test's interface in JSON.</li>
-<li><code>VERB_RAND_SEED</code> - The random seed value.</li>
-<li><code>VERB_EVENTS_FILE</code> - Path to expect the events log.</li>
-<li><code>VERB_COVERAGE_FILE</code> - Path to expect the coverage report.</li>
-<li><code>VERB_LOOP_LIMIT</code> - Maximum number of main loop iterations to perform before forcing a break.</li>
+<li><code class="hljs language-javascript">VERB_TB_JSON</code> — The targeted testbench's interface in JSON.</li>
+<li><code class="hljs language-javascript">VERB_DUT_JSON</code> - The targeted device-under-test's interface in JSON.</li>
+<li><code class="hljs language-javascript">VERB_RAND_SEED</code> - The random seed value.</li>
+<li><code class="hljs language-javascript">VERB_EVENTS_FILE</code> - Path to expect the events log.</li>
+<li><code class="hljs language-javascript">VERB_COVERAGE_FILE</code> - Path to expect the coverage report.</li>
+<li><code class="hljs language-javascript">VERB_LOOP_LIMIT</code> - Maximum number of main loop iterations to perform before forcing a break.</li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="glossary"><a class="header" href="#glossary">Glossary</a></h1>
 
