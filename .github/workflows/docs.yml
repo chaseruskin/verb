@@ -17,6 +17,14 @@ jobs:
         with:
           mdbook-version: 'latest'
 
+      - name: Configure Rust toolchain
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: stable
+
+      - name: Install mdbook inline-highlighting extension
+        run: cargo install mdbook-inline-highlighting
+
       - name: Generate book
         run: mdbook build ./docs/
 
