@@ -32,7 +32,7 @@ def extract_docs(ptr: int, lines):
 
 def write_docs(key, val) -> str:
     result = ''
-    result += '```systemverilog\n'+key+'\n```\n\n'
+    result += '```verilog\n'+key+'\n```\n\n'
     for v in val:
         result += v
     result += '\n\n<br>\n\n'
