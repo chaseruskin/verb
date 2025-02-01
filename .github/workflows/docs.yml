@@ -12,19 +12,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # - name: Setup mdbook
-      #   uses: peaceiris/actions-mdbook@v2
-      #   with:
-      #     mdbook-version: 'latest'
+      - name: Setup mdbook
+        uses: peaceiris/actions-mdbook@v2
+        with:
+          mdbook-version: 'latest'
 
       - name: Configure Rust toolchain
         uses: dtolnay/rust-toolchain@master
         with:
           toolchain: stable
-
-
-      - name: Install mdbook
-        run: cargo install mdbook
 
       - name: Install mdbook inline-highlighting extension
         run: cargo install mdbook-inline-highlighting
