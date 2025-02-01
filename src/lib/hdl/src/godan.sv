@@ -99,6 +99,7 @@ package godan;
     typedef enum {TRACE, DEBUG, INFO, WARN, ERROR, FATAL} tone;
 
     // Captures an event during simulation and writes the outcome to the file `fd`.
+    //
     // The time when the task is called is recorded in the timestamp.
     task automatic capture(inout int fd, input tone level, input string topic, input string subject, input string predicate = "");
         automatic string result = "";

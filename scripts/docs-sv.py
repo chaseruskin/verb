@@ -21,11 +21,13 @@ def detect_item(ptr: int, lines) -> bool:
 def extract_docs(ptr: int, lines):
     docs = []
     ptr = ptr-1
-    l = lines[ptr].strip()
+    l: str = lines[ptr].lstrip()
     while l.startswith('//'):
-        docs.insert(0, l.strip().strip('//').strip())
+        docs.insert(0, l.strip('//')[1:])
+        if len(docs[0]) == 0:
+            docs[0] = '  \n'
         ptr = ptr - 1
-        l = lines[ptr].strip()
+        l = lines[ptr].lstrip()
         pass
     return docs
 
