@@ -1,4 +1,5 @@
 from abc import ABC as _ABC
+from .status import Status
 
 class CoverageNet(_ABC):
     """
@@ -32,52 +33,37 @@ class CoverageNet(_ABC):
         """
         self._name = name
         self._bypass = bypass
-
+        self._target = None
         if target != None and (source != None or sink != None):
             raise Exception("Cannot specify source or sink while target is defined")
         # set the target
-        if len(target) == 1:
-            self._target = target[0]
-        else:
+        if isinstance(target, (list, tuple)):
             self._target = tuple(target)
+        elif target != None:
+            self._target = target
         # set the source
         if source == None:
             self._source = self._target
-        elif len(source) == 1:
-            self._source = source[0]
-        else:
+        elif isinstance(source, (list, tuple)):
             self._source = tuple(source)
+        else:
+            self._source = source
         # set the sink
         if sink == None:
             self._sink = self._target
-        elif len(sink) == 1:
-            self._sink = sink[0]
-        else:
+        elif isinstance(sink, (list, tuple)):
             self._sink = tuple(sink)
-
+        else:
+            self._sink = sink
+        # print(self.get_type(), self._name)
+        # print('---')
+        # print(target, source, sink)
+        # print(self._target, self._source, self._sink)
+        # print('---')
+        # exit(101)
         # add to the list to track
         CoverageNet._group += [self]
         pass
-
-    @_abstractmethod
-    def get_goal(self) -> int:
-        """
-        Returns the number of hits that must occur in order to be considered "covered".
-        """
-        pass
-
-    @_abstractmethod
-    def get_count(self) -> int:
-        """
-        Returns the current number of hits counted toward reaching the defined goal.
-        """
-        pass
-
-    @_abstractmethod
-    def get_type(self) -> str:
-        """
-        Returns the name of the coverage type.
-        """
 
     def to_json(self) -> dict:
         """
@@ -88,7 +74,7 @@ class CoverageNet(_ABC):
             'type': self.get_type(),
             'met': None if self._bypass == True else self.passed()
         }
-        data.update(self.to_json_internal())
+        return data
 
     def has_sink(self) -> bool:
         """
@@ -160,122 +146,133 @@ class CoverageNet(_ABC):
         to an external factor making it impossible to pass.
         """
         return self._bypass 
-
-    @_abstractmethod
-    def get_range(self) -> range:
-        '''
-        Returns a range object of the sample space and the size of each partitioning.
-        '''
-        pass
     
-    @_abstractmethod
-    def get_partition_count(self) -> int:
-        '''
-        Returns the number of unique partitions required to cover the entire sample space.
-        '''
-        pass
-
-    @_abstractmethod
-    def get_total_goal_count(self) -> int:
-        '''
-        Returns the number of total goals that must be reached by this net.
-        '''
-        pass
-
-    @_abstractmethod
-    def get_total_points_met(self) -> int:
-        '''
-        Returns the number of total points collected by this net.
-        '''
-        pass
-
-    @_abstractmethod
-    def is_in_sample_space(self, item) -> bool:
-        '''
-        Checks if the `item` is in the defined sample space.
-        '''
-        pass
-    
-    @_abstractmethod
-    def _map_onto_range(self, item) -> int:
-        '''
-        Converts the `item` into a valid number within the defined range of possible values.
-        
-        If there is no possible mapping, return None.
-        '''
-        pass
-
-    @_abstractmethod
-    def check(self, item) -> bool:
-        '''
-        This function accepts either a single object or an interable object that is
-        required to read to see if coverage proceeds toward its goal.
-
-        It can be thought of as the inverse function to `advance(...)`.
-        '''
-        pass
-
-    @_abstractmethod
-    def advance(self, rand=False):
-        '''
-        This function returns either a single object or an iterable object that is
-        required to be written to make the coverage proceed toward its goal.
-
-        It can be thought of as the inverse function to `check(...)`.
-        '''
-        pass
-
-    @_abstractmethod
-    def get_points_met(self) -> int:
-        '''
-        Returns the number of points that have met their goal.
-        '''
-        pass
-
-    @_abstractmethod
-    def passed(self) -> bool:
-        '''
-        Returns `True` if the coverage met its goal.
-        '''
-        pass
-
     def log(self, verbose: bool=True) -> str:
-        '''
+        """
         Convert the coverage into a string for user logging purposes. Setting `verbose` to `True`
         will provide more details in the string contents.
-        '''
-        label = 'CoverPoint' 
-        if issubclass(type(self), CoverGroup):
-            label = 'CoverGroup'
-        elif issubclass(type(self), CoverRange):
-            label = 'CoverRange'
-        elif issubclass(type(self), CoverCross):
-            label = 'CoverCross'
-        elif issubclass(type(self), CoverPoint):
-            label = 'CoverPoint'
-        else:
-            raise Exception("Unsupported CoverageNet "+str(type(self)))
+        """
+        label = self.get_type()
         if verbose == False:
             return label + ": " + self._name + ': ' + self.to_string(verbose) + ' ...'+str(self.status().name)
         else:
             return label + ": " + self._name + ':' + ' ...'+str(self.status().name) + '\n    ' + self.to_string(verbose)
 
     def status(self) -> Status:
-        '''
+        """
         Determine the status of the Coverage node.
-        '''
+        """
         if self.skipped() == True:
             return Status.SKIPPED
         elif self.passed() == True:
             return Status.PASSED
         else:
             return Status.FAILED  
+        
+    @_abstractmethod
+    def get_goal(self) -> int:
+        """
+        Returns the number of hits that must occur in order to be considered "covered".
+        """
+        pass
+
+    @_abstractmethod
+    def get_count(self) -> int:
+        """
+        Returns the current number of hits counted toward reaching the defined goal.
+        """
+        pass
+
+    @_abstractmethod
+    def get_type(self) -> str:
+        """
+        Returns the name of the coverage type.
+        """
+        pass
+
+    @_abstractmethod
+    def get_range(self) -> range:
+        """
+        Returns a range object of the sample space and the size of each partitioning.
+        """
+        pass
+    
+    @_abstractmethod
+    def get_partition_count(self) -> int:
+        """
+        Returns the number of unique partitions required to cover the entire sample space.
+        """
+        pass
+
+    @_abstractmethod
+    def get_total_goal_count(self) -> int:
+        """
+        Returns the number of total goals that must be reached by this net.
+        """
+        pass
+
+    @_abstractmethod
+    def get_total_points_met(self) -> int:
+        """
+        Returns the number of total points collected by this net.
+        """
+        pass
+
+    @_abstractmethod
+    def is_in_sample_space(self, item) -> bool:
+        """
+        Checks if the `item` is in the defined sample space.
+        """
+        pass
+    
+    @_abstractmethod
+    def _map_onto_range(self, item) -> int:
+        """
+        Converts the `item` into a valid number within the defined range of possible values.
+        
+        If there is no possible mapping, return None.
+        """
+        pass
+
+    @_abstractmethod
+    def check(self, item) -> bool:
+        """
+        This function accepts either a single object or an interable object that is
+        required to read to see if coverage proceeds toward its goal.
+
+        It can be thought of as the inverse function to `advance(...)`.
+        """
+        pass
+
+    @_abstractmethod
+    def advance(self, rand=False):
+        """
+        This function returns either a single object or an iterable object that is
+        required to be written to make the coverage proceed toward its goal.
+
+        It can be thought of as the inverse function to `check(...)`.
+        """
+        pass
+
+    @_abstractmethod
+    def get_points_met(self) -> int:
+        """
+        Returns the number of points that have met their goal.
+        """
+        pass
+
+    @_abstractmethod
+    def passed(self) -> bool:
+        """
+        Returns `True` if the coverage met its goal.
+        """
+        pass
 
     @_abstractmethod
     def to_string(self, verbose: bool) -> str:
-        '''
+        """
         Converts the coverage into a string for readibility to the end-user.
-        '''
+        """
         pass
         
     pass

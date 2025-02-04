@@ -97,7 +97,7 @@ def main():
 
         Command("verb") \
             .arg("model") \
-            .arg("--coverage").arg('coverage.txt') \
+            .arg("--coverage").arg('coverage.rpt') \
             .arg(seed_arg) \
             .arg(loop_limit_arg) \
             .arg("--dut").arg(dut_data) \
@@ -152,7 +152,7 @@ def main():
         Command('verb') \
             .arg('check') \
             .arg(V.events_log_file) \
-            .arg("--coverage=coverage.txt" if os.path.exists('coverage.txt') else None) \
+            .args(["--coverage", "coverage.rpt"] if os.path.exists('coverage.rpt') else []) \
             .arg('--stats') \
             .spawn() \
             .unwrap()

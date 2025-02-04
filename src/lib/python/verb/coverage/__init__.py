@@ -1,0 +1,203 @@
+from .cross import CoverCross
+from .group import CoverGroup
+from .point import CoverPoint
+from .ranger import CoverRange
+
+from .net import CoverageNet as _CoverageNet
+from .status import Status as _Status
+
+class Coverage:
+
+    _total_coverages = 0
+    _passed_coverages = 0
+    _point_count = 0
+    _total_points = 0
+    _coverage_report = 'coverage.rpt'
+
+    @staticmethod
+    def get_nets():
+        '''
+        Returns the list of all coverage nets being tracked.
+        '''
+        return _CoverageNet._group
+
+    @staticmethod
+    def get_failing_nets():
+        '''
+        Returns a list of coverage nets that have not met their coverage goal.
+
+        This function excludes coverage nets that are bypassed.
+        '''
+        net: _CoverageNet
+        result = []
+        for net in _CoverageNet._group:
+            # only append nets that are not bypassed and are not completed
+            if net.skipped() == False and net.passed() == False:
+                result += [net]
+            pass
+        return result
+
+    @staticmethod
+    def report(verbose: bool=True) -> str:
+        '''
+        Compiles a report of the coverage statistics and details. Setting `verbose`
+        to `False` will only provide minimal details to serve as a quick summary.
+        '''
+        contents = ''
+        cov: _CoverageNet
+        for cov in _CoverageNet._group:
+            contents += cov.log(verbose) + '\n'
+        return contents
+
+    @staticmethod
+    def count() -> int:
+        '''
+        Returns the number of times the Coverage class has called the 'all_passed'
+        function. If 'all_passed' is called once every transaction, then it gives
+        a sense of how many test cases were required in order to achieve full
+        coverage.
+        '''
+        return _CoverageNet._counter
+    
+    @staticmethod
+    def tally_score():
+        '''
+        Iterates through all CoverageNets to compute the ratio of pass/fail.
+        '''
+        Coverage._total_coverages = 0
+        Coverage._passed_coverages = 0
+        Coverage._point_count = 0
+        Coverage._total_points = 0
+        net: _CoverageNet
+        for net in _CoverageNet._group:
+            if net.status() == _Status.SKIPPED:
+                continue
+            Coverage._total_coverages += 1
+            Coverage._point_count += net.get_points_met()
+            if type(net) == CoverPoint:
+                Coverage._total_points += 1
+            else:
+                Coverage._total_points += net.get_partition_count()
+            if net.status() == _Status.PASSED:
+                Coverage._passed_coverages += 1
+            pass
+
+    @staticmethod
+    def percent() -> float:
+        '''
+        Return the percent of all coverages that met their goal. Each covergroup's bin
+        is tallied individually instead of tallying the covergroup as a whole.
+
+        Coverages that have a status of `SKIPPED` are not included in the tally.
+
+        Returns `None` if there are no coverages to tally. The percent value is
+        from 0.00 to 100.00 percent, with rounding to 2 decimal places.
+        '''
+        Coverage.tally_score()
+        passed = Coverage._point_count
+        total = Coverage._total_points
+        return round((passed/total) * 100.0, 2) if total > 0 else None
+
+    @staticmethod
+    def save() -> str:
+        '''
+        Saves the report if not already saved, and then returns the absolute path to the file.
+        '''
+        import os
+        from .. import context
+
+        path = Coverage._coverage_report
+        Coverage.tally_score()
+        # write to .json
+        Coverage.to_json()
+        # write to .txt
+        header = 'File: Coverage Report' + '\n'
+        header += "Seed: " + str(context.Context.current()._context._seed) + '\n'
+        header += "Iterations: " + str(Coverage.count()) + '\n'
+        header += "Score: "   + str(Coverage.percent()) + '\n'
+        header += "Met: " + ('None' if Coverage._total_points == 0 else str(Coverage._point_count >= Coverage._total_points)) + '\n'
+        header += "Count: " + str(Coverage._point_count) + '\n'
+        header += "Points: " + str(Coverage._total_points) + '\n'
+
+        with open(path, 'w') as f:
+            # header
+            f.write(header)
+            f.write('\n')  
+            # summary
+            f.write(Coverage.report(False))
+            f.write('\n')  
+            # details
+            f.write(Coverage.report(True))
+            pass
+        return os.path.abspath(path)
+    
+    pass
+
+    @staticmethod
+    def get_overall_status() -> _Status:
+        if Coverage._total_points == 0:
+            return _Status.SKIPPED
+        elif Coverage._point_count >= Coverage._total_points:
+            return _Status.PASSED
+        else:
+            return _Status.FAILED
+
+    @staticmethod
+    def to_json() -> str:
+        '''
+        Writes the coverage report as a json encoded string.
+        '''
+        import json
+        from .. import context
+
+        net: _CoverageNet
+        report = {
+            'seed': context.Context.current()._context._seed,
+            'iterations': int(Coverage.count()),
+            'score': Coverage.percent(),
+            'met': Coverage.get_overall_status().to_json(),
+            'count': int(Coverage._point_count),
+            'points': int(Coverage._total_points),
+            'nets': [net.to_json() for net in _CoverageNet._group]
+        }
+
+        with open('coverage.json', 'w') as f:
+            json.dump(report, f, indent=4)
+        pass
+
+
+def summary() -> str:
+    '''
+    Returns a high-level overview of the most recent coverage trial.
+    '''
+    return Coverage.report(False)
+
+
+def report_path() -> str:
+    '''
+    Returns the coverage report's filesystem path.
+    '''
+    return Coverage._coverage_report
+
+
+def report_score() -> str:
+    '''
+    Formats the score as a `str`.
+    '''
+    Coverage.tally_score()
+    return (str(Coverage.percent()) + ' % ' if Coverage.percent() != None else 'N/A ') + '(' + str(Coverage._point_count) + '/' + str(Coverage._total_points) + ' goals)'
+
+
+def check(threshold: float=1.0) -> bool:
+    '''
+    Determines if coverage was met based on meeting or exceeding the threshold value.
+
+    ### Parameters
+    - `threshold` expects a floating point value [0, 1.0]
+    '''
+    Coverage.tally_score()
+    passed = Coverage._point_count
+    total = Coverage._total_points
+    if total <= 0:
+        return True
+    return float(passed/total) >= threshold

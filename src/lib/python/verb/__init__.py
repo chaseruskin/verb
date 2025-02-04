@@ -14,6 +14,16 @@ from . import analysis as analysis
 from .primitives import *
 
 
+def load_param(key: str, type):
+    """
+    Accesses the HDL parameter/generic based upon the provided `key`.
+
+    Define a type to help with converting to a Python-friendly datatype, as all
+    generics are initially stored as `str`.
+    """
+    return context.generic(key, type)
+
+
 def running(limit: int=100_000, stop_if_covered: bool=True) -> bool:
     """
     Returns true for up to `limit` iterations.
@@ -32,16 +42,16 @@ def running(limit: int=100_000, stop_if_covered: bool=True) -> bool:
         limit = int(context.Context.current()._context._max_test_count)
 
     # force the modeling to end if reached the iteration limit
-    if limit > 0 and coverage.CoverageNet._counter >= limit:
+    if limit > 0 and coverage._CoverageNet._counter >= limit:
         coverage.Coverage.save()
         return False
     # allow modeling to end when all coverages are met
-    if stop_if_covered == True and len(coverage.CoverageNet._group) > 0:
-        net: coverage.CoverageNet
-        for net in coverage.CoverageNet._group:
+    if stop_if_covered == True and len(coverage._CoverageNet._group) > 0:
+        net: coverage._CoverageNet
+        for net in coverage._CoverageNet._group:
             if net.skipped() == False and net.passed() == False:
                 # increment the counter
-                coverage.CoverageNet._counter += 1
+                coverage._CoverageNet._counter += 1
                 # keep the model running
                 return True
         # passed all coverages... stop modeling
@@ -49,5 +59,5 @@ def running(limit: int=100_000, stop_if_covered: bool=True) -> bool:
         return False
     # increment as normal counter
     else:
-        coverage.CoverageNet._counter += 1
+        coverage._CoverageNet._counter += 1
     return True

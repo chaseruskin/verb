@@ -6,9 +6,15 @@ class CoverPoint(CoverageNet):
     """
     from ..model import Signal
 
+    def get_type(self) -> str:
+        """
+        Returns the name of the coverage type.
+        """
+        return 'CoverPoint'
+
     def __init__(self, name: str, goal: int=1, bypass: bool=False, target=None, source=None, sink=None, advancer=None, checker=None):
         """
-        Create a new CoverPoint object.
+        Create a new `CoverPoint` object.
         """
         self._count = 0
         self._goal = goal
@@ -31,25 +37,25 @@ class CoverPoint(CoverageNet):
         return self._goal
 
     def goal(self, goal: int):
-        '''
+        """
         Sets the coverage goal for this net.
-        '''
+        """
         self._goal = goal
         return self
     
     def advancer(self, fn): 
-        '''
+        """
         Set the function or lambda expression that provides the implementation for how to write the values to the source
         to advance this net's coverage closer to its goal.
-        '''
+        """
         self._fn_advancer = fn
         return self
     
     def checker(self, fn):
-        '''
+        """
         Sets the function or lambda expression that provides the implementation for how to read the values from the sink
         to check this net's coverage.
-        '''
+        """
         self._fn_checker = fn
         return self
 
@@ -84,19 +90,19 @@ class CoverPoint(CoverageNet):
         return 2
     
     def get_points_met(self) -> int:
-        '''
+        """
         Returns the number of points that have met their goal.
-        '''
+        """
         return 1 if self._count >= self._goal else 0
     
     def get_total_points_met(self) -> int:
         return self._count
 
     def check(self, item):
-        '''
+        """
         Returns `True` if the `cond` was satisfied and updates the internal count
         as the coverpoint tries to met or exceed its goal.
-        '''
+        """
         if self.is_in_sample_space(item) == False:
             return False
         cond = bool(self._map_onto_range(item))

@@ -95,13 +95,13 @@ class Vectors:
         argument list. A newline is formed after all arguments
         '''
         from .model import Signal, _extract_ports, _extract_signals, Mode
-        from .coverage import CoverageNet, Coverage
+        from .coverage import _CoverageNet, Coverage
 
         if self._file == None:
             raise Exception("failed to write to file " + str(self._path) + " due to not being open")
         
         info: Signal
-        net: CoverageNet
+        net: _CoverageNet
 
         # ignore the name when collecting the ports for the given mode
         ext_signals = [p[1] for p in _extract_ports(model, mode=self._mode)]

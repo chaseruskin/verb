@@ -5,12 +5,12 @@
 
 
 def generic(key: str, type=str):
-    '''
+    """
     Accesses the generic based upon the provided `key`.
 
     Define a type to help with converting to a Python-friendly datatype, as all
     generics are initially stored as `str`.
-    '''
+    """
     from . import cast
     # verify the key exists
     value: dict

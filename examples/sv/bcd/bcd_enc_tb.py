@@ -134,7 +134,7 @@ def main():
 
     # Coverage Goals - specify coverage areas
     cp_bin_while_active = cover(real_mdl, fake_mdl)
-
+    
     # Run - generate the test vectors from the model(s)
     with vectors('inputs.txt') as inputs, vectors('outputs.txt') as outputs:
         # initialize the values with defaults

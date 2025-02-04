@@ -56,10 +56,10 @@ def randomize(model, strategy: str='weights'):
 
     A strategy can be provided to provide coverage-driven input test vectors.
     '''
-    from .coverage import CoverageNet, Coverage
+    from .coverage import _CoverageNet, Coverage
     import random
 
-    net: CoverageNet
+    net: _CoverageNet
     port: Signal
 
     strat: Strategy = Strategy.from_str(strategy)
