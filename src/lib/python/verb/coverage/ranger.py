@@ -21,6 +21,7 @@ class CoverRange(CoverageNet):
         ### Parameters
         - `span`: specify the range of values to cover
         - `max_steps`: specify the maximum number of steps to cover the entire range
+        - `advancer`: a function that accepts the `source` as an argument and returns an integer
         """
         import math
 
@@ -220,6 +221,11 @@ class CoverRange(CoverageNet):
             raise Exception("Cannot map back to original values")
 
         if self._fn_advancer != None:
+            if isinstance(self._source, (list, tuple)) == True:
+                return self._fn_advancer(*self._source)
+            else:
+                return self._fn_advancer(self._source)
+            # NOTE: Is this done?
             raise Exception("Implement")
         
         available = []
@@ -240,6 +246,9 @@ class CoverRange(CoverageNet):
         return _random.randint(j * self._step_size, ((j+1) * self._step_size) - 1)
     
     def to_string(self, verbose: bool) -> str:
+        """
+        Formats the relevant data into a string.
+        """
         from ..primitives import _find_longest_str_len
         result = ''
         # print each individual bin and its goal status

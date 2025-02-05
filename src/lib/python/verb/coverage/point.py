@@ -36,29 +36,6 @@ class CoverPoint(CoverageNet):
     def get_total_goal_count(self) -> int:
         return self._goal
 
-    def goal(self, goal: int):
-        """
-        Sets the coverage goal for this net.
-        """
-        self._goal = goal
-        return self
-    
-    def advancer(self, fn): 
-        """
-        Set the function or lambda expression that provides the implementation for how to write the values to the source
-        to advance this net's coverage closer to its goal.
-        """
-        self._fn_advancer = fn
-        return self
-    
-    def checker(self, fn):
-        """
-        Sets the function or lambda expression that provides the implementation for how to read the values from the sink
-        to check this net's coverage.
-        """
-        self._fn_checker = fn
-        return self
-
     def _transform(self, item):
         # unpack the list if one was given
         if self._fn_checker == None:
