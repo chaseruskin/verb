@@ -18,9 +18,9 @@ from verb.coverage import *
 class Add:
 
     def __init__(self, width: int):
-        '''
+        """
         Create a new design unit model.
-        '''
+        """
         # parameters
         self.width = width
         # inputs
@@ -55,19 +55,19 @@ class Add:
         Model the functional behavior of the design unit.
         """
         temp = Signal(self.width+1)
-        temp.assign(int(self.in0) + int(self.in1) + int(self.cin))
+        temp.set(int(self.in0) + int(self.in1) + int(self.cin))
         
         # update the output port values
-        self.sum.assign(temp[self.width-1::-1])
-        self.cout.assign(temp[self.width])
+        self.sum.set(temp[self.width-1::-1])
+        self.cout.set(temp[self.width])
         return self
     
-    def force_carry_out(in0: Signal, in1: Signal):
+    def force_carry_out(x: Signal, y: Signal):
         """
         Generate a test case when the carry out signal should be triggered.
         """
-        in0 = random.randint(1, in0.max())
-        return (in0, in1.max() + 1 - in0)
+        x.set(random.randint(1, x.max()))
+        y.set(y.max()+1-x.get(int))
     
     pass
 
@@ -133,8 +133,8 @@ def apply_coverage(add: Add):
         name="in0 and in1 equal 0",
         goal=1,
         target=(add.in0, add.in1),
-        advancer=lambda in0, in1: (in0.min(), in1.min()),
-        checker=lambda in0, in1: int(in0) == 0 and int(in1) == 0
+        advancer=lambda x, y: (x.set(x.min()), y.set(y.min())),
+        checker=lambda x, y: int(x) == x.min() and int(y) == y.min()
     )
 
     # Check to make sure both inputs are the maximum value at the same time at least once.
@@ -142,8 +142,8 @@ def apply_coverage(add: Add):
         name="in0 and in1 equal max",
         goal=1,
         target=(add.in0, add.in1),
-        advancer=lambda in0, in1: (in0.max(), in1.max()),
-        checker=lambda in0, in1: int(in0) == in0.max() and int(in1) == in1.max()
+        advancer=lambda x, y: (x.set(x.max()), y.set(y.max())),
+        checker=lambda x, y: int(x) == x.max() and int(y) == y.max()
     )
 
     # Cover the case that the carry out is generated at least 10 times.

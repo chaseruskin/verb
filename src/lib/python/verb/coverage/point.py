@@ -15,6 +15,29 @@ class CoverPoint(CoverageNet):
     def __init__(self, name: str, goal: int=1, bypass: bool=False, target=None, source=None, sink=None, advancer=None, checker=None):
         """
         Create a new `CoverPoint` object.
+
+        ### Parameters
+        - `name`: The name of the coverage net
+        - `bypass`: Skips this net when trying to meet coverage if set to true
+        - `target`: The signal(s) involved in advancing and checking this net's coverage
+        - `source`: The signal(s) involved in advancing the net's coverage
+        - `sink`:  The signal(s) involved in checking the net's coverage
+        - `advancer`: Specify the function to produce the set of values for the source to advance this net's coverage
+        - `checker`: Specify the function to return true when this net has been covered according to the sink's value
+       
+        The `target` can be a single Signal or an iterable number of Signals. It
+        is considered the `source` and `sink` (both read and written).
+
+        The `source` acts as inputs that can be written to when to when trying to advance coverage to a
+        scenario that would help approach its goal.
+
+        The `sink` acts as the outputs that are read when checking if this net covered.
+
+        When setting the `advancer`, note that it takes the `source` as input and expects to return
+        enough values to set each signal in the `source`.
+
+        When setting the `checker`, note that it takes the `sink` as input and expects to return true 
+        if covered and false otherwise.
         """
         self._count = 0
         self._goal = goal
@@ -23,6 +46,11 @@ class CoverPoint(CoverageNet):
         self._fn_advancer = advancer
 
         super().__init__(name=name, bypass=bypass, target=target, source=source, sink=sink)
+
+        if len(self.get_source_list()) > 1 and self._fn_advancer == None:
+            raise Exception('invalid CoverPoint "'+str(name)+'": `advancer` function must be defined when `source` contains more than one signal')
+        if len(self.get_sink_list()) > 1 and self._fn_checker == None:
+            raise Exception('invalid CoverPoint "'+str(name)+'": `checker` function must be defined when `sink` contains more than one signal')
         pass
 
     def to_json(self) -> dict:
@@ -88,13 +116,18 @@ class CoverPoint(CoverageNet):
         return cond
     
     def advance(self, rand=False):
+        from ..signal import Signal as _Signal
         if self._fn_advancer == None:
-            return int(True)
+            next_value = int(True)
+            if isinstance(self._source, _Signal):
+                self._source.set(next_value)
+            else:
+                return next_value
         else:
             if isinstance(self._source, (list, tuple)) == True:
-                return self._fn_advancer(*self._source)
+                self._fn_advancer(*self._source)
             else:
-                return self._fn_advancer(self._source)
+                self._fn_advancer(self._source)
 
     def passed(self):
         return self._count >= self._goal

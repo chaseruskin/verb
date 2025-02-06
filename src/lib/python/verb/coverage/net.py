@@ -11,6 +11,7 @@ class CoverageNet(_ABC):
 
     # Class variable to track all created nets during modeling
     _group = []
+    _map = dict()
     _counter = 0
 
     def __init__(self, name: str, bypass: bool=False, target=None, source=None, sink=None):
@@ -18,6 +19,7 @@ class CoverageNet(_ABC):
         Create a new `CoverageNet` object.
 
         ### Parameters
+        - `name`: The name of the coverage net
         - `bypass`: Skips this net when trying to meet coverage if set to true
         - `target`: The signal(s) involved in advancing and checking this net's coverage
         - `source`: The signal(s) involved in advancing the net's coverage
@@ -55,14 +57,11 @@ class CoverageNet(_ABC):
             self._sink = tuple(sink)
         else:
             self._sink = sink
-        # print(self.get_type(), self._name)
-        # print('---')
-        # print(target, source, sink)
-        # print(self._target, self._source, self._sink)
-        # print('---')
-        # exit(101)
+
         # add to the list to track
         CoverageNet._group += [self]
+        # to the dictionary for accessibility
+        CoverageNet._map[name] = self
         pass
 
     def to_json(self) -> dict:

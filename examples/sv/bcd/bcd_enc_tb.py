@@ -13,8 +13,8 @@
 #        6  | 11 = 6 + 6 - 1 
 
 import random
+
 import verb
-from verb import context, coverage
 from verb.model import *
 from verb.coverage import *
 
@@ -83,62 +83,66 @@ class BcdEncoder:
     pass
 
 
-def cover(real_mdl, fake_mdl):
+def apply_coverage(real_mdl, fake_mdl):
     """
     Specify coverage areas.
     """
-    CoverRange("input span") \
-            .span(real_mdl.bin.span()) \
-            .target(real_mdl.bin) \
-            .apply()
+    CoverRange(
+        name="input span",
+        span=real_mdl.bin.span(),
+        target=real_mdl.bin,
+    )
 
-    CoverPoint("overflow enabled") \
-        .goal(10) \
-        .bypass(real_mdl.bin.max() < (10**real_mdl.num_digits)) \
-        .target(real_mdl.ovfl) \
-        .checker(lambda x: int(x) == 1) \
-        .apply()
+    CoverPoint(
+        name="overflow enabled",
+        goal=10,
+        bypass=real_mdl.bin.max() < (10**real_mdl.num_digits),
+        target=real_mdl.ovfl,
+        checker=lambda x: int(x) == 1,
+    )
 
-    CoverGroup("overflow variants") \
-        .bins([0, 1]) \
-        .bypass(real_mdl.bin.max() < (10**real_mdl.num_digits)) \
-        .target(real_mdl.ovfl) \
-        .apply()
+    CoverGroup(
+        name="overflow variants",
+        bins=[0, 1],
+        bypass=real_mdl.bin.max() < (10**real_mdl.num_digits),
+        target=real_mdl.ovfl,
+    )
 
-    CoverGroup("extreme inputs") \
-        .bins([real_mdl.bin.min(), real_mdl.bin.max()]) \
-        .target(real_mdl.bin) \
-        .apply()
+    CoverGroup(
+        name="extreme inputs",
+        bins=[real_mdl.bin.min(), real_mdl.bin.max()],
+        target=real_mdl.bin
+    )
 
-    cp_bin_while_active = CoverPoint("input changes while active") \
-        .goal(100) \
-        .apply()
+    CoverPoint(
+        name="input changes while active",
+        goal=100
+    )
 
-    cp_go_while_active = CoverPoint("go while active") \
-        .goal(100) \
-        .target(fake_mdl.go) \
-        .checker(lambda x: int(x) == 1) \
-        .apply()
-    
-    return cp_bin_while_active
+    CoverPoint(
+        name="go while active",
+        goal=100,
+        target=fake_mdl.go,
+        checker=lambda x: int(x) == 1,
+    )
 
 
 def main():
     # Setup - collect parameters and create models
 
-    DIGITS = context.generic('DIGITS', type=int)
-    LEN  = context.generic('LEN', type=int)
+    DIGITS = verb.load_param('DIGITS', type=int)
+    LEN  = verb.load_param('LEN', type=int)
 
     real_mdl = BcdEncoder(width=LEN, digits=DIGITS)
     fake_mdl = BcdEncoder(width=LEN, digits=DIGITS)
 
     # Coverage Goals - specify coverage areas
-    cp_bin_while_active = cover(real_mdl, fake_mdl)
+    apply_coverage(real_mdl, fake_mdl)
     
     # Run - generate the test vectors from the model(s)
     with vectors('inputs.txt') as inputs, vectors('outputs.txt') as outputs:
         # initialize the values with defaults
-        while verb.running(1_000, True):
+        while verb.running(1_000):
             # get a new set of inputs to process
             real_mdl.setup(1)
             inputs.push(real_mdl)
@@ -146,7 +150,7 @@ def main():
             # alter the input with random data while the computation is running
             for _ in range(0, real_mdl.fsm_cycle_delay):
                 fake_mdl.setup()
-                cp_bin_while_active.check(int(fake_mdl.bin) != int(real_mdl.bin))
+                Coverage["input changes while active"].check(int(fake_mdl.bin) != int(real_mdl.bin))
                 inputs.push(fake_mdl)
 
             # compute the output

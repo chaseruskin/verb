@@ -16,7 +16,7 @@ class CoverCross(CoverageNet):
         """
         return 'CoverCross'
 
-    def __init__(self, name: str, nets: List[CoverageNet], goal: int=1, bypass: bool=False, max_steps: int=64, target=None, source=None, sink=None, advancer=None, checker=None):
+    def __init__(self, name: str, nets: List[CoverageNet], goal: int=1, bypass: bool=False, max_steps: int=64, target=None, source=None, sink=None):
         """
         Create a new `CoverCross` instance.
 
@@ -40,7 +40,8 @@ class CoverCross(CoverageNet):
             span=range(combinations),
             goal=self._goal,
             bypass=bypass,
-            max_steps=self._max_steps
+            max_steps=self._max_steps,
+            
         )
 
         sink = []

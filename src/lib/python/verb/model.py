@@ -88,13 +88,7 @@ def randomize(model, strategy: str='weights'):
                     if type(source) == Signal and source not in ports:
                         break
                 else:
-                    values = net.advance(rand=True)
-                    # force into an iterable type
-                    if type(values) == int:
-                        values = [values]
-                    for i in range(len(sources)):
-                        if type(sources[i]) == Signal:
-                            sources[i].assign(values[i])
+                    net.advance(rand=True)
                 # exit- we only want to ensure we progress toward one coverage
                 break
             pass
@@ -119,15 +113,8 @@ def randomize(model, strategy: str='weights'):
             pass
         # choose a failing net at random
         if len(candidates) > 0:
-            sel = random.choice(candidates)
-            values = sel.advance(rand=True)
-            # force into an iterable type
-            if type(values) == int:
-                values = [values]
-            sources = sel.get_source_list()
-            for i in range(len(sources)):
-                if type(sources[i]) == Signal:
-                    sources[i].assign(values[i])
+            sel: _CoverageNet = random.choice(candidates)
+            sel.advance(rand=True)
             pass
         pass
     # select a coverage net according to a weighted distribution using its distance to its goal
@@ -157,19 +144,7 @@ def randomize(model, strategy: str='weights'):
         # choose a failing net at random
         if len(candidates) > 0:
             sel = random.choices(candidates, weights=weights)[0]
-
-            values = sel.advance(rand=True)
-            # print(values)
-
-            # if type(sel) == CoverCross:
-                # exit(101)
-            # force into an iterable type
-            if type(values) == int:
-                values = [values]
-            sources = sel.get_source_list()
-            for i in range(len(sources)):
-                if type(sources[i]) == Signal:
-                    sources[i].assign(values[i])
+            sel.advance(rand=True)
             pass   
         pass
 

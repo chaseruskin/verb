@@ -63,6 +63,8 @@ class CoverRange(CoverageNet):
         self._start = self._domain.start
         self._stop = self._domain.stop
 
+        # verify the source is
+
         super().__init__(name=name, bypass=bypass, target=target, source=source, sink=sink)
         pass
 
@@ -215,6 +217,7 @@ class CoverRange(CoverageNet):
         passing).
         """
         import random as _random
+        from ..signal import Signal as _Signal
 
         # can only map 1-way (as of now)
         if self._fn_checker != None and self._fn_advancer == None:
@@ -222,11 +225,10 @@ class CoverRange(CoverageNet):
 
         if self._fn_advancer != None:
             if isinstance(self._source, (list, tuple)) == True:
-                return self._fn_advancer(*self._source)
+                self._fn_advancer(*self._source)
             else:
-                return self._fn_advancer(self._source)
-            # NOTE: Is this done?
-            raise Exception("Implement")
+                self._fn_advancer(self._source)
+            return
         
         available = []
         # filter out the elements who have not yet met the goal
@@ -237,13 +239,24 @@ class CoverRange(CoverageNet):
         if len(available) == 0:
             return None
 
+        next_value = None
         if rand == True:
             j = _random.choice(available)
             # transform back to the selection of the expanded domain space
-            return _random.randint(j * self._step_size, ((j+1) * self._step_size) - 1)
-        # provide 1st available if random is disabled
-        j = available[0]
-        return _random.randint(j * self._step_size, ((j+1) * self._step_size) - 1)
+            next_value = _random.randint(j * self._step_size, ((j+1) * self._step_size) - 1)
+        else:
+            # provide 1st available if random is disabled
+            j = available[0]
+            next_value = _random.randint(j * self._step_size, ((j+1) * self._step_size) - 1)
+        # assign the next value for the source
+        if isinstance(self._source, (list, tuple)) == True:
+            self._source[0].set(next_value)
+        # set if is of type signal
+        elif isinstance(self._source, _Signal):
+            self._source.set(next_value)
+        # retun the value otherwise
+        else:
+            return next_value
     
     def to_string(self, verbose: bool) -> str:
         """

@@ -184,7 +184,7 @@ class Context:
         self._bench_if = _os.environ.get('VERB_TB_JSON', None)
         self._dut_if = _os.environ.get('VERB_DUT_JSON', None)
         self._event_log = _os.environ.get('VERB_EVENT_FILE', 'events.log')
-        self._coverage_report = _os.environ.get('VERB_COVERAGE_FILE', 'coverage.txt')
+        self._coverage_report = _os.environ.get('VERB_COVERAGE_FILE', 'coverage.rpt')
         pass
 
     def bench_interface(self, data: str):

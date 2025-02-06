@@ -214,6 +214,7 @@ class CoverGroup(CoverageNet):
         passing).
         """
         import random as _random
+        from ..signal import Signal as _Signal
 
         # can only map 1-way (as of now)
         if self._fn_cover != None and self._fn_advance == None:
@@ -230,15 +231,23 @@ class CoverGroup(CoverageNet):
             pass
         if len(available) == 0:
             return None
+        
+        next_value = None
         if rand == True:
             # pick a random macro bin
             i_macro = _random.choice(available)
             # select a random item from the bin
-            return _random.choice(self._macro_bins[i_macro])
-
-        # provide 1st available if random is disabled
-        i_macro = available[0]
-        return self._macro_bins[i_macro][0]
+            next_value = _random.choice(self._macro_bins[i_macro])
+        else:
+            # provide 1st available if random is disabled
+            i_macro = available[0]
+            next_value = self._macro_bins[i_macro][0]
+            
+        # assign the next value for the single source
+        if isinstance(self._source, _Signal):
+            self._source.set(next_value)
+        else:
+            return next_value
 
     def passed(self) -> bool:
         """

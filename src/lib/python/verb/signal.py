@@ -4,6 +4,7 @@
 # A Signal carries information.
 
 from enum import Enum as _Enum
+from typing import Union as _Union
 
 class Mode(_Enum):
     IN  = 0
@@ -397,12 +398,25 @@ class Signal:
         self.assign(result)
         pass
     
-
     def __str__(self):
         return self.bits()
     
-
     def __int__(self):
         return self.digits()
     
     pass
+
+
+def bin(s: _Union[Signal, int]):
+    """
+    Return the binary representation of an integer.
+
+    This function will return the binary representation of a `Signal` if `s`
+    is the corresponding type, otherwise it will call the builtin `bin()`
+    function.
+    """
+    import builtins
+    if isinstance(s, Signal):
+        return '0b' + s.bits()
+    else:
+        return builtins.bin(s)

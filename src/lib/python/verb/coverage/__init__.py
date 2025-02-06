@@ -6,7 +6,13 @@ from .ranger import CoverRange
 from .net import CoverageNet as _CoverageNet
 from .status import Status as _Status
 
-class Coverage:
+
+class _MetaCoverage(type):
+    def __getitem__(cls, val):
+        return _CoverageNet._map.get(val)
+    
+
+class Coverage(object, metaclass=_MetaCoverage):
 
     _total_coverages = 0
     _passed_coverages = 0
