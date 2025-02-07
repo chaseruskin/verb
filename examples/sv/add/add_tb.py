@@ -10,7 +10,7 @@
 
 import random
 
-import verb
+import verb as vb
 from verb.model import *
 from verb.coverage import *
 
@@ -26,15 +26,15 @@ class Add:
         # inputs
         self.in0 = Signal(
             width, 
-            distribution=Distribution(
-                space=[0, verb.pow2m1(width), range(1, verb.pow2m1(width))], 
+            dist=Distribution(
+                space=[0, vb.pow2m1(width), range(1, vb.pow2m1(width))], 
                 weights=[0.1, 0.1, 0.8]
             )
         )
         self.in1 = Signal(
             width, 
-            distribution=Distribution(
-                space=[0, verb.pow2m1(width), range(1, verb.pow2m1(width))], 
+            dist=Distribution(
+                space=[0, vb.pow2m1(width), range(1, vb.pow2m1(width))], 
                 weights=[0.1, 0.1, 0.8]
             )
         )
@@ -48,7 +48,7 @@ class Add:
         """
         Determine the next set of inputs.
         """
-        randomize(self)
+        vb.randomize(self)
 
     def compute(self):
         """
@@ -160,21 +160,21 @@ def apply_coverage(add: Add):
 def main():
     # Create an instance of the model
     add = Add(
-        width=verb.load_param('WORD_SIZE', type=int)
+        width=vb.load_param('WORD_SIZE', type=int)
     )
-
+    
     # Provide coverage on the model
     apply_coverage(add)
 
     # Run the model
-    with vectors('inputs.txt', 'i') as fdi, vectors('outputs.txt', 'o') as fdo:
-        while verb.running(10_000):
+    with vb.vectors('inputs.txt') as vi, vb.vectors('outputs.txt') as vo:
+        while vb.running(10_000):
             # Generate inputs
             add.setup()
-            fdi.push(add)
+            vi.push(add)
             # Compute outputs
             add.compute()
-            fdo.push(add)
+            vo.push(add)
             pass
         pass
 

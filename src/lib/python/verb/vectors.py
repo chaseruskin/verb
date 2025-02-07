@@ -4,10 +4,10 @@
 # A Vectors contains the test vectors for a particular model.
 
 class Vectors:
-    from .model import Mode
+    from .model import Mode as _Mode
     from typing import List as _List
 
-    def __init__(self, path: str, mode: Mode):
+    def __init__(self, path: str, mode: _Mode):
         '''
         Creates a trace file to write stimuli/results for a potential hardware simulation.
         
@@ -82,25 +82,31 @@ class Vectors:
 
 
     def push(self, model, ignore_coverage: bool=False):
-        '''
-        Writes the directional ports of the bus funcitonal model to the test vector file.
+        """
+        Writes the ports of matching directionality from the model instance 
+        to the test vector file.
 
-        Format each signal as logic values in the file to be read in during
-        simulation.
+        ### Parameters
+        - `model`: instance of the model to write ports with matching direction of the test vector file
+        - `ignore_coverage`: skip checking coverage nets when set to `True`
+
+        To write the values of the matching ports, each port signal will be formatted 
+        as their binary representation consisting of only 1's and 0's.
 
         The format uses commas (`,`) to separate different signals and the order of signals
         written matches the order of ports in the interface json data.
 
-        Each value is written with a ',' after the preceeding value in the 
-        argument list. A newline is formed after all arguments
-        '''
-        from .model import Signal, _extract_ports, _extract_signals, Mode
+        Each value is written with a `,` after the preceeding value in the 
+        argument list (including the last value). A newline is formed after 
+        all arguments.
+        """
+        from .model import Signal as _Signal, _extract_ports, _extract_signals
         from .coverage import _CoverageNet, Coverage
 
         if self._file == None:
             raise Exception("failed to write to file " + str(self._path) + " due to not being open")
         
-        info: Signal
+        info: _Signal
         net: _CoverageNet
 
         # ignore the name when collecting the ports for the given mode
@@ -115,7 +121,7 @@ class Vectors:
                     sinks = net.get_sink_list()
                     for sink in sinks:
                         # exit early if a signal being observed is not this transaction
-                        if type(sink) == Signal and sink not in all_signals:
+                        if type(sink) == _Signal and sink not in all_signals:
                             break
                         pass
                     # perform an observation if the signals are in this transaction

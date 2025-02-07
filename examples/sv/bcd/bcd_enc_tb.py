@@ -132,7 +132,7 @@ def main():
 
     DIGITS = verb.load_param('DIGITS', type=int)
     LEN  = verb.load_param('LEN', type=int)
-
+ 
     real_mdl = BcdEncoder(width=LEN, digits=DIGITS)
     fake_mdl = BcdEncoder(width=LEN, digits=DIGITS)
 
@@ -140,27 +140,27 @@ def main():
     apply_coverage(real_mdl, fake_mdl)
     
     # Run - generate the test vectors from the model(s)
-    with vectors('inputs.txt') as inputs, vectors('outputs.txt') as outputs:
+    with verb.vectors('inputs.txt') as vi, verb.vectors('outputs.txt') as vo:
         # initialize the values with defaults
         while verb.running(1_000):
             # get a new set of inputs to process
             real_mdl.setup(1)
-            inputs.push(real_mdl)
+            vi.push(real_mdl)
 
             # alter the input with random data while the computation is running
             for _ in range(0, real_mdl.fsm_cycle_delay):
                 fake_mdl.setup()
                 Coverage["input changes while active"].check(int(fake_mdl.bin) != int(real_mdl.bin))
-                inputs.push(fake_mdl)
+                vi.push(fake_mdl)
 
             # compute the output
             real_mdl.exec()
-            outputs.push(real_mdl)
+            vo.push(real_mdl)
 
             # place some random 'idle' time after a finished computation
             for _ in range(0, random.randint(0, 10)):
                 fake_mdl.setup(0)
-                inputs.push(fake_mdl)
+                vi.push(fake_mdl)
             pass
         pass
 

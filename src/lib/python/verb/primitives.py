@@ -6,40 +6,49 @@
 import math as _math
 
 def pow(base: int, exp: int):
-    '''
+    """
     Computes the followng formula: `base^exp`.
-    '''
+    """
     return base**exp
 
 
 def pow2(width: int):
-    '''
+    """
     Computes the following formula: `2^(width)`.
-    '''
+    """
     return 2**width
 
 
 def pow2m1(width: int):
-    '''
+    """
     Computes the following formula: `2^(width)-1`. 
-    '''
+    """
     return (2**width)-1
 
 
 def is_pow2(n: int) -> bool:
+    """
+    Checks if `n` is a power of 2.
+    """
     return _math.log2(n).is_integer()
 
 
 def clog2(n: int) -> int:
+    """
+    Computes the following formula: `ceil(log2(n))`.
+    """
     return int(_math.ceil(_math.log2(n)))
 
 
 def flog2p1(n: int) -> int:
+    """
+    Computes the following formula: `floor(log2(n)+1))`.
+    """
     return int(_math.floor(_math.log2(n) + 1))
 
 
 def bits(data, width: int=None, trunc: bool=True, endianness: str='big', signed: bool=False) -> str:
-    '''
+    """
     Formats the `data` to its bit representation as a string.
 
     ### Parameters
@@ -51,7 +60,7 @@ def bits(data, width: int=None, trunc: bool=True, endianness: str='big', signed:
 
     ### Returns
     - `str` of 1's and 0's
-    '''
+    """
     if str(endianness).lower() != 'big' and str(endianness).lower() != 'little':
         raise ValueError("expected endianness to be 'big' or 'little' but got " + str(endianness))
     is_big_endian = str(endianness).lower() == 'big'
@@ -103,7 +112,7 @@ def bits(data, width: int=None, trunc: bool=True, endianness: str='big', signed:
 
 
 def digits(data, signed: bool=False) -> int:
-    '''
+    """
     Formats the `data` into its integer decimal representation.
 
     This function assumes the input to be in big-endian format (MSB is first in
@@ -115,7 +124,7 @@ def digits(data, signed: bool=False) -> int:
 
     ### Returns
     - `data` as integer form (decimal)
-    '''
+    """
     bits = ''
     if isinstance(data, int) == True:
         return data
@@ -139,14 +148,3 @@ def digits(data, signed: bool=False) -> int:
         result = int('0b'+bits, base=2)
 
     return result
-
-
-def _find_longest_str_len(x) -> int:
-    '''
-    Given a list `x`, determines the longest length str.
-    '''
-    longest = 0
-    for item in x:
-        if len(str(item)) > longest:
-            longest = len(str(item))
-    return longest

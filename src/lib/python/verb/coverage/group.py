@@ -281,7 +281,7 @@ class CoverGroup(CoverageNet):
         return result
 
     def to_string(self, verbose: bool=False) -> str:
-        from ..primitives import _find_longest_str_len
+        from . import _find_longest_str_len
         result = ''
         # print each individual bin and its goal status
         if verbose == True:

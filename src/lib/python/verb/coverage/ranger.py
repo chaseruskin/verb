@@ -262,7 +262,7 @@ class CoverRange(CoverageNet):
         """
         Formats the relevant data into a string.
         """
-        from ..primitives import _find_longest_str_len
+        from . import _find_longest_str_len
         result = ''
         # print each individual bin and its goal status
         if verbose == True:

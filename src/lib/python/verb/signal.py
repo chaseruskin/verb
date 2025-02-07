@@ -33,13 +33,13 @@ class Mode(_Enum):
 class Distribution:
 
     def __init__(self, space, weights=None, partition: bool=True):
-        '''
+        """
         If `weights` is set to None, then it is assumed to to be uniform distribution
         across the defined elements.
 
         If `partition` is set to true, it will divide up the total sample space `space`
         into evenly paritioned groups summing to the total number of provided weights.
-        '''
+        """
         import math as _math
 
         self._sample_space = space
@@ -67,9 +67,9 @@ class Distribution:
 
 
     def samples(self, k=1):
-        '''
+        """
         Produce a sample from the known distribution.
-        '''
+        """
         import random as _random
 
         outcomes = _random.choices(population=self._partitioned_space, weights=self._weights, k=k)
@@ -85,10 +85,30 @@ class Distribution:
 
 class Signal:
 
-    def __init__(self, width: int=1, value=0, mode=Mode.INFER, endianness: str='big', name: str=None, signed: bool=False, distribution: Distribution=None):
-        '''
-        Creates a new Signal to carry the data `value` with a defined `width`.
-        '''
+    def __init__(self, width: int=1, value=0, mode=Mode.INFER, signed: bool=False, endianness: str='big', dist: Distribution=None, name: str=None):
+        """
+        Creates a instance of a `Signal` to carry and manipulate data.
+
+        ### Parameters
+        - `width`: number of bits to represent the signal
+        - `value`: initial value to assign to the signal
+        - `mode`: how the signal should be used within a model
+        - `endianness`: specify if the leftmost bit is MSb ('big') or LSb ('little')
+        - `name`: the explicit name of the signal
+        - `signed`: decide if to interpret bits in 2's complement
+        - `dist`: specify the signal's distribution for random sampling
+
+        If `mode` is set to `INFER`, then the signal has its mode decided based
+        on if the the name of the instance is a known port. For matching ports it
+        may be `IN`, `OUT`, or `INOUT`. If no matching port is found for this signal,
+        then the mode is set to `LOCAL`.
+
+        To override associating the actual variable name of this instance with the name used for port lookup, provide
+        a value for the `name` parameter.
+
+        When `dist` is set to `None`, then the signal will take on a uniform distribution
+        during random sampling. See `Distribution` class for how to specify a distribution.
+        """
         # set the number of bits allowed for the signal
         self._dimensions = (width, )
         if isinstance(width, list) == True or isinstance(width, tuple) == True:
@@ -126,43 +146,43 @@ class Signal:
         # explicitly set the signal's name
         self._name = name
 
-        if distribution != None:
-            if isinstance(distribution, Distribution) == False and isinstance(distribution, list) == False:
-                raise TypeError('expected distribution to be a Distribution or list but received type ' + str(type(distribution)))
-        self._distro = distribution
+        if dist != None:
+            if isinstance(dist, Distribution) == False and isinstance(dist, list) == False:
+                raise TypeError('expected distribution to be a Distribution or list but received type ' + str(type(dist)))
+        self._distro = dist
         if type(self._distro) == list:
-            self._distro = Distribution(space=[*self.span()], weights=distribution, partition=True)
+            self._distro = Distribution(space=[*self.span()], weights=dist, partition=True)
             pass
 
         self.assign(value)
         pass
 
     def width(self) -> int:
-        '''
+        """
         Accesses the number of allocated for this Signal.
-        '''
+        """
         return self._width
     
     def dim(self) -> list:
-        '''
+        """
         Returns the number of dimensions.
-        '''
+        """
         return self._dimensions
     
-    def set(self, value):
-        '''
+    def set(self, value: _Union[int, str, list]):
+        """
         Updates the Signal's internal data with `value`.
 
         The `value` can either be a `str`, `int`, or `list`.
-        '''
+        """
         self.assign(value)
         pass
 
     def splice(self, index, value):
-        '''
+        """
         Updates the current Signal's internal data with `value` at the given
         slice of its vector representation.
-        '''
+        """
         from .primitives import bits as _bits
 
         if type(index) == tuple:
@@ -203,9 +223,9 @@ class Signal:
         pass
 
     def slice(self, index):
-        '''
+        """
         Returns a new `Signal` object from the sub-slice of the current vector.
-        '''
+        """
         if type(index) == tuple:
             index = [*index]
         if type(index) != tuple and type(index) != list:
@@ -245,12 +265,12 @@ class Signal:
 
         return sub
 
-    def get(self, dtype=None):
-        '''
-        Retrieve the Signal's internal data.
+    def get(self, dtype: type=None):
+        """
+        Retrieve the signal's internal data.
 
         The `dtype` can either be `str`, `int`, or `list`.
-        '''
+        """
         if dtype == int:
             return self.digits()
         elif dtype == str:
@@ -263,58 +283,61 @@ class Signal:
             raise TypeError
 
     def mode(self) -> Mode:
-        '''
-        Returns the port type for this Signal.
-        '''
+        """
+        Returns the port type for this signal.
+        """
         return self._mode if self._inferred_mode == None else self._inferred_mode
 
     def min(self) -> int:
-        '''
+        """
         Returns the minimum possible integer value stored in the allotted bits 
         (inclusive).
-        '''
+        """
         from .primitives import pow2
         return 0 if self._is_signed == False else -pow2(self._width)
     
     def max(self) -> int:
-        '''
+        """
         Returns the maximum possible integer value stored in the allotted bits
         (inclusive).
-        '''
+        """
         from .primitives import pow2m1
         return pow2m1(self._width) if self._is_signed == False else pow2m1(self._width-1)
     
     def span(self) -> range:
-        '''
-        Returns the enumerated range of possible values for the Signal.
+        """
+        Returns the enumerated range of possible values for the signal.
         
         The start is inclusive and the end is exclusive.
-        '''
+        """
         return range(self.min(), self.max()+1)
     
     def endianness(self) -> str:
+        """
+        Return the endianness of the signal ("big" or "little").
+        """
         return 'big' if self._is_big_endian == True else 'little'
     
     def signed(self) -> bool:
-        '''
-        Returns whether or not the Signal interprets its bits as signed or unsigned.
+        """
+        Returns whether or not the signal interprets its bits as signed or unsigned.
         Signed representations are formatted as two's complement.
-        '''
+        """
         return self._is_signed
     
     def raw_data(self):
-        '''
-        Accesses the Signal's internal data in its raw representation.
-        '''
+        """
+        Accesses the signal's internal data in its raw representation.
+        """
         return self._raw_data
 
     def sample(self):
-        '''
+        """
         Sets the data to a random value based on its distribution.
 
         If no distribution was defined for the Signal, it will use a uniform
         distribution across the possible allowed values.
-        '''
+        """
         import random as _random
 
         # provide uniform distribution when no distribution is defined for the signal
@@ -327,11 +350,11 @@ class Signal:
 
 
     def assign(self, value):
-        '''
+        """
         Updates the Signal's internal data with `value`.
 
         The `value` can either be a `str`, `int`, or `list`.
-        '''
+        """
         from .primitives import digits as _digits
         # put into big-endian format for storing
         if (isinstance(value, str) or isinstance(value, list)) and self._is_big_endian == False:
@@ -355,17 +378,17 @@ class Signal:
 
     
     def bits(self) -> str:
-        '''
+        """
         Accesses the Signal's internal data in its bit representation.
-        '''
+        """
         from .primitives import bits as _bits
         return _bits(self._raw_data, width=self._width, trunc=True, endianness=self.endianness(), signed=self._is_signed)
         
 
     def digits(self) -> int:
-        '''
+        """
         Accesses the Signal's internal data in its integer representation.
-        '''
+        """
         from .primitives import digits as _digits
         return _digits(self._raw_data, signed=self._is_signed)
 

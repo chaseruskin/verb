@@ -3,6 +3,9 @@ from .vectors import *
 from enum import Enum as _Enum
 
 class Strategy(_Enum):
+    """
+    Method for constrained randomization.
+    """
     NONE = 0,
     LINEAR = 1,
     RANDOM = 2,
@@ -20,135 +23,8 @@ class Strategy(_Enum):
         elif s == 'weights':
             return Strategy.WEIGHTS
         else:
-            raise Exception('Failed to convert str '+s+' to type Strategy')
+            raise Exception('Failed to convert str '+s+' to class `Strategy`')
     pass
-
-
-def vectors(path: str, mode: Mode=None) -> Vectors:
-    '''
-    Creates a trace file to write stimuli/results for a potential hardware simulation.
-
-    If `mode` is `None`, then the mode will be inferred from the path's file name (disregarding file extension). The name
-    "inputs" will set mode to `IN` and the name "outputs" will set mode to `OUT`.
-    
-    ### Parameters
-    - The `name` argument sets the file's path name
-    - The `mode` argument determines which directional ports to capture when writing to the file
-    '''
-    import os
-    if mode == None:
-        fname, _ = os.path.splitext(os.path.basename(path))
-        if fname == 'inputs':
-            mode = Mode.IN
-        elif fname == 'outputs':
-            mode = Mode.OUT
-        else:
-            raise Exception("cannot assume port mode for vectors file: " + str(path))
-    return Vectors(path, mode)
-
-
-def randomize(model, strategy: str='weights'):
-    '''
-    Generates random input values for each attribute for the BFM. This is
-    a convenience function for individually setting each signal randomly.
-
-    This function mutates the object `model` and returns a reference to the same object.
-
-    A strategy can be provided to provide coverage-driven input test vectors.
-    '''
-    from .coverage import _CoverageNet, Coverage
-    import random
-
-    net: _CoverageNet
-    port: Signal
-
-    strat: Strategy = Strategy.from_str(strategy)
-
-    ports = [p[1] for p in _extract_ports(model, mode=Mode.IN)]
-
-    # always randomize all inputs no matter the strategy (default strategy)
-    for port in ports:
-        port.sample()
-        pass
-
-    # use default provided distributions for each signal
-    if strat == Strategy.NONE:
-        pass
-    # go down list of each coverage net and draw a next value to help close coverage
-    elif strat == Strategy.LINEAR:
-        # collect the set of nets
-        failing_nets = Coverage.get_failing_nets()
-        # only work with coverage nets that deal with this model
-        for net in failing_nets:
-            # only work on coverage nets that are allowed to be auto-written
-            if net.has_source() == True:
-                sources = net.get_source_list()
-                # verify each writer exists in this current model
-                for source in sources:
-                    if type(source) == Signal and source not in ports:
-                        break
-                else:
-                    net.advance(rand=True)
-                # exit- we only want to ensure we progress toward one coverage
-                break
-            pass
-        pass
-    # select a coverage net at random using uniform distribution for next value to help close coverage
-    elif strat == Strategy.RANDOM:
-        candidates = []
-        # collect the set of nets
-        failing_nets = Coverage.get_failing_nets()
-        # only work with coverage nets that deal with this model
-        for net in failing_nets:
-            # only work on coverage nets that are allowed to be auto-written
-            if net.has_source() == True:
-                sources = net.get_source_list()
-                # verify each writer exists in this current model
-                for source in sources:
-                    if type(source) == Signal and source not in ports:
-                        break
-                else:
-                    candidates += [net]
-                pass
-            pass
-        # choose a failing net at random
-        if len(candidates) > 0:
-            sel: _CoverageNet = random.choice(candidates)
-            sel.advance(rand=True)
-            pass
-        pass
-    # select a coverage net according to a weighted distribution using its distance to its goal
-    elif strat == Strategy.WEIGHTS:
-        candidates = []
-        weights = []
-        # collect the set of nets
-        failing_nets = Coverage.get_failing_nets()
-        # only work with coverage nets that deal with this model
-        for net in failing_nets:
-            # only work on coverage nets that are allowed to be auto-written
-            if net.has_source() == True:
-                sources = net.get_source_list()
-                # verify each writer exists in this current model
-                for source in sources:
-                    if type(source) == Signal and source not in ports:
-                        break
-                else:
-                    candidates += [net]
-                    weights += [net.get_goal() - net.get_count()]
-                pass
-            pass
-        # create the distribution weights for probability assignments
-        total_weight = 0
-        for i in weights: total_weight += i
-        weights = [w/total_weight for w in weights]
-        # choose a failing net at random
-        if len(candidates) > 0:
-            sel = random.choices(candidates, weights=weights)[0]
-            sel.advance(rand=True)
-            pass   
-        pass
-
-    return model
 
 
 def __compile_ports(model):
