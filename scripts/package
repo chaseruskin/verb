@@ -54,9 +54,20 @@ echo "Packaging verb library (python) $VERSION..."
 # Enter the library directory to perform work
 cd $LIB_DIR/sw
 
+
 PYTHON_ARCHIVE=verb-$VERSION-python.zip
 
-zip -r $PYTHON_ARCHIVE *
+case $OS in
+  ubuntu-latest | macos-latest)
+    zip -r $PYTHON_ARCHIVE *
+    ;;
+  windows-latest)
+    for dir in */; do
+        dir="${dir%/}"  # Remove trailing slash
+        7z a $PYTHON_ARCHIVE "$dir/"
+    done
+    ;;
+  esac
 
 # Return to project directory to create distribution
 cd $HOME
