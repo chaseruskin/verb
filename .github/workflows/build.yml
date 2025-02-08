@@ -3,8 +3,8 @@ on:
   workflow_call:
 
 env:
-  project: 'verb'
-  version: '0.1.0'
+  PROJECT: 'verb'
+  VERSION: '0.1.0'
 
 jobs:
   build:
@@ -92,7 +92,7 @@ jobs:
 
       - name: Encode the build version
         run: |
-          echo "git_desc_version=$(git describe --tags)" >> $GITHUB_ENV
+          echo "GIT_DESC_VERSION=$(git describe --tags)" >> $GITHUB_ENV
 
       # - name: Encode the release version
       #   run: |
@@ -110,8 +110,8 @@ jobs:
         id: package
         env:
           TARGET: ${{ matrix.target }}
-          VERSION: ${{ env.version }}
-          GIT_DESC_VERSION: ${{ env.git_desc_version }}
+          VERSION: ${{ env.VERSION }}
+          GIT_DESC_VERSION: ${{ env.GIT_DESC_VERSION }}
           OS: ${{ matrix.os }}
           TARGET_RUSTFLAGS: ${{ matrix.target_rustflags }}
         run: ./scripts/package
@@ -119,5 +119,5 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ env.project }}-${{ env.version }}-${{ matrix.target }}
+          name: ${{ env.PROJECT }}-${{ env.VERSION }}-${{ matrix.target }}
           path: ${{ steps.package.outputs.archive }}
