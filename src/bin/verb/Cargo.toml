@@ -1,8 +1,13 @@
 [package]
 name = "verb"
 version = "0.1.0"
+description = "A tool to help orchestrate hardware simulations"
 edition = "2021"
-description = "A tool to help simulate digital hardware"
+authors = ["Chase Ruskin <c.ruskin@ufl.edu>"]
+keywords = ["verification", "simulation", "tool"]
+repository = "https://github.com/chaseruskin/verb"
+documentation = "https://chaseruskin.github.io/verb"
+license = "MIT"
 
 [dependencies]
 cliproc = "2.1"

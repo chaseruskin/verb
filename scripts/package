@@ -53,6 +53,18 @@ if [[ $OS == windows-latest ]]; then
   # INSTALLER=$INSTALLER.exe
 fi
 
+# Handle how to do compression based on current OS
+case $OS in
+  ubuntu-latest | macos-latest)
+    ZIP_CMD=zip
+    ZIP_FLAGS=-r
+    ;;
+  windows-latest)
+    ZIP_CMD=7z
+    ZIP_FLAGS=a -r
+    ;;
+  esac
+
 echo "Packaging verb library (python) $VERSION..."
 
 # Enter the library directory to perform work
@@ -63,14 +75,18 @@ PYTHON_ARCHIVE=verb-$VERSION-python.zip
 # Remove the tests/ directory to avoid packaging
 rm -rf $PYTHON_LIB_DIR/tests
 
-case $OS in
-  ubuntu-latest | macos-latest)
-    zip -r $PYTHON_ARCHIVE *
-    ;;
-  windows-latest)
-    7z a -r $PYTHON_ARCHIVE *
-    ;;
-  esac
+$ZIP_CMD $ZIP_FLAGS $PYTHON_ARCHIVE *
+
+
+echo "Packaging verb library (vhdl+systemverilog) $VERSION..."
+
+# Enter the library directory to perform work
+cd $HDL_LIB_DIR
+
+HDL_ARCHIVE=verb-$VERSION-vhdl+systemverilog.zip
+
+$ZIP_CMD $ZIP_FLAGS $HDL_ARCHIVE *
+
 
 # Return to project directory to create distribution
 cd $HOME
@@ -80,8 +96,6 @@ echo "Copying release files..."
 # Copy required/supportive files
 mkdir dist
 cp -r \
-  $BIN_DIR/Cargo.lock \
-  $BIN_DIR/Cargo.toml \
   LICENSE \
   docs/pack/README.txt \
   $DIST
@@ -96,6 +110,7 @@ cp \
 mkdir dist/lib
 cp \
   $PYTHON_LIB_DIR/$PYTHON_ARCHIVE \
+  $HDL_LIB_DIR/$HDL_ARCHIVE \
   $DIST/lib
 
 # Compress the distribution

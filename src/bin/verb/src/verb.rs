@@ -65,7 +65,7 @@ impl Subcommand<()> for Operation {
 const VERSION: &str = env!("CARGO_PKG_VERSION");
 
 const HELP: &str = "\
-Verb is a tool to help simulate digital hardware.
+Verb is a tool to help orchestrate hardware simulations.
 
 Usage:
     verb [options] [command]

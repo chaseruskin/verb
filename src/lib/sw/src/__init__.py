@@ -5,6 +5,10 @@ Software drivers for modeling hardware.
 # metadata
 __all__ = ["primitives", "context", "signal", "model", "coverage"]
 __version__ = "0.1.0"
+__author__ = "Chase Ruskin"
+__email__ = "c.ruskin@ufl.edu"
+__copyright__ = "Copyright 2025 Chase Ruskin"
+__license__ = "MIT"
 
 # imports
 from . import primitives as _primitives
