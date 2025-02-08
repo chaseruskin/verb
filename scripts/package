@@ -21,6 +21,7 @@ cd $BIN_DIR
 test -f Cargo.lock || cargo generate-lockfile
 
 echo "Installing rust toolchain for $TARGET..."
+rustup default stable
 rustup target add $TARGET
 
 if [[ $TARGET == aarch64-unknown-linux-musl ]]; then
