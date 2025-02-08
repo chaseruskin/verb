@@ -15,7 +15,7 @@ RUST_INSTALLER="${RUST_INSTALLER:-cargo}"
 echo "Installing verb ..."
 
 echo "Installing verb software library (Python) ..."
-$PYTHON_INSTALLER install "git+$VERB_URL.git@trunk#egg=verb&subdirectory=src/lib/python"
+$PYTHON_INSTALLER install "git+$VERB_URL.git@trunk#egg=verb&subdirectory=src/lib/sw"
 
 echo "Installing verb hardware library (VHDL/Verilog/SystemVerilog) ..."
 $HDL_INSTALLER install verb --url $VERB_URL/archive/refs/heads/trunk.zip

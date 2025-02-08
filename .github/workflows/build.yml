@@ -10,12 +10,94 @@ jobs:
   build:
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-13, macos-latest]
+        target:
+        - aarch64-apple-darwin
+        - aarch64-unknown-linux-musl
+        - arm-unknown-linux-musleabihf
+        - armv7-unknown-linux-musleabihf
+        - x86_64-apple-darwin
+        - x86_64-pc-windows-msvc
+        - aarch64-pc-windows-msvc
+        - x86_64-unknown-linux-musl
+        - x86_64-unknown-linux-gnu
+        include:
+        - target: aarch64-apple-darwin
+          os: macos-latest
+          target_rustflags: ''
+        - target: aarch64-unknown-linux-musl
+          os: ubuntu-latest
+          target_rustflags: '--codegen linker=aarch64-linux-gnu-gcc'
+        - target: arm-unknown-linux-musleabihf
+          os: ubuntu-latest
+          target_rustflags: '--codegen linker=arm-linux-gnueabihf-gcc'
+        - target: armv7-unknown-linux-musleabihf
+          os: ubuntu-latest
+          target_rustflags: '--codegen linker=arm-linux-gnueabihf-gcc'
+        - target: x86_64-apple-darwin
+          os: macos-latest
+          target_rustflags: ''
+        - target: x86_64-pc-windows-msvc
+          os: windows-latest
+        - target: aarch64-pc-windows-msvc
+          os: windows-latest
+          target_rustflags: ''
+        - target: x86_64-unknown-linux-musl
+          os: ubuntu-latest
+          target_rustflags: ''
+        - target: x86_64-unknown-linux-gnu
+          os: ubuntu-latest
+          target_rustflags: ''
     runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash
     steps:
       - name: Fetch repository
         uses: actions/checkout@v4
-      
+        with:
+          fetch-depth: 100
+          fetch-tags: true
+
+      - name: Setup python
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.x
+
+      - name: Install AArch64 Toolchain
+        if: ${{ matrix.target == 'aarch64-unknown-linux-musl' }}
+        run: |
+          sudo apt-get update
+          sudo apt-get install gcc-aarch64-linux-gnu libc6-dev-i386
+
+      - name: Install Musl Toolchain
+        if: ${{ matrix.target == 'aarch64-unknown-linux-musl' || matrix.target == 'x86_64-unknown-linux-musl' }}
+        run: |
+          sudo apt-get update
+          sudo apt-get install musl-tools
+  
+      - name: Install ARM Toolchain
+        if: ${{ matrix.target == 'arm-unknown-linux-musleabihf' || matrix.target == 'armv7-unknown-linux-musleabihf' }}
+        run: |
+          sudo apt-get update
+          sudo apt-get install gcc-arm-linux-gnueabihf musl-tools
+  
+      - name: Install AArch64 Toolchain (Windows)
+        if: ${{ matrix.target == 'aarch64-pc-windows-msvc' }}
+        run: |
+          rustup target add aarch64-pc-windows-msvc
+
+      # - name: Identify current version
+      #   run: |
+      #     echo "VERSION=$(python ./scripts/evalver.py --version)" >> $GITHUB_ENV
+
+      - name: Encode the build version
+        run: |
+          echo "git_desc_version=$(git describe --tags)" >> $GITHUB_ENV
+
+      # - name: Encode the release version
+      #   run: |
+      #     echo "GIT_DESC_VERSION=$(python ./scripts/evalver.py --version)" >> $GITHUB_ENV
+        
       - name: Configure Rust toolchain
         uses: dtolnay/rust-toolchain@master
         with:
@@ -24,18 +106,18 @@ jobs:
       - name: Enable Cargo caching
         uses: Swatinem/rust-cache@v2
 
-      - name: Test
-        working-directory: ./src/bin/verb
-        run: cargo test
-
-      - name: Build application
-        working-directory: ./src/bin/verb
-        run: cargo build --release
+      - name: Package
+        id: package
+        env:
+          TARGET: ${{ matrix.target }}
+          VERSION: ${{ env.version }}
+          GIT_DESC_VERSION: ${{ env.git_desc_version }}
+          OS: ${{ matrix.os }}
+          TARGET_RUSTFLAGS: ${{ matrix.target_rustflags }}
+        run: ./scripts/package
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ env.project }}-${{ env.version }}-${{ runner.arch }}-${{ runner.os }}
-          path: |
-            ./src/bin/verb/target/release/${{ env.project }}
-            ./src/bin/verb/target/release/${{ env.project }}.exe
+          name: ${{ env.project }}-${{ env.version }}-${{ matrix.target }}
+          path: ${{ steps.package.outputs.archive }}

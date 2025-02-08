@@ -4,7 +4,7 @@
 # Verifies behavior for the Signal class.
 
 import unittest as ut
-from ..verb.signal import *
+from ..src.signal import *
 
 class Test(ut.TestCase):
 

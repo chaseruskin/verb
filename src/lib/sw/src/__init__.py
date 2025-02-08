@@ -1,10 +1,12 @@
 """
-Software drivers for modeling hardware with Verb.
+Software drivers for modeling hardware.
 """
 
+# metadata
 __all__ = ["primitives", "context", "signal", "model", "coverage"]
-__version__ = '0.1.0'
+__version__ = "0.1.0"
 
+# imports
 from . import primitives as _primitives
 from . import context as _context
 from . import signal as _signal
@@ -17,6 +19,7 @@ from .primitives import *
 from .model import Vectors as _Vectors
 from .model import Mode as _Mode
 
+# module-level (easilty public-facing) functions
 
 def load_param(key: str, dtype: type):
     """

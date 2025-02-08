@@ -1,0 +1,20 @@
+[project]
+name = "verb"
+version = "0.1.0"
+authors = [{ name="Chase Ruskin" }]
+description = "Software drivers for modeling hardware"
+requires-python = ">=3.6.8"
+
+[tool.setuptools.package-dir]
+verb = "src"
+
+[project.urls]
+Homepage = "https://github.com/chaseruskin/verb"
+Documentation = "https://chaseruskin.github.io/verb/"
+
+[build-system]
+requires = ["setuptools >= 61.0"]
+build-backend = "setuptools.build_meta"
+
+# requires = ["flit_core >=3.2,<4"]
+# build-backend = "flit_core.buildapi"

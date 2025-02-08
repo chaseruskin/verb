@@ -41,7 +41,7 @@ jobs:
         run: python -m unittest src/lib/python/tests/*.py
 
       - name: Test hardware library
-        working-directory: ./src/lib/hdl
+        working-directory: ./src/lib/hw
         run: orbit test --target gverb
 
       - name: Test command-line application

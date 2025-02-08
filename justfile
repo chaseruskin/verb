@@ -15,7 +15,7 @@ test MOD *FLAGS:
 
 # Test the software library
 test-sw-lib:
-    python -m unittest src/lib/python/tests/*.py
+    python -m unittest src/lib/sw/tests/*.py
 
 # No more bug!
 bug:
@@ -25,7 +25,7 @@ bug:
 # Test the hardware library
 test-hw-lib:
     just compile
-    cd src/lib/hdl; orbit test --dut basic --target gverb
+    cd src/lib/hw; orbit test --dut basic --target gverb
 
 test-sw-bin:
     cd src/bin/verb; cargo test
@@ -42,14 +42,14 @@ user-install:
 dev-install:
     just version-ok 0.1.0
     just compile
-    pip install -e src/lib/python --force
-    orbit install --path src/lib/hdl --force --offline
+    pip install -e src/lib/sw --force
+    orbit install --path src/lib/hw --force --offline
     cargo install --path src/bin/verb --force
 
 dev-hw-install:
     just version-ok 0.1.0
     just compile
-    orbit install --path src/lib/hdl --force
+    orbit install --path src/lib/hw --force
 
 # Checks to make sure all locations where a version is specified has the correct
 # version

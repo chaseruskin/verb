@@ -6,12 +6,12 @@
 
 import sys
 
-version = sys.argv[1]
-
+# list of all files that specify the version
 paths = [
-    'src/lib/python/pyproject.toml',
+    'src/lib/sw/pyproject.toml',
     'src/bin/verb/Cargo.toml',
-    'src/lib/hdl/Orbit.toml',
+    'src/lib/hw/Orbit.toml',
+    'src/lib/sw/src/__init__.py',
 ]
 
 
@@ -32,7 +32,7 @@ def find_version_line(lines) -> str:
     '''
     data: str
     for data in lines:
-        if data.startswith('version =') == True:
+        if data.startswith('version =') or data.startswith('__version__ ='):
             return data
     else:
         print('error: failed to find version')
@@ -49,16 +49,25 @@ def is_version_ok(current: str, line: str) -> bool:
     return got == current
 
 
-is_all_ok = True
-for p in paths:
-    is_ok = is_version_ok(version, find_version_line(load_lines(p)))
-    print('info: is', version + '?' ' (' + str(is_ok).lower() + ')', str(p))
-    if is_ok == False:
-        is_all_ok = False
-    pass
+def main():
+    if len(sys.argv) == 1:
+        print('error: expecting <version>')
+        exit(101)
+
+    version = sys.argv[1]
+
+    is_all_ok = True
+    for p in paths:
+        is_ok = is_version_ok(version, find_version_line(load_lines(p)))
+        print('info: is', version + '?' ' (' + str(is_ok).lower() + ')', str(p))
+        if is_ok == False:
+            is_all_ok = False
+        pass
+    if is_all_ok == True:
+        exit(0)
+    else:
+        exit(101)
 
 
-if is_all_ok == True:
-    exit(0)
-else:
-    exit(101)
+if __name__ == "__main__":
+    main()

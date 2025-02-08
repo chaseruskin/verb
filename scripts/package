@@ -1,0 +1,88 @@
+#!/usr/bin/env bash
+
+# A packaging script for CICD.
+# Reference: https://github.com/casey/just/blob/master/bin/package
+
+set -euxo pipefail
+
+VERSION=$VERSION
+DIST=`pwd`/dist
+
+HOME=`pwd`
+
+BIN_DIR=`pwd`/src/bin/verb
+LIB_DIR=`pwd`/src/lib
+
+echo "Packaging verb (binary) $VERSION for $TARGET..."
+
+# Enter the binary directory to perform work
+cd $BIN_DIR
+
+test -f Cargo.lock || cargo generate-lockfile
+
+echo "Installing rust toolchain for $TARGET..."
+rustup target add $TARGET
+
+if [[ $TARGET == aarch64-unknown-linux-musl ]]; then
+  export CC=aarch64-linux-gnu-gcc
+fi
+
+if [ $TARGET == armv7-unknown-linux-musleabihf ] || [ $TARGET == arm-unknown-linux-musleabihf ]; then
+    export REALGCC=arm-linux-gnueabihf-gcc
+    export TARGET_CC=musl-gcc
+fi
+
+# echo "Building verb installer..."
+# RUSTFLAGS="--deny warnings --codegen target-feature=+crt-static $TARGET_RUSTFLAGS" \
+#   cargo build --bin install --target $TARGET --release
+# INSTALLER=target/$TARGET/release/install
+
+echo "Building verb..."
+RUSTFLAGS="--deny warnings --codegen target-feature=+crt-static $TARGET_RUSTFLAGS" \
+  cargo build --bin verb --target $TARGET --release
+
+EXECUTABLE=target/$TARGET/release/verb
+
+if [[ $OS == windows-latest ]]; then
+  EXECUTABLE=$EXECUTABLE.exe
+  INSTALLER=$INSTALLER.exe
+fi
+
+# Return to project directory to create distribution
+cd $HOME
+
+echo "Copying release files..."
+mkdir dist
+cp -r \
+  $BIN_DIR/Cargo.lock \
+  $BIN_DIR/Cargo.toml \
+  LICENSE \
+  docs/pack/README.txt \
+  $DIST
+
+mkdir dist/bin
+cp \
+  $BIN_DIR/$EXECUTABLE \
+  $DIST/bin
+
+# mkdir dist/lib
+# cp -r \
+#   src/lib/hw \
+#   src/lib/
+#   $DIST/lib
+
+
+cd $DIST
+echo "Creating release archive..."
+case $OS in
+  ubuntu-latest | macos-latest)
+    ARCHIVE=verb-$VERSION-$TARGET.tar.gz
+    tar czf $ARCHIVE *
+    echo "archive=$DIST/$ARCHIVE" >> $GITHUB_OUTPUT
+    ;;
+  windows-latest)
+    ARCHIVE=verb-$VERSION-$TARGET.zip
+    7z a $ARCHIVE *
+    echo "archive=`pwd -W`/$ARCHIVE" >> $GITHUB_OUTPUT
+    ;;
+esac

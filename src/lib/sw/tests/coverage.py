@@ -1,10 +1,16 @@
 import unittest as ut
-from ..verb.coverage import *
+from ..src.coverage import *
 
 class Test(ut.TestCase):
 
     def test_cross_flatten_2d(self):
-        cross = CoverCross('test').nets(CoverRange('a').span(range(0, 4)).apply(), CoverRange('b').span(range(0, 4)).apply()).apply()
+        cross = CoverCross(
+            name='test',
+            nets=[
+                CoverRange(name='a', span=range(0, 4)), 
+                CoverRange(name='b', span=range(0, 4)),
+            ]
+        )
         self.assertEqual(0, cross._flatten((0, 0)))
         self.assertEqual(3, cross._flatten((3, 0)))
         self.assertEqual(4, cross._flatten((0, 1)))
@@ -13,7 +19,14 @@ class Test(ut.TestCase):
         pass
 
     def test_cross_flatten_3d(self):
-        cross = CoverCross('test').nets(CoverRange('a').span(range(0, 2)).apply(), CoverRange('b').span(range(0, 3)).apply(), CoverRange('c').span(range(0, 4)).apply()).apply()
+        cross = CoverCross(
+            name='test',
+            nets=[
+                CoverRange(name='a', span=range(0, 2)), 
+                CoverRange(name='b', span=range(0, 3)),
+                CoverRange(name='b', span=range(0, 4)),
+            ]
+        )
         self.assertEqual(0, cross._flatten((0, 0, 0)))
         self.assertEqual(1, cross._flatten((1, 0, 0)))
         self.assertEqual(2*1, cross._flatten((0, 1, 0)))

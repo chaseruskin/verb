@@ -8,7 +8,7 @@ import os
 
 PACKAGE_NAME = 'verb'
 
-SRC_DIR = './src/lib/hdl/src'
+SRC_DIR = './src/lib/hw/src'
 
 FILE_ORDER = [
     ('events.vhd', True),

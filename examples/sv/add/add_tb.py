@@ -160,7 +160,7 @@ def apply_coverage(add: Add):
 def main():
     # Create an instance of the model
     add = Add(
-        width=vb.load_param('WORD_SIZE', type=int)
+        width=vb.load_param('WORD_SIZE', dtype=int)
     )
     
     # Provide coverage on the model
