@@ -13,6 +13,10 @@ HOME=`pwd`
 BIN_DIR=`pwd`/src/bin/verb
 LIB_DIR=`pwd`/src/lib
 
+# List of source paths to available libraries
+PYTHON_LIB_DIR=$LIB_DIR/sw
+HDL_LIB_DIR=$LIB_DIR/hw
+
 echo "Packaging verb (binary) $VERSION for $TARGET..."
 
 # Enter the binary directory to perform work
@@ -36,7 +40,7 @@ fi
 # echo "Building verb installer..."
 # RUSTFLAGS="--deny warnings --codegen target-feature=+crt-static $TARGET_RUSTFLAGS" \
 #   cargo build --bin install --target $TARGET --release
-INSTALLER=target/$TARGET/release/install
+# INSTALLER=target/$TARGET/release/install
 
 echo "Building verb..."
 RUSTFLAGS="--deny warnings --codegen target-feature=+crt-static $TARGET_RUSTFLAGS" \
@@ -46,26 +50,25 @@ EXECUTABLE=target/$TARGET/release/verb
 
 if [[ $OS == windows-latest ]]; then
   EXECUTABLE=$EXECUTABLE.exe
-  INSTALLER=$INSTALLER.exe
+  # INSTALLER=$INSTALLER.exe
 fi
 
 echo "Packaging verb library (python) $VERSION..."
 
 # Enter the library directory to perform work
-cd $LIB_DIR/sw
-
+cd $PYTHON_LIB_DIR
 
 PYTHON_ARCHIVE=verb-$VERSION-python.zip
+
+# Remove the tests/ directory to avoid packaging
+rm -rf $PYTHON_LIB_DIR/tests
 
 case $OS in
   ubuntu-latest | macos-latest)
     zip -r $PYTHON_ARCHIVE *
     ;;
   windows-latest)
-    for dir in */; do
-        dir="${dir%/}"  # Remove trailing slash
-        7z a $PYTHON_ARCHIVE "$dir/"
-    done
+    7z a -r $PYTHON_ARCHIVE *
     ;;
   esac
 
@@ -92,7 +95,7 @@ cp \
 # Copy the libraries
 mkdir dist/lib
 cp \
-  $LIB_DIR/sw/$PYTHON_ARCHIVE \
+  $PYTHON_LIB_DIR/$PYTHON_ARCHIVE \
   $DIST/lib
 
 # Compress the distribution
