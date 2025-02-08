@@ -17,6 +17,7 @@ LIB_DIR=`pwd`/src/lib
 PYTHON_LIB_DIR=$LIB_DIR/sw
 HDL_LIB_DIR=$LIB_DIR/hw
 
+
 echo "Packaging verb (binary) $VERSION for $TARGET..."
 
 # Enter the binary directory to perform work
@@ -53,6 +54,7 @@ if [[ $OS == windows-latest ]]; then
   # INSTALLER=$INSTALLER.exe
 fi
 
+
 # Handle how to do compression based on current OS
 case $OS in
   ubuntu-latest | macos-latest)
@@ -66,25 +68,16 @@ case $OS in
   esac
 
 echo "Packaging verb library (python) $VERSION..."
-
 # Enter the library directory to perform work
 cd $PYTHON_LIB_DIR
-
 PYTHON_ARCHIVE=verb-$VERSION-python.zip
-
-# Remove the tests/ directory to avoid packaging
-rm -rf $PYTHON_LIB_DIR/tests
-
 $ZIP_CMD $ZIP_FLAGS $PYTHON_ARCHIVE *
 
 
 echo "Packaging verb library (vhdl+systemverilog) $VERSION..."
-
 # Enter the library directory to perform work
 cd $HDL_LIB_DIR
-
 HDL_ARCHIVE=verb-$VERSION-vhdl+systemverilog.zip
-
 $ZIP_CMD $ZIP_FLAGS $HDL_ARCHIVE *
 
 
