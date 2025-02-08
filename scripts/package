@@ -36,7 +36,7 @@ fi
 # echo "Building verb installer..."
 # RUSTFLAGS="--deny warnings --codegen target-feature=+crt-static $TARGET_RUSTFLAGS" \
 #   cargo build --bin install --target $TARGET --release
-# INSTALLER=target/$TARGET/release/install
+INSTALLER=target/$TARGET/release/install
 
 echo "Building verb..."
 RUSTFLAGS="--deny warnings --codegen target-feature=+crt-static $TARGET_RUSTFLAGS" \
@@ -49,10 +49,21 @@ if [[ $OS == windows-latest ]]; then
   INSTALLER=$INSTALLER.exe
 fi
 
+echo "Packaging verb library (python) $VERSION..."
+
+# Enter the library directory to perform work
+cd $LIB_DIR/sw
+
+PYTHON_ARCHIVE=verb-$VERSION-python.zip
+
+zip -r $PYTHON_ARCHIVE *
+
 # Return to project directory to create distribution
 cd $HOME
 
 echo "Copying release files..."
+
+# Copy required/supportive files
 mkdir dist
 cp -r \
   $BIN_DIR/Cargo.lock \
@@ -61,18 +72,19 @@ cp -r \
   docs/pack/README.txt \
   $DIST
 
+# Copy the binary
 mkdir dist/bin
 cp \
   $BIN_DIR/$EXECUTABLE \
   $DIST/bin
 
-# mkdir dist/lib
-# cp -r \
-#   src/lib/hw \
-#   src/lib/
-#   $DIST/lib
+# Copy the libraries
+mkdir dist/lib
+cp \
+  $LIB_DIR/sw/$PYTHON_ARCHIVE \
+  $DIST/lib
 
-
+# Compress the distribution
 cd $DIST
 echo "Creating release archive..."
 case $OS in
