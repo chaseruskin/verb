@@ -61,7 +61,7 @@ case $OS in
     ;;
   windows-latest)
     ZIP_CMD=7z
-    ZIP_FLAGS=a -r
+    ZIP_FLAGS="a -r"
     ;;
   esac
 
