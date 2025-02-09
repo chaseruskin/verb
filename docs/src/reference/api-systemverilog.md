@@ -2,8 +2,8 @@
 
 Reference documentation for the Verb conjugations in SystemVerilog.
 
-## Package `godan`
-[source](https://github.com/chaseruskin/verb/blob/trunk/src/lib/hw/src/godan.sv)
+## Package `verb`
+[source](https://github.com/chaseruskin/verb/blob/trunk/src/lib/systemverilog/src/verb.sv)
 
 ### Typedefs
 `[Verilog] typedef enum {TRACE, DEBUG, INFO, WARN, ERROR, FATAL} tone`

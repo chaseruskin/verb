@@ -2,7 +2,7 @@
 # its corresponding API markdown file.
 
 # Hard-coded path to the SV package
-SOURCE = 'src/lib/hw/src/godan.sv'
+SOURCE = 'src/lib/systemverilog/src/verb.sv'
 
 DEST = 'docs/src/reference/api-systemverilog.md'
 
