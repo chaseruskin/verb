@@ -1,4 +1,4 @@
-package godan;
+package verb;
 
     // The default file to write to when events occur during simulation
     int FD_EVENTS = start("events.log");

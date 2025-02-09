@@ -27,7 +27,7 @@ class BcdEncoder:
         self.num_digits = digits
         self.width = width
 
-        self.go = Signal(1, mode=Mode.IN, distribution=[0.3, 0.7])
+        self.go = Signal(1, mode=Mode.IN, dist=[0.3, 0.7])
         self.bin = Signal(width, mode=Mode.IN)
 
         self.bcd = Signal(4*digits, mode=Mode.OUT)
@@ -42,7 +42,7 @@ class BcdEncoder:
         """
         Assign a new set of inputs for the model to compute.
         """
-        randomize(self)
+        verb.randomize(self)
         if explicit_go_val != None:
             self.go.assign(explicit_go_val)
 
@@ -130,8 +130,8 @@ def apply_coverage(real_mdl, fake_mdl):
 def main():
     # Setup - collect parameters and create models
 
-    DIGITS = verb.load_param('DIGITS', type=int)
-    LEN  = verb.load_param('LEN', type=int)
+    DIGITS = verb.load_param('DIGITS', dtype=int)
+    LEN  = verb.load_param('LEN', dtype=int)
  
     real_mdl = BcdEncoder(width=LEN, digits=DIGITS)
     fake_mdl = BcdEncoder(width=LEN, digits=DIGITS)

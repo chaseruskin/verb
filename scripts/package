@@ -14,8 +14,9 @@ BIN_DIR=`pwd`/src/bin/verb
 LIB_DIR=`pwd`/src/lib
 
 # List of source paths to available libraries
-PYTHON_LIB_DIR=$LIB_DIR/sw
-HDL_LIB_DIR=$LIB_DIR/hw
+PYTHON_LIB_DIR=$LIB_DIR/python
+SYSTEMVERILOG_LIB_DIR=$LIB_DIR/systemverilog
+VHDL_LIB_DIR=$LIB_DIR/vhdl
 
 
 echo "Packaging verb (binary) $VERSION for $TARGET..."
@@ -73,12 +74,17 @@ cd $PYTHON_LIB_DIR
 PYTHON_ARCHIVE=verb-$VERSION-python.zip
 $ZIP_CMD $ZIP_FLAGS $PYTHON_ARCHIVE *
 
-
-echo "Packaging verb library (vhdl+systemverilog) $VERSION..."
+echo "Packaging verb library (systemverilog) $VERSION..."
 # Enter the library directory to perform work
-cd $HDL_LIB_DIR
-HDL_ARCHIVE=verb-$VERSION-vhdl+systemverilog.zip
-$ZIP_CMD $ZIP_FLAGS $HDL_ARCHIVE *
+cd $SYSTEMVERILOG_LIB_DIR
+SYSTEMVERILOG_ARCHIVE=verb-$VERSION-systemverilog.zip
+$ZIP_CMD $ZIP_FLAGS $SYSTEMVERILOG_ARCHIVE *
+
+echo "Packaging verb library (vhdl) $VERSION..."
+# Enter the library directory to perform work
+cd $VHDL_LIB_DIR
+VHDL_ARCHIVE=verb-$VERSION-vhdl.zip
+$ZIP_CMD $ZIP_FLAGS $VHDL_ARCHIVE *
 
 
 # Return to project directory to create distribution
@@ -103,7 +109,8 @@ cp \
 mkdir dist/lib
 cp \
   $PYTHON_LIB_DIR/$PYTHON_ARCHIVE \
-  $HDL_LIB_DIR/$HDL_ARCHIVE \
+  $SYSTEMVERILOG_LIB_DIR/$SYSTEMVERILOG_ARCHIVE \
+  $VHDL_LIB_DIR/$VHDL_ARCHIVE \
   $DIST/lib
 
 # Compress the distribution

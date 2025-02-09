@@ -42,8 +42,9 @@ user-install:
 dev-install:
     just version-ok 0.1.0
     just compile
-    pip install -e src/lib/sw --force
-    orbit install --path src/lib/hw --force --offline
+    pip install -e src/lib/python --force
+    orbit install --path src/lib/vhdl --force --offline
+    orbit install --path src/lib/systemverilog --force --offline
     cargo install --path src/bin/verb --force
 
 dev-hw-install:

@@ -1,13 +1,12 @@
 [ip]
 name = "verb"
 version = "0.1.0"
-uuid = "1pgjtja7i1rcf0i5ooubqjctt"
+uuid = "5zjl2nexva03reqgbw04f48di"
 library = "test"
 description = "Hardware drivers for simulating hardware"
 source = "https://github.com/chaseruskin/verb/archive/refs/tags/{{orbit.ip.version}}.zip"
 public = [
-    "/src/verb.vhd",
-    "/src/godan.sv",
+    "/src/verb.sv"
 ]
 
 [dependencies]

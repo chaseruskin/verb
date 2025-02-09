@@ -13,7 +13,7 @@ interface alu_if;
 endinterface
 
 module alu_tb
-    import godan::*;
+    import verb::*;
     import sys_defs::*;
 #(
     // No Parameters

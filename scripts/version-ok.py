@@ -8,10 +8,11 @@ import sys
 
 # list of all files that specify the version
 paths = [
-    'src/lib/sw/pyproject.toml',
     'src/bin/verb/Cargo.toml',
-    'src/lib/hw/Orbit.toml',
-    'src/lib/sw/src/__init__.py',
+    'src/lib/python/pyproject.toml',
+    'src/lib/python/src/__init__.py',
+    'src/lib/systemverilog/Orbit.toml',
+    'src/lib/vhdl/Orbit.toml',
 ]
 
 

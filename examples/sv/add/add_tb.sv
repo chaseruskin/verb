@@ -11,7 +11,7 @@ interface add_if #(
 endinterface
 
 module add_tb 
-    import godan::*;
+    import verb::*;
 #(
     parameter integer WORD_SIZE = 16
 );

@@ -14,7 +14,7 @@ interface bcd_enc_if #(
 endinterface
 
 module bcd_enc_tb 
-    import godan::*;
+    import verb::*;
 #(
     parameter int LEN = 4,
     parameter int DIGITS = 2

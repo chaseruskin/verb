@@ -8,4 +8,4 @@ version = "0.0.0"
 [dependencies]
 
 [dev-dependencies]
-verb = { path = "../../../src/lib/hw", version = "0.1.0" }
+verb = { path = "../../../src/lib/systemverilog", version = "0.1.0" }
