@@ -130,3 +130,63 @@ def _extract_signals(model):
     results = [(x[0], x[1]) for x in results]
     # return the list of signals
     return results
+
+
+import copy as _copy
+
+class Clock:
+    """
+    Introduces the notion of time for things that require it within the model.
+    """
+
+    def __init__(self):
+        """
+        Create a new clock instance.
+        """
+        self._ticks = 0
+        self._domain = []
+
+    def tick(self):
+        """
+        Allow the clock to advance to the next time step.
+        """
+        self._ticks += 1
+        for reg in self._domain:
+            reg.last = _copy.deepcopy(reg.now)
+            reg.now = _copy.deepcopy(reg.next)
+
+
+    def get_count(self) -> int:
+        """
+        Return the number of times this clock instance has ticked.
+        """
+        return self._ticks
+    
+
+class Reg:
+    """
+    Force updates to variables to be restricted to certain time advances.
+    """
+
+    def __init__(self, clk: Clock, val):
+        """
+        Encapsulate any variable/value `val` within a register instance bound to
+        the clock domain of `clk`.
+
+        The register stores 3 instances of the value:
+        - `.last`: a copy of the variable storing the value from the previous time step
+        - `.now`: a reference to the variable storing the value for the current time step
+        - `.next`: a copy of the variable storing the value for the upcoming time step
+
+        The values are updated in the following order when the `clk` variable calls the `.tick()` method:
+        1. `.now` passes its value to `.last`
+        2. `.next` passes its value to `.now`
+        """
+        # initialize the previous state
+        self.last = _copy.deepcopy(val)
+        # initialize interal "registered" state
+        self.now = val
+        # initailize incoming "next" state
+        self.next = _copy.deepcopy(val)
+        # add this register to the clock's domain
+        clk._domain += [self]
