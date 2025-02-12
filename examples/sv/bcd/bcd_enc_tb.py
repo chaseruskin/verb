@@ -116,6 +116,8 @@ def apply_coverage(real_mdl, fake_mdl):
 
     CoverPoint(
         name="input changes while active",
+        sink=(fake_mdl.bin, real_mdl.bin),
+        checker=lambda x, y: int(x) != int(y),
         goal=100
     )
 
@@ -150,7 +152,6 @@ def main():
             # alter the input with random data while the computation is running
             for _ in range(0, real_mdl.fsm_cycle_delay):
                 fake_mdl.setup()
-                Coverage["input changes while active"].check(int(fake_mdl.bin) != int(real_mdl.bin))
                 vi.push(fake_mdl)
 
             # compute the output

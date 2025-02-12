@@ -96,6 +96,12 @@ class Vectors:
         The format uses commas (`,`) to separate different signals and the order of signals
         written matches the order of ports in the interface json data.
 
+        When auto-checking coverage, the first sink defined in a coverage net is 
+        considered its priority sink. This means that only the `model` that 
+        contains the priority sink will run the check for that given net. This prevents
+        "double-dipping" coverage net checks when the sink may contain signals from multiple
+        models.
+
         Each value is written with a `,` after the preceeding value in the 
         argument list (including the last value). A newline is formed after 
         all arguments.
@@ -119,13 +125,10 @@ class Vectors:
                 if net.has_sink() == True:
                     # verify the observation involves only signals being written for this transaction
                     sinks = net.get_sink_list()
-                    for sink in sinks:
-                        # exit early if a signal being observed is not this transaction
-                        if type(sink) == _Signal and sink not in all_signals:
-                            break
-                        pass
-                    # perform an observation if the signals are in this transaction
-                    else:
+                    # allow the first sink to have priority on check
+                    pri_sink = sinks[0]
+                    # perform an observation if the priority sink belongs to this model
+                    if type(pri_sink) == _Signal and pri_sink in all_signals:
                         net.check(net.get_sink())
                 pass
             pass

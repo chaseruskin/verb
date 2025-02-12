@@ -82,11 +82,11 @@ def _extract_ports(model, mode: Mode):
     return results
 
 
-def __compile_signals(model):
-    '''
+def __compile_signals(model) -> dict:
+    """
     Compiles the list of internal signals into a mapping where the 'key' is the defined name
     and the 'value' is a Signal.
-    '''
+    """
     from .context import Context, Runner
 
     # save computations
@@ -119,8 +119,6 @@ def _extract_signals(model):
     results = []
 
     key: str
-    info: Signal
-    port: dict
     for (key, val) in __compile_signals(model).items():
         results += [(key, val)]
         pass
@@ -152,9 +150,8 @@ class Clock:
         """
         self._ticks += 1
         for reg in self._domain:
-            reg.last = _copy.deepcopy(reg.now)
+            reg.prev = _copy.deepcopy(reg.now)
             reg.now = _copy.deepcopy(reg.next)
-
 
     def get_count(self) -> int:
         """
@@ -174,16 +171,19 @@ class Reg:
         the clock domain of `clk`.
 
         The register stores 3 instances of the value:
-        - `.last`: a copy of the variable storing the value from the previous time step
+        - `.prev`: a copy of the variable storing the value from the previous time step
         - `.now`: a reference to the variable storing the value for the current time step
         - `.next`: a copy of the variable storing the value for the upcoming time step
 
+        Note the variable at `.now` is not guaranteed to maintain a reference to the same memory location
+        as the original variable as the model updates over time.
+
         The values are updated in the following order when the `clk` variable calls the `.tick()` method:
-        1. `.now` passes its value to `.last`
+        1. `.now` passes its value to `.prev`
         2. `.next` passes its value to `.now`
         """
         # initialize the previous state
-        self.last = _copy.deepcopy(val)
+        self.prev = _copy.deepcopy(val)
         # initialize interal "registered" state
         self.now = val
         # initailize incoming "next" state

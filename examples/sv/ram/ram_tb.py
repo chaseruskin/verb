@@ -28,6 +28,7 @@ class Ram:
         self.clk = Clock()  
         # registers
         self.mem = Reg(self.clk, [0] * (2**addr_width))
+        self.waddr_r = Reg(self.clk, self.waddr)
         pass
 
     def setup(self):
@@ -35,6 +36,9 @@ class Ram:
         Assign the next set of inputs.
         """
         vb.randomize(self)
+        # # debugging for `Reg` class
+        # print(id(self.waddr), id(self.waddr_r.prev), id(self.waddr_r.now), id(self.waddr_r.next))
+        # self.waddr_r.now = self.waddr
 
     def compute(self):
         """

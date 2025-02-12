@@ -18,7 +18,21 @@ class Verilator:
         self.events_log_file = str(args.log)
         self.generics = args.generic
         self.macros = args.define
-        self.line_coverage = bool(args.line_coverage)
+        self.line_coverage = not bool(args.no_line_coverage)
+
+    def create_config(self, tb_file: str, dut_file: str) -> str:
+        """
+        Writes a config file for verilator to use.
+
+        Returns the path to the newly created config file.
+        """
+        cfg_file = 'config.vlt'
+        with open(cfg_file, 'w') as fd:
+            fd.write('`verilator_config\n')
+            fd.write('lint_off -rule WIDTHEXPAND -file "' + tb_file + '"\n')
+            fd.write('coverage_off\n')
+            fd.write('coverage_on -file "' + dut_file + '"\n')
+        return cfg_file
     
     pass
 
@@ -30,7 +44,7 @@ def main():
     parser.add_argument('--lint', action='store_true', default=False, help='run static analysis and exit')
     parser.add_argument('--generic', '-g', action='append', type=Generic.from_arg, default=[], metavar='KEY=VALUE', help='override top-level verilog parameters')
     parser.add_argument('--vcd', action='store_true', default=False, help='enable saving vcd from testbench')
-    parser.add_argument('--line-coverage', action='store_true', default=False, help='enable line coverage')
+    parser.add_argument('--no-line-coverage', action='store_true', default=False, help='disable line coverage')
 
     parser.add_argument('--log', action='store', default='events.log', help='specify the log file path written during simulation')
     parser.add_argument('--skip-model', action='store_true', help='skip execution of a design model (if exists)')
@@ -66,6 +80,11 @@ def main():
     # format generics for verilator command-line
     top_gens = ['-G'+str(g.key)+'='+str(g.val) for g in V.generics]
     top_macros = ['-D'+str(m) for m in V.macros]
+
+    ORBIT_DUT_FILE = Env.read("ORBIT_DUT_FILE", missing_ok=False)
+    ORBIT_TB_FILE = Env.read("ORBIT_TB_FILE", missing_ok=False)
+
+    cfg_file = V.create_config(ORBIT_TB_FILE, ORBIT_DUT_FILE)
 
     # only perform lint and exit
     if V.lint_only == True:
@@ -110,6 +129,8 @@ def main():
             .unwrap()
         pass
 
+    line_coverage_file = 'coverage.dat'
+
     # overwrite top level parameters using -G<name>=<value>
     # verilator --binary -j 0 -Wall our.v
     Command('verilator') \
@@ -126,17 +147,21 @@ def main():
         .args(['--Mdir', V.out_dir]) \
         .arg('-Wno-fatal') \
         .args(['-o', BENCH_NAME]) \
+        .arg(cfg_file) \
         .args(src_files) \
         .spawn() \
         .unwrap()
 
     # run the executable
-    Command(V.out_dir + '/' + BENCH_NAME).spawn().unwrap()
+    Command(V.out_dir + '/' + BENCH_NAME) \
+        .arg('+verilator+coverage+file+'+line_coverage_file) \
+        .spawn() \
+        .unwrap()
 
     # annotate the line coverage
     if V.line_coverage == True:
         Command('verilator_coverage') \
-            .arg('coverage.dat') \
+            .arg(line_coverage_file) \
             .arg('-annotate') \
             .arg('lines') \
             .arg('--annotate-all') \
