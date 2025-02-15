@@ -1,9 +1,7 @@
-# Project: Verb
-# Module: primitives
-#
-# Implements standard set of common functions.
-
 import math as _math
+from typing import Union as _Union
+from .model import Signal as _Signal
+
 
 def pow(base: int, exp: int):
     """
@@ -148,3 +146,20 @@ def digits(data, signed: bool=False) -> int:
         result = int('0b'+bits, base=2)
 
     return result
+
+
+def bin(s: _Union[_Signal, int]):
+    """
+    Return the binary representation of an integer.
+
+    This function will return the binary representation of a `Signal` if `s`
+    is the corresponding type, otherwise it will call the builtin `bin()`
+    function.
+    """
+    import builtins
+    if isinstance(s, _Signal):
+        return '0b' + s.bits()
+    else:
+        return builtins.bin(s)
+    
+

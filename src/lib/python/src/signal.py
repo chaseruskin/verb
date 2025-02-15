@@ -5,6 +5,7 @@
 
 from enum import Enum as _Enum
 from typing import Union as _Union
+import copy as _copy
 
 class Mode(_Enum):
     IN  = 0
@@ -84,6 +85,10 @@ class Distribution:
 
 
 class Signal:
+    """
+    A carrier of information that represents data by taking on, at most, one of a
+    finite number of values at any given time.
+    """
 
     def __init__(self, width: int=1, value=0, mode=Mode.INFER, signed: bool=False, endianness: str='big', dist: Distribution=None, name: str=None):
         """
@@ -91,7 +96,7 @@ class Signal:
 
         ### Parameters
         - `width`: number of bits to represent the signal
-        - `value`: initial value to assign to the signal
+        - `value`: initial value to assign as the data
         - `mode`: how the signal should be used within a model
         - `endianness`: specify if the leftmost bit is MSb ('big') or LSb ('little')
         - `name`: the explicit name of the signal
@@ -270,6 +275,9 @@ class Signal:
         Retrieve the signal's internal data.
 
         The `dtype` can either be `str`, `int`, or `list`.
+
+        By default, this function returns the `int` representation of the 
+        value.
         """
         if dtype == int:
             return self.digits()
@@ -278,7 +286,7 @@ class Signal:
         elif dtype == list:
             return [int(b) for b in self.bits()]
         elif dtype == None:
-            return self._raw_data
+            return self.digits()
         else:
             raise TypeError
 
@@ -348,7 +356,6 @@ class Signal:
         # return the reference to self
         return self
 
-
     def assign(self, value):
         """
         Updates the Signal's internal data with `value`.
@@ -356,17 +363,21 @@ class Signal:
         The `value` can either be a `str`, `int`, or `list`.
         """
         from .primitives import digits as _digits
+        from .bit import bit as _bit
+
         # put into big-endian format for storing
         if (isinstance(value, str) or isinstance(value, list)) and self._is_big_endian == False:
             value = value[::-1]
         # verify the data is within bounds
         temp_int = _digits(value, self._is_signed)
         if temp_int < self.min() or temp_int > self.max():
-            raise ValueError("value out of bounds " + str(temp_int) + " must be between " + str(self.min()) + " and " + str(self.max()))
+            if temp_int >= 0 and temp_int < 2**self.width():
+                value = str(_bit(temp_int))
+            else:
+                raise ValueError("value out of bounds " + str(temp_int) + " must be between " + str(self.min()) + " and " + str(self.max()))
         self._raw_data = value
         return self
     
-
     def __setattr__(self, name, value):
         if name == "value":
             if value != None:
@@ -375,7 +386,6 @@ class Signal:
                 self._raw_data = 0
         else:
             self.__dict__[name] = value
-
     
     def bits(self) -> str:
         """
@@ -383,7 +393,6 @@ class Signal:
         """
         from .primitives import bits as _bits
         return _bits(self._raw_data, width=self._width, trunc=True, endianness=self.endianness(), signed=self._is_signed)
-        
 
     def digits(self) -> int:
         """
@@ -392,7 +401,6 @@ class Signal:
         from .primitives import digits as _digits
         return _digits(self._raw_data, signed=self._is_signed)
 
-
     def __getitem__(self, key: int) -> str:
         vec = self.bits()
         # reverse to count from 0 to width-1
@@ -400,7 +408,6 @@ class Signal:
             vec = vec[::-1]
         return vec[key]
     
-
     def __setitem__(self, key: int, value):
         new_val: str = '1' if int(value) == 1 else '0'
         vec = self.bits()
@@ -427,19 +434,43 @@ class Signal:
     def __int__(self):
         return self.digits()
     
+    def __invert__(self):
+        cp = _copy.deepcopy(self)
+        bits = cp.get(dtype=str)
+        inv = ''
+        for b in bits:
+            if b == '1': inv += '0'
+            if b == '0': inv += '1'
+        cp.set(inv)
+        return cp
+    
+    def __or__(self, rhs):
+        cp = _copy.deepcopy(self)
+        cp.set(int(cp) | int(rhs))
+        return cp
+    
+    def __and__(self, rhs):
+        cp = _copy.deepcopy(self)
+        cp.set(int(cp) & int(rhs))
+        return cp
+    
+    def __xor__(self, rhs):
+        cp = _copy.deepcopy(self)
+        cp.set(int(cp) ^ int(rhs))
+        return cp
+    
+    def __lshift__(self, rhs):
+        cp = _copy.deepcopy(self)
+        val = int(cp) << int(rhs)
+        bits = bin(val)[2:][::-1][:cp.width()][::-1]
+        cp.set(bits)
+        return cp
+    
+    def __rshift__(self, rhs):
+        cp = _copy.deepcopy(self)
+        cp.set(int(cp) >> int(rhs))
+        return cp
+    
     pass
 
 
-def bin(s: _Union[Signal, int]):
-    """
-    Return the binary representation of an integer.
-
-    This function will return the binary representation of a `Signal` if `s`
-    is the corresponding type, otherwise it will call the builtin `bin()`
-    function.
-    """
-    import builtins
-    if isinstance(s, Signal):
-        return '0b' + s.bits()
-    else:
-        return builtins.bin(s)

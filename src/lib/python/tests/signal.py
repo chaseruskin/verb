@@ -5,6 +5,7 @@
 
 import unittest as ut
 from ..src.signal import *
+from ..src.bit import bit
 
 class Test(ut.TestCase):
 
@@ -30,7 +31,7 @@ class Test(ut.TestCase):
         self.assertEqual(d.get(int), 2)
 
         d.set('1101')
-        self.assertEqual(d.get(), '1101')
+        self.assertEqual(d.get(), 0b1101)
         self.assertEqual(d.get(str), '1101')
         self.assertEqual(d.get(list), [1, 1, 0, 1])
         self.assertEqual(d.get(int), 13)
@@ -70,4 +71,40 @@ class Test(ut.TestCase):
         self.assertEqual(d.get(str), '11010100')
         pass
 
+    
+    def test_operators(self):
+        # negation
+        d = Signal(4, 0b0110)
+        e = ~d
+        self.assertEqual(e.get(), 0b1001)
+        self.assertEqual(d.get(), 0b0110)
+        # or 
+        f = d | 0b1001
+        self.assertEqual(int(f), 0b1111)
+        self.assertEqual(int(d), 0b0110)
+        # and
+        g = d & e
+        self.assertEqual(int(g), 0b0000)
+        self.assertEqual(int(d), 0b0110)
+
+        # left shift
+        h = Signal(8, 0b0010_1000)
+        i = h << 2
+        self.assertEqual(int(i), 0b1010_0000)
+        i = h << 3
+        self.assertEqual(int(i), 0b010_00000)
+
+        # right shift (take sign into account)
+        h = Signal(4, 0b0110)
+        i = h >> 2
+        self.assertEqual(int(i), 0b0001)
+        i = int(2)
+        j = bit(0b1010)
+        h = Signal(4, 0b1100, signed=0)
+        i = h >> 2
+        self.assertEqual(bit(i), 0b0011)
+
+        h = Signal(4, 0b1100, signed=1)
+        i = h >> 2
+        self.assertEqual(bit(i), 0b1111)
     pass

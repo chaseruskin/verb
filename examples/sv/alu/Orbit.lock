@@ -6,12 +6,12 @@ version = 1
 name = "alu"
 version = "0.1.0"
 uuid = "74oe8gna68l52hi9opzvn7w1u"
-dependencies = ["verb+1pgjtja7i1rcf0i5ooubqjctt:0.1.0"]
+dependencies = ["verb+5zjl2nexva03reqgbw04f48di:0.1.0"]
 
 [[ip]]
 name = "verb"
 version = "0.1.0"
-uuid = "1pgjtja7i1rcf0i5ooubqjctt"
+uuid = "5zjl2nexva03reqgbw04f48di"
 url = "https://github.com/chaseruskin/verb/archive/refs/tags/{{orbit.ip.version}}.zip"
-path = "../../../src/lib/hw"
+path = "../../../src/lib/systemverilog"
 dependencies = []

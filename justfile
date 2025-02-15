@@ -15,7 +15,7 @@ test MOD *FLAGS:
 
 # Test the software library
 test-sw-lib:
-    python -m unittest src/lib/sw/tests/*.py
+    python -m unittest src/lib/python/tests/*.py
 
 # No more bug!
 bug:
