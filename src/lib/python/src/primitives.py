@@ -135,6 +135,10 @@ def digits(data, signed: bool=False) -> int:
             pass
     elif isinstance(data, str) == True:
         bits = data
+    elif isinstance(data, bool) == True:
+        print('here')
+
+    print(data, type(data))
 
     result = 0
     if signed == True and bits[0] == '1':

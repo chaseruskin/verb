@@ -11,6 +11,7 @@
 import random
 
 import verb as vb
+from verb.bit import bit
 from verb.model import *
 from verb.coverage import *
 
@@ -54,12 +55,11 @@ class Add:
         """
         Model the functional behavior of the design unit.
         """
-        temp = Signal(self.width+1)
-        temp.set(int(self.in0) + int(self.in1) + int(self.cin))
+        temp = bit(self.in0 + self.in1 + self.cin, self.width+1)
         
         # update the output port values
-        self.sum.set(temp[self.width-1::-1])
-        self.cout.set(temp[self.width])
+        self.sum.set(temp[:-1][::-1])
+        self.cout.set(temp[-1])
         return self
     
     def force_carry_out(x: Signal, y: Signal):
@@ -67,7 +67,7 @@ class Add:
         Generate a test case when the carry out signal should be triggered.
         """
         x.set(random.randint(1, x.max()))
-        y.set(y.max()+1-x.get(int))
+        y.set(y.max()+1-int(x))
     
     pass
 

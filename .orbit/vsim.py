@@ -19,6 +19,7 @@ class Verilator:
         self.generics = args.generic
         self.macros = args.define
         self.line_coverage = not bool(args.no_line_coverage)
+        self.model_only = bool(args.model_only)
 
     def create_config(self, tb_file: str, dut_file: str) -> str:
         """
@@ -48,6 +49,7 @@ def main():
 
     parser.add_argument('--log', action='store', default='events.log', help='specify the log file path written during simulation')
     parser.add_argument('--skip-model', action='store_true', help='skip execution of a design model (if exists)')
+    parser.add_argument('--model-only', action='store_true', help='run the model (if exists) and exit')
     parser.add_argument('--seed', action='store', type=int, nargs='?', default=None, const=random.randrange(sys.maxsize), metavar='NUM', help='set the randomness seed')
     parser.add_argument('--loop-limit', action='store', type=int, default=None, help='specify the limit of tests before timing out')
 
@@ -127,6 +129,9 @@ def main():
             .arg(py_model) \
             .spawn() \
             .unwrap()
+        
+        if V.model_only == True:
+            exit(0)
         pass
 
     line_coverage_file = 'coverage.dat'

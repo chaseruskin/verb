@@ -44,9 +44,9 @@ class BcdEncoder:
         """
         verb.randomize(self)
         if explicit_go_val != None:
-            self.go.assign(explicit_go_val)
+            self.go.set(explicit_go_val)
 
-    def exec(self):
+    def model(self):
         """
         Model the functional behavior of the design unit.
         """
@@ -58,11 +58,11 @@ class BcdEncoder:
             word = int(word/10)
         digits.insert(0, word)
         
-        self.ovfl.assign(0)
+        self.ovfl.set(0)
         # check if an overflow exists on conversion given digit constraint
         diff = self.num_digits - len(digits)
         if(diff < 0):
-            self.ovfl.assign(1)
+            self.ovfl.set(1)
             # trim off left-most digits
             digits = digits[abs(diff):]
         # pad left-most digit positions with 0's
@@ -74,16 +74,15 @@ class BcdEncoder:
         # write each digit to output file
         bin_digits: str = ''
         for d in digits:
-            bin_digits += str(Signal(4).assign(d))
+            bin_digits += str(Signal(4, d))
 
-        self.bcd.assign(bin_digits)
-        self.done.assign(1)
-        return self
+        self.bcd.set(bin_digits)
+        self.done.set(1)
 
     pass
 
 
-def apply_coverage(real_mdl, fake_mdl):
+def apply_coverage(real_mdl: BcdEncoder, fake_mdl: BcdEncoder):
     """
     Specify coverage areas.
     """
@@ -155,7 +154,7 @@ def main():
                 vi.push(fake_mdl)
 
             # compute the output
-            real_mdl.exec()
+            real_mdl.model()
             vo.push(real_mdl)
 
             # place some random 'idle' time after a finished computation
