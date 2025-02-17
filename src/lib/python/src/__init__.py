@@ -3,7 +3,7 @@ Software drivers for modeling hardware.
 """
 
 # metadata
-__all__ = ["context", "signal", "model", "coverage"]
+__all__ = ["context", "bit", "signal", "model", "coverage"]
 __version__ = "0.1.0"
 __author__ = "Chase Ruskin"
 __email__ = "c.ruskin@ufl.edu"
@@ -14,6 +14,7 @@ __license__ = "MIT"
 
 from . import coverage as coverage
 from . import model as model
+from .bit import bit
 
 # module-level (easilty public-facing) functions
 

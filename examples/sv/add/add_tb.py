@@ -11,7 +11,7 @@
 import random
 
 import verb as vb
-from verb.bit import bit
+from verb import bit
 from verb.model import *
 from verb.coverage import *
 
@@ -50,7 +50,6 @@ class Add:
         Determine the next set of inputs.
         """
         vb.randomize(self)
-        
 
     def compute(self):
         """
