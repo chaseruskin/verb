@@ -105,11 +105,40 @@ class Test(ut.TestCase):
         i = h >> 2
         self.assertEqual(bit(i), 0b1111)
 
-
     def test_value_assignment(self):
         g = Signal(4)
         g.set(0b011)
         # g.value = 0b011
         self.assertEqual(int(g), 3)
+
+    def test_signed_signal(self):
+        s = Signal(4, '11', signed=True)
+        self.assertEqual(int(s), -1)
+        
+
+    def test_bin(self):
+        s = Signal(4, value=2)
+        self.assertEqual(bin(s), '0b10')
+        s = Signal(width=3, value=-4)
+        self.assertEqual(bin(s), '0b100')
+
+    def test_add(self):
+        s = Signal(4)
+        self.assertEqual(str(s), '0000')
+        s += 1
+        self.assertEqual(str(s), '0001')
+
+        s = Signal(2)
+        self.assertEqual(str(s), '00')
+        s += 1
+        self.assertEqual(str(s), '01')
+        s += 1
+        self.assertEqual(str(s), '10')
+        s += 1
+        self.assertEqual(str(s), '11')
+        self.assertEqual(int(s), 3)
+        s += 1
+        self.assertEqual(str(s), '00')
+        self.assertEqual(int(s), 0)
 
     pass

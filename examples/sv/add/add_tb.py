@@ -50,6 +50,7 @@ class Add:
         Determine the next set of inputs.
         """
         vb.randomize(self)
+        
 
     def compute(self):
         """
@@ -167,7 +168,7 @@ def main():
     apply_coverage(add)
 
     # Run the model
-    with vb.vectors('inputs.txt') as vi, vb.vectors('outputs.txt') as vo:
+    with vb.open('inputs.txt') as vi, vb.open('outputs.txt') as vo:
         while vb.running(10_000):
             # Generate inputs
             add.setup()

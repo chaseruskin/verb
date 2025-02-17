@@ -140,6 +140,9 @@ class bit:
     def __not__(self) -> bool:
         return self.uint == 0
     
+    def __index__(self) -> int:
+        return self.uint
+    
     def __eq__(self, rhs) -> bool:
         if not isinstance(rhs, bit):
             rhs = bit(rhs, self.width)

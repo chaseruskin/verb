@@ -3,7 +3,7 @@ Software drivers for modeling hardware.
 """
 
 # metadata
-__all__ = ["primitives", "context", "signal", "model", "coverage"]
+__all__ = ["context", "signal", "model", "coverage"]
 __version__ = "0.1.0"
 __author__ = "Chase Ruskin"
 __email__ = "c.ruskin@ufl.edu"
@@ -11,17 +11,9 @@ __copyright__ = "Copyright 2025 Chase Ruskin"
 __license__ = "MIT"
 
 # imports
-from . import primitives as _primitives
-from . import context as _context
-from . import signal as _signal
 
 from . import coverage as coverage
 from . import model as model
-
-from .primitives import *
-
-from .model import Vectors as _Vectors
-from .model import Mode as _Mode
 
 # module-level (easilty public-facing) functions
 
@@ -37,12 +29,13 @@ def load_param(key: str, dtype: type):
     will be converted to the Python-friendly datatype. By default, all values returned are
     left as `str`.
     """
+    from . import context as _context
     return _context.generic(key, dtype)
 
 
 def reset():
     """
-    Reset the internal iteration counter.
+    Reset this test's iteration counter.
 
     This function may be used if a model script wants to call the
     `running()` method multiple times in a single execution.
@@ -66,7 +59,7 @@ def running(limit: int=100_000, stop_if_covered: bool=True) -> bool:
 
     Setting the `limit` to -1 will allow the model to run infinitely.
     """
-
+    from . import context as _context
     if _context.Context.current()._context._max_test_count > -1:
         limit = int(_context.Context.current()._context._max_test_count)
 
@@ -92,7 +85,7 @@ def running(limit: int=100_000, stop_if_covered: bool=True) -> bool:
     return True
 
 
-def vectors(path: str, mode: _Mode=None) -> _Vectors:
+def open(path: str, mode: str=None):
     """
     Creates a test vectors file to write stimuli/results for a future hardware simulation.
 
@@ -100,19 +93,25 @@ def vectors(path: str, mode: _Mode=None) -> _Vectors:
     - `name`: the file's path name
     - `mode`: which directional ports to write to the file
 
+    Possible values for `mode` are:
+    - `i`: signals of the model with their mode configured as `IN`
+    - `o`: signals of the model with their mode configured as `OUT`
+    - `io`: signals of the model with their mode configured as `INOUT`
+    - `l`: signals of the model with their mode configured as `LOCAL`
+
     If `mode` is set to None, then the mode can be inferred from the path's file name.
     The following names (excluding file extension) allow port inference:
-    - "inputs": inferred to capture ports of mode `IN`
-    - "outputs": inferred to capture ports of mode `OUT`
+    - "inputs": infers the mode to be `i`
+    - "outputs": infers the mode to be `o`
     """
     import os
     from .model import Vectors, Mode
 
     if mode == None:
         fname, _ = os.path.splitext(os.path.basename(path))
-        if fname == 'inputs':
+        if fname.count('inputs') > 0:
             mode = Mode.IN
-        elif fname == 'outputs':
+        elif fname.count('outputs') > 0:
             mode = Mode.OUT
         else:
             raise Exception("cannot assume port mode for vectors file: " + str(path))
@@ -235,3 +234,90 @@ def randomize(model, strategy: str="weights"):
             pass   
         pass
     pass
+
+
+def pow(base: int, exp: int):
+    """
+    Computes the followng formula: `base^exp`.
+    """
+    return base**exp
+
+
+def pow2(k: int):
+    """
+    Computes the following formula: `2^(k)`.
+
+    This function effectively determines the maximum number of values available
+    for `k` bits.
+    """
+    return 2**k
+
+
+def pow2m1(k: int):
+    """
+    Computes the following formula: `2^(k)-1`.
+
+    This function effectively determines the maximum unsigned number represented in
+    base 2 for `k` bits.
+    """
+    return (2**k)-1
+
+
+def is_pow2(n: int) -> bool:
+    """
+    Checks if `n` is a power of 2.
+    """
+    import math as _math
+    return _math.log2(n).is_integer()
+
+
+def clog2(n: int) -> int:
+    """
+    Computes the following formula: `ceil(log2(n))`.
+
+    It effectively determines the minimum number of bits required to enumerate
+    `n` possible values of a space.
+    """
+    import math as _math
+    return int(_math.ceil(_math.log2(n)))
+
+
+def flog2p1(n: int) -> int:
+    """
+    Computes the following formula: `floor(log2(n)+1))`.
+
+    This function determines the minimum number of bits required to represent `n`
+    as a decimal number in standard binary representation.
+    """
+    import math as _math
+    return int(_math.floor(_math.log2(n) + 1))
+
+
+def repr2(n: int) -> int:
+    """
+    Computes the minimum number of bits required to represent the decimal number
+    `n` in a base 2 numbering system.
+    
+    Internally, this function calculates: `floor(log2(n)+1))`.
+    """
+    return flog2p1(n)
+
+
+def enum2(n: int) -> int:
+    """
+    Computes the minimum number of bits required to enumerate `n` possible
+    values in a set.
+    
+    Internally, this function calculates: `ceil(log2(n))`.
+    """
+    return clog2(n)
+
+
+def is_pow2(n: int) -> bool:
+    """
+    Checks if `n` is a power of 2.
+
+    A number is a power of 2 when its binary representation has exactly 1 bit
+    set to '1'.
+    """
+    return (n & (n-1) == 0) and n != 0

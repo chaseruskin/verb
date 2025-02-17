@@ -14,7 +14,7 @@
 
 import random
 
-import verb
+import verb as vb
 from verb.model import *
 from verb.coverage import *
 
@@ -42,7 +42,7 @@ class BcdEncoder:
         """
         Assign a new set of inputs for the model to compute.
         """
-        verb.randomize(self)
+        vb.randomize(self)
         if explicit_go_val != None:
             self.go.set(explicit_go_val)
 
@@ -131,8 +131,8 @@ def apply_coverage(real_mdl: BcdEncoder, fake_mdl: BcdEncoder):
 def main():
     # Setup - collect parameters and create models
 
-    DIGITS = verb.load_param('DIGITS', dtype=int)
-    LEN  = verb.load_param('LEN', dtype=int)
+    DIGITS = vb.load_param('DIGITS', dtype=int)
+    LEN  = vb.load_param('LEN', dtype=int)
  
     real_mdl = BcdEncoder(width=LEN, digits=DIGITS)
     fake_mdl = BcdEncoder(width=LEN, digits=DIGITS)
@@ -141,9 +141,9 @@ def main():
     apply_coverage(real_mdl, fake_mdl)
     
     # Run - generate the test vectors from the model(s)
-    with verb.vectors('inputs.txt') as vi, verb.vectors('outputs.txt') as vo:
+    with vb.open('inputs.txt') as vi, vb.open('outputs.txt') as vo:
         # initialize the values with defaults
-        while verb.running(1_000):
+        while vb.running(1_000):
             # get a new set of inputs to process
             real_mdl.setup(1)
             vi.push(real_mdl)

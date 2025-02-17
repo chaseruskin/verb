@@ -43,9 +43,9 @@ def generic(key: str, type=str):
 
 
 def port(key: str) -> dict:
-    '''
+    """
     Finds the first index that has a port with a name equal to `key`.
-    '''
+    """
     for port in Context.current()._ports:
         if port['identifier'] == key:
             return port
@@ -74,12 +74,12 @@ class Runner:
 
 
     def generic(self, key: str, type=str):
-        '''
+        """
         Accesses the generic based upon the provided `key`.
 
         Define a type to help with converting to a Python-friendly datatype, as all
         generics are initially stored as `str`.
-        '''
+        """
         from . import cast
         # verify the key exists
         value: dict
@@ -112,9 +112,9 @@ class Runner:
     
 
     def port(self, key: str) -> dict:
-        '''
+        """
         Finds the first index that has a port with a name equal to `key`.
-        '''
+        """
         for port in self._ports:
             if port['identifier'] == key:
                 return port
@@ -129,9 +129,9 @@ class Runner:
 
 
     def port_index(self, key: str) -> int:
-        '''
+        """
         Returns the location of the port, if it exists. Returns -1 otherwise.
-        '''
+        """
         for (i, port) in enumerate(self._ports):
             if port['identifier'] == key:
                 return i
@@ -139,9 +139,9 @@ class Runner:
     
 
     def override_param(self, key: str, value: str) -> str:
-        '''
+        """
         Sets the parameter value and will replace any existing value.
-        '''
+        """
         param = self._parameters[self.param_index(key)]
         if param == None:
             return None
@@ -151,9 +151,9 @@ class Runner:
     
 
     def override_port(self, key: str, value: str) -> str:
-        '''
+        """
         Sets the port value and will replace any existing value.
-        '''
+        """
         port = self._ports[self.port_index(key)]
         if port == None:
             return None
@@ -166,9 +166,9 @@ class Runner:
 class Context:
 
     def __init__(self) -> None:
-        '''
+        """
         Create a new verification environment.
-        '''
+        """
         import os as _os
         
         self._built = False
@@ -188,33 +188,33 @@ class Context:
         pass
 
     def bench_interface(self, data: str):
-        '''
+        """
         Sets the path to the testbench interface json data.
-        '''
+        """
         if self._built == True: return self
         self._bench_if = str(data)
         return self
 
     def top_interface(self, data: str):
-        '''
+        """
         Sets the path to the design-under-test's interface json data.
-        '''
+        """
         if self._built == True: return self
         self._dut_if = str(data)
         return self
     
     def max_test_count(self, limit: int):
-        '''
+        """
         Sets the maximum number of tests allowed to be tested before timing out.
-        '''
+        """
         if self._built == True: return self
         self._max_test_count = int(limit)
         return self
     
     def seed(self, value: int):
-        '''
+        """
         Sets the random number generation seed.
-        '''
+        """
         if self._built == True: return self
         self._seed = value
         return self
@@ -233,26 +233,26 @@ class Context:
         return Runner._current
 
     def coverage_report(self, path: str):
-        '''
+        """
         Sets the path of the coverage report file.
-        '''
+        """
         if self._built == True: return self
         self._coverage_report = str(path)
         return self
 
     def event_log(self, path: str):
-        '''
+        """
         Sets the path of the coverage report file.
-        '''
+        """
         if self._built == True: return self
         self._event_log = str(path)
         return self
 
     @staticmethod
     def current() -> Runner:
-        '''
+        """
         Reference the current context being ran.
-        '''
+        """
         if Runner._current == None:
             Context().build()
         return Runner._current

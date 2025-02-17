@@ -28,10 +28,10 @@ class Strategy(_Enum):
 
 
 def __compile_ports(model):
-    '''
+    """
     Compiles the list of ports into a mapping where the 'key' is the defined name
     and the 'value' is a tuple (Signal, Dict).
-    '''
+    """
     from .context import Context, Runner
 
     # save computations
@@ -58,10 +58,10 @@ def __compile_ports(model):
 
 
 def _extract_ports(model, mode: Mode):
-    '''
+    """
     Collects the attributes defined in the `model` into a list storing
     the tuples of their (name, signal).
-    '''
+    """
     results = []
 
     key: str
@@ -112,10 +112,10 @@ def __compile_signals(model) -> dict:
 
 
 def _extract_signals(model):
-    '''
+    """
     Collects the attributes defined in the `model` into a list storing the tuples
     of their (name, signal).
-    '''
+    """
     results = []
 
     key: str

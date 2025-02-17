@@ -25,7 +25,7 @@ bug:
 # Test the hardware library
 test-hw-lib:
     just compile
-    cd src/lib/hw; orbit test --dut basic --target gverb
+    cd src/lib/vhdl; orbit test --dut basic --target gverb
 
 test-sw-bin:
     cd src/bin/verb; cargo test

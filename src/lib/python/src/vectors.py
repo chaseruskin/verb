@@ -8,13 +8,13 @@ class Vectors:
     from typing import List as _List
 
     def __init__(self, path: str, mode: _Mode):
-        '''
+        """
         Creates a trace file to write stimuli/results for a potential hardware simulation.
         
         ### Parameters
         - The `name` argument sets the file's path name
         - The `mode` argument determines which directional ports to capture when writing to the file
-        '''
+        """
         import os
         from .model import Mode
 
@@ -56,14 +56,14 @@ class Vectors:
 
 
     def open(self):
-        '''
+        """
         Explicit call to obtain ownership of the file. It is the programmer's
         responsibility to close the file when done.
 
         Calling this function and leaving the file open while appending traces
         to the test vector files can improve performance when many writes are
         required.
-        '''
+        """
         # open the file in append mode
         if self._file == None:
             self._file = open(self._path, 'a')
@@ -71,10 +71,10 @@ class Vectors:
     
 
     def close(self):
-        '''
+        """
         Explicit call to release ownership of the file. This operation is
         idempotent.
-        '''
+        """
         if self._file != None:
             self._file.close()
             self._file = None

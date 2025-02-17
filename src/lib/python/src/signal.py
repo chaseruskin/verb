@@ -155,6 +155,9 @@ class Signal:
 
         self._is_signed = bool(signed)
 
+        # ensure proper sign extension when going into bit if not given as an integer
+        if self._is_signed and not isinstance(value, int):
+            value = _bit(value, endian=endian).int
         # store the bit-level representation of the data
         self._data = _bit(value, width=self._width, endian=endian)
 
@@ -168,8 +171,6 @@ class Signal:
         if type(self._distro) == list:
             self._distro = Distribution(space=[*self.span()], weights=dist, partition=True)
             pass
-
-        # self.assign(value)
         pass
 
     def width(self) -> int:
@@ -198,21 +199,27 @@ class Signal:
         self._data = _bit(value, self.width(), self.endianness())
         pass
 
-    def splice(self, index, value):
+    def get(self) -> _bit:
+        """
+        Return the interal bit-level representation of the data.
+        """
+        return self._data
+
+    def splice(self, key, value):
         """
         Updates the current Signal's internal data with `value` at the given
         slice of its vector representation.
         """
-        if type(index) == tuple:
-            index = [*index]
-        if type(index) != tuple and type(index) != list:
-            index = [index]
+        if type(key) == tuple:
+            key = [*key]
+        if type(key) != tuple and type(key) != list:
+            key = [key]
         dims = [*self._dimensions]
 
         cur_str = str(self._data)
         starting_i = 0
         next_w = self.width()
-        for (a, (i, dim)) in enumerate(zip(index, dims)):
+        for (a, (i, dim)) in enumerate(zip(key, dims)):
             if i < 0 or i >= dim:
                 raise IndexError("expected index 'i' to be between 0 and " + str(dim) + ", but got " + str(i))
             next_w = 1 if a+1 >= len(dims) else dims[a+1]
@@ -241,15 +248,15 @@ class Signal:
         self.set(new_val)
         pass
 
-    def slice(self, index) -> _bit:
+    def slice(self, key) -> _bit:
         """
         Returns a new instance of the bit-level representation that encompasses the
         subset sliced from the original data.
         """
-        if type(index) == tuple:
-            index = [*index]
-        if type(index) != tuple and type(index) != list:
-            index = [index]
+        if type(key) == tuple:
+            key = [*key]
+        if type(key) != tuple and type(key) != list:
+            key = [key]
         dims = [*self._dimensions]
 
         sub = Signal(
@@ -259,7 +266,7 @@ class Signal:
             signed=self.signed(),
         )
 
-        for (a, (i, dim)) in enumerate(zip(index, dims)):
+        for (a, (i, dim)) in enumerate(zip(key, dims)):
             if i < 0 or i >= dim:
                 raise IndexError("expected index 'i' to be between 0 and " + str(dim) + ", but got " + str(i))
             next_w = 1 if a+1 >= len(dims) else dims[a+1]
@@ -308,7 +315,7 @@ class Signal:
         Returns the minimum possible integer value stored in the allotted bits 
         (inclusive).
         """
-        from .primitives import pow2
+        from . import pow2
         return 0 if self._is_signed == False else -pow2(self._width)
     
     def max(self) -> _builtins.int:
@@ -316,7 +323,7 @@ class Signal:
         Returns the maximum possible integer value stored in the allotted bits
         (inclusive).
         """
-        from .primitives import pow2m1
+        from . import pow2m1
         return pow2m1(self._width) if self._is_signed == False else pow2m1(self._width-1)
     
     def span(self) -> range:
@@ -354,21 +361,15 @@ class Signal:
             self.set(_random.randint(self.min(), self.max()))
         else:
             self.set(self._distro.samples(k=1)[0])
-    
-    def __setattr__(self, name, value):
-        if name == "value":
-            if value != None:
-                self.set(value)
-            if value == None:
-                self.set(0)
-        else:
-            self.__dict__[name] = value
 
     def __getitem__(self, key: int) -> str:
         return self._data[key]
     
     def __setitem__(self, key: int, value):
         self._data[key] = value
+
+    def __index__(self) -> int:
+        return self._data.uint
 
     def __str__(self):
         return str(self._data)

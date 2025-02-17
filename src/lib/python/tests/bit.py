@@ -91,3 +91,10 @@ class Test(ut.TestCase):
         a = bit('0101')
         a = a << 1
         self.assertEqual(a, 0b1010)
+
+    def test_bin(self):
+        a = bit('1010')
+        self.assertEqual(bin(a), '0b1010')
+
+        b = bit(-2, 6)
+        self.assertEqual(bin(b), '0b111110')

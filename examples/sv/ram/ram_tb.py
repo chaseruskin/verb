@@ -36,21 +36,20 @@ class Ram:
         Assign the next set of inputs.
         """
         vb.randomize(self)
-        # # debugging for `Reg` class
-        # print(id(self.waddr), id(self.waddr_r.prev), id(self.waddr_r.now), id(self.waddr_r.next))
-        # self.waddr_r.now = self.waddr
 
     def compute(self):
         """
         Model the functional behavior of the design unit.
         """
         # model how the output is set
-        self.rdata.set(self.mem.now[self.raddr.get(int)])
-        if self.raddr.get(int) == self.waddr.get(int):
-            self.rdata.set(self.wdata.get(int))
+        self.rdata.set(self.mem.now[self.raddr])
+
+        if int(self.raddr) == int(self.waddr):
+            self.rdata.set(self.wdata)
+
         # model how to update the internal memory cells
-        if self.wen.get(int) == 1:
-            self.mem.next[self.waddr.get(int)] = self.wdata.get(int)
+        if self.wen:
+            self.mem.next[self.waddr] = int(self.wdata)
         # advance to next time
         self.clk.tick()
     
@@ -61,7 +60,6 @@ def apply_coverage(ram: Ram):
     """
     Define coverage areas.
     """
-
     cr0 = CoverRange(
         name="waddr range",
         goal=2,
@@ -98,7 +96,7 @@ def apply_coverage(ram: Ram):
         name="raddr is waddr",
         goal=10,
         sink=(ram.raddr, ram.waddr, ram.wen),
-        checker=lambda x, y, z: x.get(int) == y.get(int) and z.get(int) == 1
+        checker=lambda x, y, z: int(x) == int(y) and z
     )
     pass
 
@@ -114,7 +112,7 @@ def main():
     apply_coverage(ram)
 
     # Run the model
-    with vb.vectors('inputs.txt') as vi, vb.vectors('outputs.txt') as vo:
+    with vb.open('inputs.txt') as vi, vb.open('outputs.txt') as vo:
         while vb.running(1_000):
             # Generate inputs
             ram.setup()
