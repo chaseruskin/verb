@@ -392,7 +392,8 @@ class Signal:
         return self
 
     def __iter__(self):
-        return iter([int(i) for i in str(self._data)])
+        # The iterator goes from LSb (index 0) to MSb
+        return iter(list(self._data))
 
     def __len__(self):
         return self._width

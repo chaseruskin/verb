@@ -89,12 +89,11 @@ class bit:
             self.bin = '0b' + self.bin[::-1][:self.width][::-1]
 
         # reverse the binary string if storing in little endian
-        if self.endian == 'little':
+        if self.endian == 'little' and not isinstance(value, str):
             self.bin = '0b' + self.bin[2:][::-1]
 
         # sync with correct int and uint values
         self.update(self.bin)
-
 
     def update(self, bits: str):
         """
@@ -143,6 +142,14 @@ class bit:
     def __index__(self) -> int:
         return self.uint
     
+    def __iter__(self):
+        # convert the bits into ints from LSb to MSb
+        bits = self.bin[2:]
+        if self.endian == 'big':
+            bits = bits[::-1]
+        it = [int(b) for b in bits]
+        return iter(it)
+
     def __eq__(self, rhs) -> bool:
         if not isinstance(rhs, bit):
             rhs = bit(rhs, self.width)

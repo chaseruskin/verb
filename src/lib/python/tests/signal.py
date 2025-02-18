@@ -26,13 +26,13 @@ class Test(ut.TestCase):
         d.set(2)
         self.assertEqual(d.get(), 2)
         self.assertEqual(d.get(), bit('0010'))
-        self.assertEqual(list(d), [0, 0, 1, 0])
+        self.assertEqual(list(d), [0, 1, 0, 0])
         self.assertEqual(int(d), 2)
 
         d.set('1101')
         self.assertEqual(d.get(), 0b1101)
         self.assertEqual(str(d), '1101')
-        self.assertEqual(list(d), [1, 1, 0, 1])
+        self.assertEqual(list(d), [1, 0, 1, 1])
         self.assertEqual(int(d), 13)
         self.assertEqual(d.dim(), (4,))
         self.assertEqual(d.dim()[0], 4)
@@ -140,5 +140,9 @@ class Test(ut.TestCase):
         s += 1
         self.assertEqual(str(s), '00')
         self.assertEqual(int(s), 0)
+
+    def test_iter(self):
+        s = Signal(4, '1010')
+        self.assertEqual(list(s), [0, 1, 0, 1])
 
     pass

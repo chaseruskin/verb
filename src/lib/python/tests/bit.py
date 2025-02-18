@@ -98,3 +98,20 @@ class Test(ut.TestCase):
 
         b = bit(-2, 6)
         self.assertEqual(bin(b), '0b111110')
+
+    def test_iter(self):
+        # iterating goes from LSB (index 0) to MSB (greatest index)
+        a = bit('00101', endian='big')
+        self.assertEqual(list(a), [1, 0, 1, 0, 0])
+
+        a = bit('00101', endian='little')
+        self.assertEqual(list(a), [0, 0, 1, 0, 1])
+
+        a = bit(1, width=4, endian='little')
+        self.assertEqual(a.bin, '0b1000')
+        self.assertEqual(list(a), [1, 0, 0, 0])
+
+        result = [1, 0, 0, 0]
+        for (i, b) in enumerate(a):
+            self.assertEqual(b, result[i])
+
