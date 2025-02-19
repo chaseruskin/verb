@@ -1,6 +1,10 @@
 from .net import CoverageNet
 
 class CoverGroup(CoverageNet):
+    """
+    A `CoverGroup` is designed to track when an instance among multiple different (but somehow related)
+    events occur.
+    """
     from typing import List as _List
     from ..model import Signal
 

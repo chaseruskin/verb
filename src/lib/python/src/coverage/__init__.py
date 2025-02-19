@@ -7,9 +7,6 @@ from .group import CoverGroup
 from .point import CoverPoint
 from .ranger import CoverRange
 
-from .net import CoverageNet as _CoverageNet
-from .status import Status as _Status
-
 class Coverage:
 
     _total_coverages = 0
@@ -22,6 +19,7 @@ class Coverage:
         """
         Returns the list of all coverage nets being tracked.
         """
+        from .net import CoverageNet as _CoverageNet
         return _CoverageNet._group
 
     @staticmethod
@@ -31,6 +29,7 @@ class Coverage:
 
         This function excludes coverage nets that are bypassed.
         """
+        from .net import CoverageNet as _CoverageNet
         net: _CoverageNet
         result = []
         for net in _CoverageNet._group:
@@ -46,6 +45,7 @@ class Coverage:
         Compiles a report of the coverage statistics and details. Setting `verbose`
         to `False` will only provide minimal details to serve as a quick summary.
         """
+        from .net import CoverageNet as _CoverageNet
         contents = ''
         cov: _CoverageNet
         for cov in _CoverageNet._group:
@@ -60,6 +60,7 @@ class Coverage:
         a sense of how many test cases were required in order to achieve full
         coverage.
         """
+        from .net import CoverageNet as _CoverageNet
         return _CoverageNet._counter
     
     @staticmethod
@@ -67,6 +68,9 @@ class Coverage:
         """
         Iterates through all CoverageNets to compute the ratio of pass/fail.
         """
+        from .net import CoverageNet as _CoverageNet
+        from .status import Status as _Status
+
         Coverage._total_coverages = 0
         Coverage._passed_coverages = 0
         Coverage._point_count = 0
@@ -113,7 +117,8 @@ class Coverage:
     pass
 
     @staticmethod
-    def get_overall_status() -> _Status:
+    def get_overall_status():
+        from .status import Status as _Status
         if Coverage._total_points == 0:
             return _Status.SKIPPED
         elif Coverage._point_count >= Coverage._total_points:
@@ -128,6 +133,7 @@ class Coverage:
         """
         import json
         from .. import context
+        from .net import CoverageNet as _CoverageNet
 
         net: _CoverageNet
         report = {
@@ -203,20 +209,6 @@ class Coverage:
             f.write(Coverage.report(True))
             pass
         return os.path.abspath(path)
-
-def summary() -> str:
-    """
-    Returns a high-level overview of the most recent coverage trial.
-    """
-    return Coverage.report(False)
-
-
-def report_score() -> str:
-    """
-    Formats the score as a `str`.
-    """
-    Coverage.tally_score()
-    return (str(Coverage.percent()) + ' % ' if Coverage.percent() != None else 'N/A ') + '(' + str(Coverage._point_count) + '/' + str(Coverage._total_points) + ' goals)'
 
 
 def check(threshold: float=1.0) -> bool:

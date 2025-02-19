@@ -43,8 +43,8 @@ def get_cov_net(key: str):
     A coverage net's key is the name assigned to that coverage net when
     initialized.
     """
-    from .coverage import _CoverageNet
-    return _CoverageNet._map.get(key)
+    from .coverage.net import CoverageNet
+    return CoverageNet._map.get(key)
 
 
 def reset():
@@ -54,7 +54,8 @@ def reset():
     This function may be used if a model script wants to call the
     `running()` method multiple times in a single execution.
     """
-    coverage._CoverageNet._counter = 0
+    from .coverage.net import CoverageNet
+    CoverageNet._counter = 0
 
 
 def running(limit: int=100_000, stop_if_covered: bool=True) -> bool:
@@ -74,20 +75,21 @@ def running(limit: int=100_000, stop_if_covered: bool=True) -> bool:
     Setting the `limit` to -1 will allow the model to run infinitely.
     """
     from . import context as _context
+    from .coverage.net import CoverageNet
     if _context.Context.current()._context._max_test_count > -1:
         limit = int(_context.Context.current()._context._max_test_count)
 
     # force the modeling to end if reached the iteration limit
-    if limit > 0 and coverage._CoverageNet._counter >= limit:
+    if limit > 0 and CoverageNet._counter >= limit:
         coverage.Coverage.save()
         return False
     # allow modeling to end when all coverages are met
-    if stop_if_covered == True and len(coverage._CoverageNet._group) > 0:
-        net: coverage._CoverageNet
-        for net in coverage._CoverageNet._group:
+    if stop_if_covered == True and len(CoverageNet._group) > 0:
+        net: CoverageNet
+        for net in CoverageNet._group:
             if net.skipped() == False and net.passed() == False:
                 # increment the counter
-                coverage._CoverageNet._counter += 1
+                CoverageNet._counter += 1
                 # keep the model running
                 return True
         # passed all coverages... stop modeling
@@ -95,7 +97,7 @@ def running(limit: int=100_000, stop_if_covered: bool=True) -> bool:
         return False
     # increment as normal counter
     else:
-        coverage._CoverageNet._counter += 1
+        CoverageNet._counter += 1
     return True
 
 
@@ -155,11 +157,12 @@ def randomize(model, strategy: str="weights"):
     - "random": sample a failing coverage net at random using uniform distribution and draw the next value to help close its coverage
     - "weights": sample a coverage net to advance according to its normalized weighted distribution of its distance from its goal
     """
-    from .coverage import _CoverageNet, Coverage
+    from .coverage import Coverage
+    from .coverage.net import CoverageNet
     from .model import Signal, Strategy, Mode, _extract_ports
     import random
 
-    net: _CoverageNet
+    net: CoverageNet
     port: Signal
 
     strat: Strategy = Strategy.from_str(strategy)
@@ -213,7 +216,7 @@ def randomize(model, strategy: str="weights"):
             pass
         # choose a failing net at random
         if len(candidates) > 0:
-            sel: _CoverageNet = random.choice(candidates)
+            sel: CoverageNet = random.choice(candidates)
             sel.advance(rand=True)
             pass
         pass
