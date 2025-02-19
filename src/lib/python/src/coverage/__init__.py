@@ -10,19 +10,12 @@ from .ranger import CoverRange
 from .net import CoverageNet as _CoverageNet
 from .status import Status as _Status
 
-
-class _MetaCoverage(type):
-    def __getitem__(cls, val):
-        return _CoverageNet._map.get(val)
-    
-
-class Coverage(object, metaclass=_MetaCoverage):
+class Coverage:
 
     _total_coverages = 0
     _passed_coverages = 0
     _point_count = 0
     _total_points = 0
-    _coverage_report = 'coverage.rpt'
 
     @staticmethod
     def get_nets():
@@ -84,10 +77,8 @@ class Coverage(object, metaclass=_MetaCoverage):
                 continue
             Coverage._total_coverages += 1
             Coverage._point_count += net.get_points_met()
-            if type(net) == CoverPoint:
-                Coverage._total_points += 1
-            else:
-                Coverage._total_points += net.get_partition_count()
+            # add up number of points
+            Coverage._total_points += net.get_partition_count()
             if net.status() == _Status.PASSED:
                 Coverage._passed_coverages += 1
             pass
@@ -113,33 +104,11 @@ class Coverage(object, metaclass=_MetaCoverage):
         """
         Saves the report if not already saved, and then returns the absolute path to the file.
         """
-        import os
-        from .. import context
-
-        path = Coverage._coverage_report
         Coverage.tally_score()
         # write to .json
-        Coverage.to_json()
-        # write to .txt
-        header = 'File: Coverage Report' + '\n'
-        header += "Seed: " + str(context.Context.current()._context._seed) + '\n'
-        header += "Iterations: " + str(Coverage.count()) + '\n'
-        header += "Score: "   + str(Coverage.percent()) + '\n'
-        header += "Met: " + ('None' if Coverage._total_points == 0 else str(Coverage._point_count >= Coverage._total_points)) + '\n'
-        header += "Count: " + str(Coverage._point_count) + '\n'
-        header += "Points: " + str(Coverage._total_points) + '\n'
-
-        with open(path, 'w') as f:
-            # header
-            f.write(header)
-            f.write('\n')  
-            # summary
-            f.write(Coverage.report(False))
-            f.write('\n')  
-            # details
-            f.write(Coverage.report(True))
-            pass
-        return os.path.abspath(path)
+        Coverage.to_json('coverage.json')
+        # write to report
+        Coverage.to_rpt('coverage.rpt')
     
     pass
 
@@ -153,7 +122,7 @@ class Coverage(object, metaclass=_MetaCoverage):
             return _Status.FAILED
 
     @staticmethod
-    def to_json() -> str:
+    def to_json(path: str):
         """
         Writes the coverage report as a json encoded string.
         """
@@ -165,29 +134,81 @@ class Coverage(object, metaclass=_MetaCoverage):
             'seed': context.Context.current()._context._seed,
             'iterations': int(Coverage.count()),
             'score': Coverage.percent(),
-            'met': Coverage.get_overall_status().to_json(),
+            'achieved': Coverage.get_overall_status().to_json(),
             'count': int(Coverage._point_count),
             'points': int(Coverage._total_points),
             'nets': [net.to_json() for net in _CoverageNet._group]
         }
 
-        with open('coverage.json', 'w') as f:
-            json.dump(report, f, indent=4)
+        with open(path, 'w') as fd:
+            json.dump(report, fd, indent=4)
         pass
 
+    @staticmethod
+    def to_rpt(path: str) -> str:
+        """
+        Writes the coverage report as a report formatted string.
+        """
+        import os
+        from .. import context
+        import time
+        from .. import __version__
+        # write to .txt
+        tb_name = 'N/A'
+        dut_name = 'N/A'
+        if context.Context.current()._dut != None:
+            dut_name = str(context.Context.current()._dut)
+        if context.Context.current()._tb != None:
+            tb_name = str(context.Context.current()._tb)
+        header = 'Functional Coverage Report\n'
+        header += str(time.strftime("%a %b %d %H:%M:%S %Y")) + '\n'
+        header += 'Verb ' + __version__ + '\n'
+        header += '''
++--------------------------------------------+
+; Info                                       ;
++--------------------------------------------+
+'''
+        header += 'Testbench: ' + tb_name + '\n'
+        header += 'Module: ' + dut_name+'\n'
+        header += "Score: "   + str(Coverage.percent()) + '\n'
+        header += "Achieved: " + ('None' if Coverage._total_points == 0 else str(Coverage._point_count >= Coverage._total_points)) + '\n'
+        header += "Count: " + str(Coverage._point_count) + '\n'
+        header += "Points: " + str(Coverage._total_points) + '\n'
+        header += "Iterations: " + str(Coverage.count()) + '\n'
+        header += "Seed: " + str(context.Context.current()._context._seed) + '\n'
+
+        params = context.Context.current()._parameters
+        if len(params) == 0:
+            header += "Generics: None\n"
+        else:
+            header += "Generics:\n"
+            for p in params:
+                header += "    " + p['identifier'] + ": " + str(context.Context.current().generic(p['identifier'])) + '\n'
+        with open(path, 'w') as f:
+            # header
+            f.write(header) 
+            # summary
+            f.write('''
++--------------------------------------------+
+; Summary                                    ;
++--------------------------------------------+             
+''')
+            f.write(Coverage.report(False))
+            # details
+            f.write('''
++--------------------------------------------+
+; Details                                    ;
++--------------------------------------------+             
+''')
+            f.write(Coverage.report(True))
+            pass
+        return os.path.abspath(path)
 
 def summary() -> str:
     """
     Returns a high-level overview of the most recent coverage trial.
     """
     return Coverage.report(False)
-
-
-def report_path() -> str:
-    """
-    Returns the coverage report's filesystem path.
-    """
-    return Coverage._coverage_report
 
 
 def report_score() -> str:

@@ -15,8 +15,8 @@
 import random
 
 import verb as vb
-from verb.model import *
-from verb.coverage import *
+from verb.model import Signal
+from verb.coverage import CoverCross, CoverRange, CoverGroup, CoverPoint
 
 class BcdEncoder:
 
@@ -27,12 +27,12 @@ class BcdEncoder:
         self.num_digits = digits
         self.width = width
 
-        self.go = Signal(1, mode=Mode.IN, dist=[0.3, 0.7])
-        self.bin = Signal(width, mode=Mode.IN)
+        self.go = Signal(1, dist=[0.3, 0.7])
+        self.bin = Signal(width)
 
-        self.bcd = Signal(4*digits, mode=Mode.OUT)
-        self.ovfl = Signal(1, mode=Mode.OUT)
-        self.done = Signal(1, mode=Mode.OUT)
+        self.bcd = Signal(4*digits)
+        self.ovfl = Signal(1)
+        self.done = Signal(1)
 
         # Store the number of cycles it takes to compute a result
         self.fsm_cycle_delay = width+width-1

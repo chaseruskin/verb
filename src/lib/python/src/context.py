@@ -62,12 +62,16 @@ class Runner:
         self._context = context
         self._parameters = []
         self._ports = []
+        self._dut = None
+        self._tb = None
         # set the testbench generics
         if self._context._bench_if != None:
             self._parameters = json.loads(self._context._bench_if)['generics']
+            self._tb = json.loads(self._context._bench_if)["identifier"]
         # set the design's ports
         if self._context._dut_if != None:
             self._ports = json.loads(self._context._dut_if)['ports']
+            self._dut = json.loads(self._context._dut_if)["identifier"]
         # set the randomness seed
         random.seed(context._seed)
         pass

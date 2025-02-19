@@ -92,7 +92,7 @@ class CoverPoint(CoverageNet):
         return range(0, 2, 1)
     
     def get_partition_count(self) -> int:
-        return 2
+        return 1
     
     def get_points_met(self) -> int:
         """

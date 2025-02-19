@@ -34,6 +34,19 @@ def load_param(key: str, dtype: type):
     return _context.generic(key, dtype)
 
 
+def get_cov_net(key: str):
+    """
+    Returns a reference to the coverage net corresponding to the key.
+
+    If no coverage net exists under the given key, then it returns None.
+
+    A coverage net's key is the name assigned to that coverage net when
+    initialized.
+    """
+    from .coverage import _CoverageNet
+    return _CoverageNet._map.get(key)
+
+
 def reset():
     """
     Reset this test's iteration counter.
