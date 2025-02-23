@@ -106,12 +106,9 @@ def main():
         exit(0)
 
     if HAS_MODEL == True and V.skip_model == False:
-        ORBIT_TB = Env.read("ORBIT_TB_NAME", missing_ok=False)
-        ORBIT_DUT = Env.read("ORBIT_DUT_NAME", missing_ok=False)
-
         # export the interfaces using orbit to get the json data format
-        dut_data = Command("orbit").arg("get").arg(ORBIT_DUT).arg("--json").output()[0].strip()
-        tb_data = Command("orbit").arg("get").arg(ORBIT_TB).arg("--json").output()[0].strip()
+        dut_data = Env.read("ORBIT_DUT_JSON", missing_ok=False)
+        tb_data = Env.read("ORBIT_TB_JSON", missing_ok=False)
 
         seed_arg = '' if V.seed == None else '--seed='+str(V.seed)
         loop_limit_arg = '' if V.max_tests == None else '--loop-limit='+str(V.max_tests)
