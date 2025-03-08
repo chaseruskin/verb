@@ -9,6 +9,19 @@ pub struct Verb {
     subcommand: Option<Operation>,
 }
 
+impl Verb {
+    /// Formats a build tag.
+    fn format_build_tag(s: &str) -> String {
+        match s.contains("-") {
+            true => {
+                let tmp = s.replacen("-", ".r", 1);
+                tmp.replacen("-", ".", 1)
+            }
+            false => s.to_owned(),
+        }
+    }
+}
+
 impl Command for Verb {
     // Map the command-line data to the struct's data
     fn interpret(cli: &mut Cli<Memory>) -> cli::Result<Self> {
@@ -22,16 +35,32 @@ impl Command for Verb {
     // Process the struct's data to perform its task
     fn execute(self) -> proc::Result {
         if self.version == true {
-            println!("verb {}", VERSION);
-            return Ok(());
-        }
-        match self.subcommand {
-            Some(sub) => sub.execute(&()),
-            None => {
-                println!("{}", HELP);
-                Ok(())
+            let disp_version = match option_env!("GIT_DESC_VERSION") {
+                Some(build) => match build.len() {
+                    0 => format!("{} (unknown.build)", VERSION),
+                    _ => {
+                        let build = Self::format_build_tag(build);
+                        match build == VERSION {
+                            // drop redundant information if build is the same as version (official tagged release)
+                            true => format!("{}", VERSION),
+                            false => format!("{} ({})", VERSION, build),
+                        }
+                    }
+                },
+                None => format!("{} (unknown.build)", VERSION),
+            };
+            println!("verb {}", disp_version);
+            Ok(())
+        } else {
+            match self.subcommand {
+                Some(sub) => sub.execute(&()),
+                None => {
+                    println!("{}", HELP);
+                    Ok(())
+                }
             }
         }
+
     }
 }
 

@@ -45,6 +45,7 @@ dev-install:
     pip install -e src/lib/python --force
     orbit install --path src/lib/vhdl --force --offline
     orbit install --path src/lib/systemverilog --force --offline
+    export GIT_DESC_VERSION=$(git describe --tags)
     cargo install --path src/bin/verb --force
 
 dev-hw-install:

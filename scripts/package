@@ -39,6 +39,9 @@ if [ $TARGET == armv7-unknown-linux-musleabihf ] || [ $TARGET == arm-unknown-lin
     export TARGET_CC=musl-gcc
 fi
 
+echo "Building verb docs..."
+mdbook build docs
+
 # echo "Building verb installer..."
 # RUSTFLAGS="--deny warnings --codegen target-feature=+crt-static $TARGET_RUSTFLAGS" \
 #   cargo build --bin install --target $TARGET --release
@@ -112,6 +115,13 @@ cp \
   $SYSTEMVERILOG_LIB_DIR/$SYSTEMVERILOG_ARCHIVE \
   $VHDL_LIB_DIR/$VHDL_ARCHIVE \
   $DIST/lib
+
+# Copy the generated docs
+mkdir $DIST/docs
+cp -r \
+  docs/book/* \
+  $DIST/docs
+
 
 # Compress the distribution
 cd $DIST
