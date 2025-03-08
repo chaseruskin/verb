@@ -21,6 +21,9 @@ VHDL_LIB_DIR=$LIB_DIR/vhdl
 
 echo "Packaging verb (binary) $VERSION for $TARGET..."
 
+echo "Building verb docs..."
+mdbook build docs
+
 # Enter the binary directory to perform work
 cd $BIN_DIR
 
@@ -38,9 +41,6 @@ if [ $TARGET == armv7-unknown-linux-musleabihf ] || [ $TARGET == arm-unknown-lin
     export REALGCC=arm-linux-gnueabihf-gcc
     export TARGET_CC=musl-gcc
 fi
-
-echo "Building verb docs..."
-mdbook build docs
 
 # echo "Building verb installer..."
 # RUSTFLAGS="--deny warnings --codegen target-feature=+crt-static $TARGET_RUSTFLAGS" \
