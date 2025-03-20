@@ -1,4 +1,4 @@
-class bit:
+class Logic:
     """
     Represent a value as its bit-level string representation.
     """
@@ -12,7 +12,7 @@ class bit:
         if isinstance(value, _Signal):
             value = value._data
 
-        if isinstance(value, bit):
+        if isinstance(value, Logic):
             self.uint = value.uint
             self.int = value.int
             self.bin = value.bin
@@ -151,8 +151,8 @@ class bit:
         return iter(it)
 
     def __eq__(self, rhs) -> bool:
-        if not isinstance(rhs, bit):
-            rhs = bit(rhs, self.width)
+        if not isinstance(rhs, Logic):
+            rhs = Logic(rhs, self.width)
         return self.bin == rhs.bin
 
     def __getitem__(self, key: int) -> str:
@@ -190,12 +190,12 @@ class bit:
     
     def __or__(self, rhs):
         from copy import copy as _copy
-        if isinstance(rhs, bit) and rhs.width != self.width:
+        if isinstance(rhs, Logic) and rhs.width != self.width:
             raise Exception('bitwise operation requires matching widths')
         else:
-            if bit(rhs).width > self.width:
+            if Logic(rhs).width > self.width:
                 raise Exception('right-hand-side value requires a width larger than left-hand-side')
-            rhs = bit(rhs, self.width, self.endian)
+            rhs = Logic(rhs, self.width, self.endian)
         cp = _copy(self)
         uint = cp.uint | rhs.uint
         bits = '0b' + bin(uint)[2:].zfill(self.width)
@@ -204,12 +204,12 @@ class bit:
     
     def __and__(self, rhs):
         from copy import copy as _copy
-        if isinstance(rhs, bit) and rhs.width != self.width:
+        if isinstance(rhs, Logic) and rhs.width != self.width:
             raise Exception('bitwise operation requires matching widths')
         else:
-            if bit(rhs).width > self.width:
+            if Logic(rhs).width > self.width:
                 raise Exception('right-hand-side value requires a width larger than left-hand-side')
-            rhs = bit(rhs, self.width, self.endian)
+            rhs = Logic(rhs, self.width, self.endian)
         cp = _copy(self)
         uint = cp.uint & rhs.uint
         bits = '0b' + bin(uint)[2:].zfill(self.width)
@@ -218,12 +218,12 @@ class bit:
     
     def __xor__(self, rhs):
         from copy import copy as _copy
-        if isinstance(rhs, bit) and rhs.width != self.width:
+        if isinstance(rhs, Logic) and rhs.width != self.width:
             raise Exception('bitwise operation requires matching widths')
         else:
-            if bit(rhs).width > self.width:
+            if Logic(rhs).width > self.width:
                 raise Exception('right-hand-side value requires a width larger than left-hand-side')
-            rhs = bit(rhs, self.width, self.endian)
+            rhs = Logic(rhs, self.width, self.endian)
         cp = _copy(self)
         uint = cp.uint ^ rhs.uint
         bits = '0b' + bin(uint)[2:].zfill(self.width)
@@ -233,7 +233,7 @@ class bit:
     def __lshift__(self, rhs):
         from copy import copy as _copy
         cp = _copy(self)
-        rhs = bit(rhs)
+        rhs = Logic(rhs)
         uint = cp.uint << rhs.uint
         bits = bin(uint)[2:]
         bits = bits[len(bits)-self.width:]
@@ -244,7 +244,7 @@ class bit:
     def __rshift__(self, rhs):
         from copy import copy as _copy
         cp = _copy(self)
-        rhs = bit(rhs)
+        rhs = Logic(rhs)
         uint = cp.uint >> rhs.uint
         bits = '0b' + bin(uint)[2:].zfill(self.width)
         cp.update(bits)

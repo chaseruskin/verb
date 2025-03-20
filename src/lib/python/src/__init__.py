@@ -3,7 +3,7 @@ Software drivers for modeling hardware.
 """
 
 # metadata
-__all__ = ["context", "bit", "signal", "model", "coverage"]
+__all__ = ["context", "logic", "signal", "model", "coverage"]
 __version__ = "0.1.0"
 __author__ = "Chase Ruskin"
 __email__ = "c.ruskin@ufl.edu"
@@ -14,7 +14,7 @@ __license__ = "MIT"
 
 from . import coverage as coverage
 from . import model as model
-from .bit import bit
+from .logic import Logic
 
 # module-level (easilty public-facing) functions
 
@@ -136,13 +136,13 @@ def open(path: str, mode: str=None):
 
 def randomize(model, strategy: str="weights"):
     """
-    Assign random input values to each attribute of the model instance that is
+    Assign srandom input values to each `Signal` attribute of the model instance that is
     a known input port.
 
     After this function is called, all the known input ports under the `model`
     instance will have a random value according to the `strategy`. Calling this
-    function allows the user to leverage constrained randommization and avoid
-    having to individually sample each input port.
+    function allows the user to leverage constrained randomization and coverage-driven
+    test generation to avoid having to individually set each input port.
 
     ### Parameters
     - `model`: mutable reference to an instance that has attributes of known input ports
@@ -154,7 +154,7 @@ def randomize(model, strategy: str="weights"):
     strategies are currently available:
     - "none": use the default distributions for each input
     - "linear": iterate through the list of coverage nets and draw the next value to help close the first failing coverage net
-    - "random": sample a failing coverage net at random using uniform distribution and draw the next value to help close its coverage
+    - "uniform": sample a failing coverage net at random using uniform distribution and draw the next value to help close its coverage
     - "weights": sample a coverage net to advance according to its normalized weighted distribution of its distance from its goal
     """
     from .coverage import Coverage
@@ -197,7 +197,7 @@ def randomize(model, strategy: str="weights"):
             pass
         pass
     # select a coverage net at random using uniform distribution for next value to help close coverage
-    elif strat == Strategy.RANDOM:
+    elif strat == Strategy.UNIFORM:
         candidates = []
         # collect the set of nets
         failing_nets = Coverage.get_failing_nets()

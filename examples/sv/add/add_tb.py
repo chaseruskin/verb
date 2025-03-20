@@ -11,7 +11,7 @@
 import random
 
 import verb as vb
-from verb import bit
+from verb import Logic
 from verb.model import *
 from verb.coverage import *
 
@@ -27,14 +27,14 @@ class Add:
         # inputs
         self.in0 = Signal(
             width, 
-            dist=Distribution(
+            dist=Dist(
                 space=[0, vb.pow2m1(width), range(1, vb.pow2m1(width))], 
                 weights=[0.1, 0.1, 0.8]
             )
         )
         self.in1 = Signal(
             width, 
-            dist=Distribution(
+            dist=Dist(
                 space=[0, vb.pow2m1(width), range(1, vb.pow2m1(width))], 
                 weights=[0.1, 0.1, 0.8]
             )
@@ -55,7 +55,7 @@ class Add:
         """
         Model the functional behavior of the design unit.
         """
-        temp = bit(self.in0 + self.in1 + self.cin, self.width+1)
+        temp = Logic(self.in0 + self.in1 + self.cin, self.width+1)
         
         # update the output port values
         self.sum.set(temp[:-1][::-1])

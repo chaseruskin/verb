@@ -28,8 +28,6 @@ class Ram:
         self.clk = Clock()  
         # registers
         self.mem = Reg(self.clk, [0] * (2**addr_width))
-        self.waddr_r = Reg(self.clk, self.waddr)
-        pass
 
     def setup(self):
         """
@@ -42,14 +40,15 @@ class Ram:
         Model the functional behavior of the design unit.
         """
         # model how the output is set
-        self.rdata.set(self.mem.now[self.raddr])
+        self.rdata.set(self.mem.q[self.raddr])
 
         if int(self.raddr) == int(self.waddr):
             self.rdata.set(self.wdata)
 
         # model how to update the internal memory cells
         if self.wen:
-            self.mem.next[self.waddr] = int(self.wdata)
+            self.mem.d[self.waddr] = int(self.wdata)
+
         # advance to next time
         self.clk.tick()
     

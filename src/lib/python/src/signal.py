@@ -1,21 +1,42 @@
-# Project: Verb
-# Module: signal
-#
-# A Signal carries information.
+"""
+Classes for carrying information.
+"""
 
 from enum import Enum as _Enum
-from typing import Union as _Union
 import copy as _copy
-from .bit import bit as _bit
+from .logic import Logic as _Logic
 import builtins as _builtins
 
 class Mode(_Enum):
+    """
+    The direction in which information travels.
+    """
+    
     IN  = 0
+    """
+    Assign the signal to be a receiver of information.
+    """
     OUT = 1
+    """
+    Assign the signal to be a sender of information.
+    """
+
     INOUT  = 2
+    """
+    Assign the signal to be both a receiver and sender of information.
+    """
+
     LOCAL  = 3
+    """
+    Assign the signal to keep its information interal to its module.
+    """
+    
     # Allows interface data to decide what mode this signal is
     INFER = 4
+    """
+    Allow the library to infer the signal's direction based on any available
+    information received about the signal from external sources.
+    """
 
     @staticmethod
     def from_str(s: str):
@@ -33,7 +54,10 @@ class Mode(_Enum):
     pass
 
 
-class Distribution:
+class Dist:
+    """
+    Apply a distribution to a set of values defined within a space.
+    """
 
     def __init__(self, space, weights=None, partition: bool=True):
         """
@@ -95,11 +119,11 @@ class Signal:
     def __init__(
             self, 
             width: int=1, 
-            value=0, 
+            value: _Logic=0, 
             mode=Mode.INFER, 
             signed: bool=False, 
             endian: str='big', 
-            dist: Distribution=None, 
+            dist: Dist=None, 
             name: str=None
         ):
         """
@@ -157,19 +181,19 @@ class Signal:
 
         # ensure proper sign extension when going into bit if not given as an integer
         if self._is_signed and not isinstance(value, int):
-            value = _bit(value, endian=endian).int
+            value = _Logic(value, endian=endian).int
         # store the bit-level representation of the data
-        self._data = _bit(value, width=self._width, endian=endian)
+        self._data = _Logic(value, width=self._width, endian=endian)
 
         # explicitly set the signal's name
         self._name = name
 
         if dist != None:
-            if isinstance(dist, Distribution) == False and isinstance(dist, list) == False:
+            if isinstance(dist, Dist) == False and isinstance(dist, list) == False:
                 raise TypeError('expected distribution to be a Distribution or list but received type ' + str(type(dist)))
         self._distro = dist
         if type(self._distro) == list:
-            self._distro = Distribution(space=[*self.span()], weights=dist, partition=True)
+            self._distro = Dist(space=[*self.span()], weights=dist, partition=True)
             pass
         pass
 
@@ -196,12 +220,12 @@ class Signal:
                 raise Exception("cannot assign data from signal of mismatched endianness")
             value = value._data
         # update the data
-        self._data = _bit(value, self.width(), self.endianness())
+        self._data = _Logic(value, self.width(), self.endianness())
         pass
 
-    def get(self) -> _bit:
+    def get(self) -> _Logic:
         """
-        Return the interal bit-level representation of the data.
+        Return the data as a `Logic` type.
         """
         return self._data
 
@@ -228,7 +252,7 @@ class Signal:
 
         # convert this value to bit-level
         if type(value) == list or type(value) == int:
-            value = str(_bit(value, next_w, endian=self.endianness()))
+            value = str(_Logic(value, next_w, endian=self.endianness()))
 
         if len(value) > next_w:
             return ValueError("expected value 'value' to be between 1 and " + str(next_w) + " bits, but got " + str(len(value)))
@@ -248,7 +272,7 @@ class Signal:
         self.set(new_val)
         pass
 
-    def slice(self, key) -> _bit:
+    def slice(self, key) -> _Logic:
         """
         Returns a new instance of the bit-level representation that encompasses the
         subset sliced from the original data.
@@ -291,12 +315,6 @@ class Signal:
             pass
 
         return sub._data
-
-    def get(self) -> _bit:
-        """
-        Return access to the signal's internal data.
-        """
-        return self._data
     
     def bits(self) -> str:
         """
@@ -413,7 +431,7 @@ class Signal:
         cp = _copy.deepcopy(self)
         if isinstance(rhs, Signal):
             rhs = rhs._data
-        cp._data = _bit(cp._data | rhs)
+        cp._data = _Logic(cp._data | rhs)
         return cp
     
     def __and__(self, rhs):
@@ -454,7 +472,7 @@ class Signal:
     #     The `value` can either be a `Signal`, `bool`, `str`, `int`, or `list`.
     #     """
     #     from .primitives import digits as _digits
-    #     from .bit import bit as _bit
+    #     from .bit import bit as _Logic
 
     #     # put into big-endian format for storing
     #     if (isinstance(value, str) or isinstance(value, list)) and self._is_big_endian == False:
@@ -472,7 +490,7 @@ class Signal:
     #     temp_int = _digits(value, self._is_signed)
     #     if temp_int < self.min() or temp_int > self.max():
     #         if temp_int >= 0 and temp_int < 2**self.width():
-    #             value = str(_bit(temp_int))
+    #             value = str(_Logic(temp_int))
     #         else:
     #             raise ValueError("value out of bounds " + str(temp_int) + " must be between " + str(self.min()) + " and " + str(self.max()))
     #     self._raw_data = value

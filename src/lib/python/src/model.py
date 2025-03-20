@@ -8,7 +8,7 @@ class Strategy(_Enum):
     """
     NONE = 0,
     LINEAR = 1,
-    RANDOM = 2,
+    UNIFORM = 2,
     WEIGHTS = 3,
 
     @staticmethod
@@ -19,7 +19,7 @@ class Strategy(_Enum):
         elif s == 'linear':
             return Strategy.LINEAR
         elif s == 'uniform':
-            return Strategy.RANDOM
+            return Strategy.UNIFORM
         elif s == 'weights':
             return Strategy.WEIGHTS
         else:
@@ -148,10 +148,10 @@ class Clock:
         """
         Allow the clock to advance to the next time step.
         """
+        reg: Reg
         self._ticks += 1
         for reg in self._domain:
-            reg.prev = _copy.deepcopy(reg.now)
-            reg.now = _copy.deepcopy(reg.next)
+            reg.update()
 
     def get_count(self) -> int:
         """
@@ -170,23 +170,51 @@ class Reg:
         Encapsulate any variable/value `val` within a register instance bound to
         the clock domain of `clk`.
 
-        The register stores 3 instances of the value:
-        - `.prev`: a copy of the variable storing the value from the previous time step
-        - `.now`: a reference to the variable storing the value for the current time step
-        - `.next`: a copy of the variable storing the value for the upcoming time step
+        The register stores 2 instances of the value:
+        - `.q`: a copy of the variable storing the value from the previous time step
+        - `.d`: a reference to the variable storing the value for the immediate time step
 
-        Note the variable at `.now` is not guaranteed to maintain a reference to the same memory location
+        Note the variable at `.d` is not guaranteed to maintain a reference to the same memory location
         as the original variable as the model updates over time.
 
         The values are updated in the following order when the `clk` variable calls the `.tick()` method:
-        1. `.now` passes its value to `.prev`
-        2. `.next` passes its value to `.now`
+        1. `.d` passes its value to `.q`
         """
-        # initialize the previous state
-        self.prev = _copy.deepcopy(val)
-        # initialize interal "registered" state
-        self.now = val
-        # initailize incoming "next" state
-        self.next = _copy.deepcopy(val)
+        # initialize the "registered" state
+        self.__q = _copy.deepcopy(val)
+        # initialize the immediate state
+        self.__d = val
         # add this register to the clock's domain
-        clk._domain += [self]
+        if isinstance(clk, Clock):
+            clk._domain += [self]
+
+    def update(self):
+        """
+        Stores the immediate value `d` into the register value `q`.
+
+        This function is automatically called every time a clock advances if
+        the register is bound to that particular clock's domain.
+        """
+        self.__q = _copy.deepcopy(self.d)
+
+    @property
+    def q(self):
+        """
+        A reference of the registered state.
+
+        This attribute is read-only.
+        """
+        return self.__q
+
+    @property
+    def d(self):
+        """
+        A reference of the immediate/next state.
+
+        This attribute is allowed to be read or written to.
+        """
+        return self.__d
+
+    @d.setter
+    def d(self, d):
+        self.__d = d

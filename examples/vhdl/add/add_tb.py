@@ -23,8 +23,8 @@ class Add:
         # parameters
         self.width = width
         # inputs
-        self.in0 = Signal(width, distribution=Distribution(space=[0, pow2m1(width), range(1, pow2m1(width))], weights=[0.1, 0.1, 0.8]))
-        self.in1 = Signal(width, distribution=Distribution(space=[0, pow2m1(width), range(1, pow2m1(width))], weights=[0.1, 0.1, 0.8]))
+        self.in0 = Signal(width, distribution=Dist(space=[0, pow2m1(width), range(1, pow2m1(width))], weights=[0.1, 0.1, 0.8]))
+        self.in1 = Signal(width, distribution=Dist(space=[0, pow2m1(width), range(1, pow2m1(width))], weights=[0.1, 0.1, 0.8]))
         self.cin = Signal()
         # outputs
         self.sum = Signal(width)
