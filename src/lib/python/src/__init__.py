@@ -136,7 +136,7 @@ def open(path: str, mode: str=None):
 
 def randomize(model, strategy: str="weights"):
     """
-    Assign srandom input values to each `Signal` attribute of the model instance that is
+    Assign random input values to each `Signal` attribute of the model instance that is
     a known input port.
 
     After this function is called, all the known input ports under the `model`
