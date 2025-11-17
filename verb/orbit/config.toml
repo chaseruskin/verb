@@ -1,0 +1,8 @@
+[[target]]
+name = "goku"
+command = ["python3", "goku.py"]
+description = "Run simulations using cocotb + verb with GHDL"
+fileset.cocotb_py = "{{ orbit.dut.name }}_tb.py"
+plans = ["json"]
+build = false
+test = true

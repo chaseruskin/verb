@@ -15,10 +15,4 @@ Add `- unreleased` along the next future version to prevent CI/CD from triggerin
 
 # Changelog
 
-## 0.1.0 - unreleased
-
-### Features
-- Python library for writing models of hardware in software
-- SystemVerilog package for orchestrating hardware simulations
-- VHDL package for orchestrating hardware simulations
-- Command-line application for helping in writing tests and running tests
+## 0.1.0 - UNRELEASED
