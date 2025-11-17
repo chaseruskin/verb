@@ -12,10 +12,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Generate docs
-        run: |
-          python scripts/docs-sv.py
-
       - name: Setup mdbook
         uses: peaceiris/actions-mdbook@v2
         with:
