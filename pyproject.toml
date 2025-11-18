@@ -3,9 +3,10 @@ name = "verb"
 version = "0.1.0"
 authors = [{ name="Chase Ruskin" }]
 description = "Software drivers for modeling hardware"
-requires-python = ">=3.6.8"
+requires-python = ">=3.9"
 dependencies = [
     "cocotb~=2.0",
+    "pytest>=8.3",
     "aquila @ git+https://github.com/chaseruskin/aquila.git@main"
 ]
 

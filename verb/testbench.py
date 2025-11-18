@@ -76,7 +76,7 @@ def complete():
     assert_word = 'assertion' if assertions == 1 else 'assertions'
     message = "Encountered "+str(errors)+" "+error_word+" (out of "+str(assertions)+" "+assert_word+")"
     assert errors == 0, message
-    runner.get_logger().info("Passed "+str(assertions)+" "+assert_word)
+    runner.get_logger().info("Passed "+str(assertions)+" "+assert_word+' (out of '+str(assertions)+' '+assert_word+')')
 
 
 def assert_eq(recv, expt):
@@ -115,11 +115,11 @@ def assert_eq(recv, expt):
         logger = recv._log
 
     runner.inc_asserts()
-    if is_eq == True:
-        logger.info(msg)
-    else:
+    if is_eq == False:
         logger.error(msg)
         runner.inc_error()
+    # else:
+    #     logger.info(msg)
 
 
 async def rising_edge(clk=None, cycles: int=1):

@@ -1,4 +1,5 @@
 from .testbench import *
+from .log import *
 from .signal import Signal
 from .constant import Constant
 from .model import Model
