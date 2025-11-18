@@ -15,6 +15,7 @@ class Mode(_Enum):
     """
     Assign the signal to be a receiver of information.
     """
+    
     OUT = 1
     """
     Assign the signal to be a sender of information.

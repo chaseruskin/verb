@@ -48,6 +48,7 @@ class Goku:
         parser.add_argument('--timescale', '-t', metavar='UNIT', default='ps', help='set the simulation time resolution')
 
         args = parser.parse_args(args)
+        # compose the instances of this workflow
         ghdl = Ghdl(
             mode=Mode.from_arg(args.run),
             generics=args.generic,

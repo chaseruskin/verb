@@ -32,7 +32,7 @@ class Constant:
         chars_types = ['chars', 'characters']
         bools_types = ['bools', 'booleans']
         logics_types = ['std_logic_vector', 'std_ulogic_vector', 'logics', 'rlogics']
-        ints_types = ['i8s', 'i16s', 'i32s', 'u8s', 'u16s', 'u32s', 'p8s', 'p16s', 'p32s', 'isizes', 'usizes', 'psizes', 'ints', 'units', 'pints']
+        ints_types = ['i8s', 'i16s', 'i32s', 'u8s', 'u16s', 'u32s', 'p8s', 'p16s', 'p32s', 'isizes', 'usizes', 'psizes', 'ints', 'uints', 'pints']
         # convert string
         if dtype in str_types:
             self.__value = from_vhdl_str(val)
