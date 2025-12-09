@@ -51,7 +51,7 @@ class Model(ABC):
         generics = []
         try:
             dut_json = json.loads(os.environ['VERB_DUT_JSON'])
-            generics = [g['identifier'] for g in dut_json['generics']]
+            generics = [g['name'] for g in dut_json['generics']]
         except:
             pass
 
@@ -67,7 +67,7 @@ class Model(ABC):
             # get the DUT information from environment variable to identify port directions
             try:
                 for port in dut_json['ports']:
-                    port_name = port['identifier']
+                    port_name = port['name']
                     if port_name == attr_name:
                         mdl_attr._mode = port['mode']
             except:

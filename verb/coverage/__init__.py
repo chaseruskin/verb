@@ -199,7 +199,7 @@ class Coverage:
         # else:
         #     header += "Generics:\n"
         #     for p in params:
-        #         header += "    " + p['identifier'] + ": " + str(context.Context.current().generic(p['identifier'])) + '\n'
+        #         header += "    " + p['name'] + ": " + str(context.Context.current().generic(p['name'])) + '\n'
         with open(path, 'w') as f:
             # header
             f.write(header) 
