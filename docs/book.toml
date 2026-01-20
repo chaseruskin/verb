@@ -1,10 +1,5 @@
 [book]
 authors = ["Chase Ruskin"]
 language = "en"
-multilingual = false
 src = "src"
 title = "Verifying Hardware with Verb"
-
-[preprocessor.inline-highlighting]
-after = ["links"]
-default-language = "javascript"

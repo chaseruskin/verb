@@ -2,26 +2,19 @@
 name = "verb"
 version = "0.1.0"
 authors = [{ name="Chase Ruskin" }]
-description = "Software drivers for modeling hardware"
+description = "A verification library for digital hardware"
 requires-python = ">=3.9"
 dependencies = [
     "cocotb~=2.0",
     "pytest>=8.3",
-    "aquila @ git+https://github.com/chaseruskin/aquila.git@main"
 ]
 
 [project.urls]
 Homepage = "https://github.com/chaseruskin/verb"
 Documentation = "https://chaseruskin.github.io/verb/"
 
-[project.scripts]
-verb-config = "verb.orbit.config:main"
-
 [tool.setuptools.package-dir]
 verb = "verb"
-
-[tool.setuptools.package-data]
-verb = ["orbit/config.toml"]
 
 [build-system]
 requires = ["setuptools >= 61.0"]

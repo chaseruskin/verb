@@ -2,9 +2,9 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-Verb is a functional verification library for digital hardware. 
+Verb is a verification library for digital hardware. 
 
-Verb builds on top of [cocotb](https://www.cocotb.org) and its support for _foreign language interfaces_ (FLI) as well as _software programming languages_ to provide extended functionality to simulating digital hardware.
+Verb builds on top of [cocotb](https://www.cocotb.org) to provide additional infrastructure for functionally verifying digital hardware designs.
 
 <!-- Verb focuses on functional verification techniques for hardware simulation. Read [Verifying Hardware with Verb](https://chaseruskin.github.io/verb/) (outdated) to learn more about Verb and how to use it in your next hardware project. -->
 
@@ -13,11 +13,6 @@ Verb builds on top of [cocotb](https://www.cocotb.org) and its support for _fore
 1. Install the repository as a Python package using `pip` (or your favorite Python package manager):
 ```
 pip install git+https://github.com/chaseruskin/verb.git
-```
-
-2. If using [Orbit](https://github.com/chaseruskin/orbit), include the path to the configuration file using `orbit`:
-```
-orbit config --push include="$(verb-config --config-path)"
 ```
 
 <!-- ## Details

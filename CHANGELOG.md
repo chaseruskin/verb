@@ -15,4 +15,4 @@ Add `- unreleased` along the next future version to prevent CI/CD from triggerin
 
 # Changelog
 
-## 0.1.0 - UNRELEASED
+## UNRELEASED
