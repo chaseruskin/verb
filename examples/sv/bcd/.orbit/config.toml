@@ -1,6 +1,0 @@
-[[target]]
-name = "mverb"
-description = "Run simulationrs with modelsim and verb"
-command = "python"
-args = ["mverb.py"]
-fileset.pymdl = "{{orbit.tb.name}}.py"

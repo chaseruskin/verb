@@ -2,7 +2,7 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-entity add is
+entity adder is
     generic (
         WORD_SIZE: positive
     );
@@ -15,13 +15,16 @@ entity add is
     );
 end entity;
 
-architecture gp of add is
+
+architecture rtl of adder is
+
     signal result: std_ulogic_vector(WORD_SIZE-1+1 downto 0);
 
     signal cins: std_ulogic_vector(WORD_SIZE-1 downto 0) := (others => '0');
     signal temp: std_ulogic_vector(WORD_SIZE-1+1 downto 0);
 
 begin
+
     cins(0) <= cin;
 
     temp <= std_ulogic_vector(unsigned('0' & in0) + unsigned('0' & in1));

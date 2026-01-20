@@ -110,10 +110,10 @@ class Dist:
 
 
 class Signal:
-    def __init__(self):
+    def __init__(self, dist: Dist=None):
         self._handle: SimHandleBase = None
         self.value: Logic = Logic(0)
-        self._dist = None
+        self._dist = dist
         self._width = None
         self._mode = None
 

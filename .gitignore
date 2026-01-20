@@ -2,6 +2,7 @@
 
 target/
 build/
+archive/
 .vscode/
 target/
 

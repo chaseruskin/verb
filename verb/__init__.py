@@ -3,6 +3,7 @@ from .log import *
 from .signal import Signal
 from .constant import Constant
 from .model import Model
+from .signal import Dist
 from cocotb.types import LogicArray as Logics
 from cocotb.types import Logic
 

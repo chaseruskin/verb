@@ -1,9 +1,0 @@
-[ip]
-name = "verb-example-bcd"
-uuid = "3j713ghpcocu47be1u1eks91a"
-version = "0.0.0"
-
-[dependencies]
-
-[dev-dependencies]
-verb = { path = "../../../src/lib/systemverilog", version = "0.1.0" }

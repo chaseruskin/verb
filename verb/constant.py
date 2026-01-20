@@ -14,7 +14,7 @@ class Constant:
 
     def set_value(self, val: str, dtype: str):
         """
-        Sets the constant's value
+        Sets the constant's value.
         """
         def starts_with_any(s: str, items: list):
             for item in items:

@@ -1,3 +1,3 @@
 # /examples
 
-This directory contains code for example hardware designs using Verb.
+This directory contains code for verification examples using Verb.
