@@ -1,12 +1,12 @@
-# _Verb_
+# Verb
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 Verb is a verification library for digital hardware. 
 
-Verb builds on top of [cocotb](https://www.cocotb.org) to provide additional infrastructure for functionally verifying digital hardware designs.
+Verb builds on top of [cocotb](https://www.cocotb.org) to provide functional verification techniques for digital hardware. Most notably, Verb allows one to define functional coverage nets and apply adapative coverage-driven test generation (CDG) for fast functional coverage closure.
 
-<!-- Verb focuses on functional verification techniques for hardware simulation. Read [Verifying Hardware with Verb](https://chaseruskin.github.io/verb/) (outdated) to learn more about Verb and how to use it in your next hardware project. -->
+<!-- Read [Verifying Hardware with Verb](https://chaseruskin.github.io/verb/) (outdated) to learn more about Verb and how to use it in your next hardware project. -->
 
 ## Installing
 
@@ -14,14 +14,6 @@ Verb builds on top of [cocotb](https://www.cocotb.org) to provide additional inf
 ```
 pip install git+https://github.com/chaseruskin/verb.git
 ```
-
-<!-- ## Details
-
-Verb defines a collection of low-level driver functions, also known as _conjugations_, that allow a user to communicate between software models and hardware designs for simulation. The main form of communication Verb uses to pass data between hardware and software is _file I/O_. This method was chosen due to its simplicity and wide support in existing HDLs. Conjugations are implemented in both the software programming languages and the HDLs to faciliate the interaction between the design and the model.
-
-Conjugations are implemented in software and hardware to manage the data transfer across these layers. By using the conjugations available through Verb, for every new hardware design users must only focus on writing the model, not structuring the whole testbench.
-
-This framework attempts to decouple the functional and timing aspects of a hardware simulation. The functional model is written in software, while the exact timing of how to monitor and check the design under test is kept in HDL. This separation of layers allows each language to focus in how they are naturally used. -->
 
 ## Project Goals
 
@@ -59,5 +51,6 @@ Once the test files are generated at the data layer, the simulation can begin in
 
 ## Related Works
 
-- [cocotb](https://www.cocotb.org): coroutine based cosimulation testbench environment for verifying VHDL and SystemVerilog RTL using Python
-- [UVM](https://en.wikipedia.org/wiki/Universal_Verification_Methodology): universal verification methodology
+- [Adaptive Test Generation for Fast Functional Coverage Closure](https://dvcon-proceedings.org/wp-content/uploads/Adaptive-Test-Generation-for-Fast-Functional-Coverage-Closure-1.pdf): Research paper on an adaptive test generation technique
+- [cocotb](https://www.cocotb.org): Coroutine based cosimulation testbench environment for verifying VHDL and SystemVerilog RTL using Python
+- [UVM](https://en.wikipedia.org/wiki/Universal_Verification_Methodology): Universal Verification Methodology
